@@ -8,7 +8,7 @@
  */
 
 
-package Util;
+package utils;
 
 import java.util.Arrays;
 
