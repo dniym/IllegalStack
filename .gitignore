@@ -1,0 +1,16 @@
+.DS_STORE
+.gradle/
+build/
+*.iml
+*.idea
+*/.classpath
+*/.project
+*/.settings
+*/bin
+*/*.jar
+*/build
+*/nbproject
+*.prefs
+*.class
+.project
+/bin
