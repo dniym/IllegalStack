@@ -417,16 +417,7 @@ public enum Protections {
             String version = IllegalStack.getPlugin().getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
 
 
-            if (version.equalsIgnoreCase("v1_14_R1")) {
-
-                version = IllegalStack.getPlugin().getServer().getVersion().split(" ")[2];
-
-                version = version.replace(")", "");
-                version = version.replace(".", "_");
-                String[] ver = version.split("_");
-                version = "v" + ver[0] + "_" + ver[1] + "_R" + ver[2];
-
-            }
+            version = IllegalStack.getString(version);
             if (version.equalsIgnoreCase("v1_15_R1")) {
 
                 version = IllegalStack.getPlugin().getServer().getVersion().split(" ")[2];

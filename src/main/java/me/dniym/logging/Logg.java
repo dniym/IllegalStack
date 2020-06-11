@@ -29,9 +29,7 @@ public class Logg {
         //System.out.println(plugin.getDataFolder()+"");
         if (Protections.LogOffensesInSeparateFile.isEnabled())
             file = new File(plugin.getDataFolder() + "/OffenseLog.txt");
-
         date = Calendar.getInstance();
-
     }
 
     public void append(String message) {
@@ -39,7 +37,6 @@ public class Logg {
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
                 System.out.println(Msg.PluginPrefix.getValue() + ChatColor.stripColor(message));
-
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
                 bw.append(dateStamp()).append(message).append("\r\n");
                 bw.close();
@@ -50,21 +47,17 @@ public class Logg {
             System.out.println(Msg.PluginPrefix.getValue() + ChatColor.stripColor(message));
         }
 
-
         if (Protections.InGameNotifications.isEnabled()) {
             for (Player p : IllegalStack.getPlugin().getServer().getOnlinePlayers())
                 if (p.hasPermission("illegalstack.notify")) {
                     message = cleanMessage(message);
 
                     if (IllegalStack.isSpigot() && message.contains("@")) {
-
                         TextComponent msg = new TextComponent(message);
                         msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GOLD + "Click to teleport here").create()));
                         msg.setClickEvent(new ClickEvent(Action.RUN_COMMAND, getTeleportLoc(message)));
                         p.spigot().sendMessage(msg);
-
                     } else {
-
                         p.sendMessage(Msg.PluginPrefix.getValue() + ChatColor.RESET + message);
                     }
                 }
@@ -77,18 +70,16 @@ public class Logg {
         String[] coords = words[1].split(" ");
         String position = "";
 
-
         try {
-            Integer x = Integer.parseInt(coords[2]);
-            Integer y = Integer.parseInt(coords[3]);
-            Integer z = Integer.parseInt(coords[4]);
+            int x = Integer.parseInt(coords[2]);
+            int y = Integer.parseInt(coords[3]);
+            int z = Integer.parseInt(coords[4]);
             position = "/istack teleport " + x + " " + y + " " + z + " " + ChatColor.stripColor(coords[1]);
         } catch (NumberFormatException ex) {
             System.out.println("Failed to get position");
             for (int i = 0; i < coords.length; i++)
                 System.out.println("Coord: " + i + " " + coords[i]);
         }
-
         return position;
     }
 
@@ -123,25 +114,21 @@ public class Logg {
                         mNear = Msg.PluginPrefix.getValue() + " " + Msg.PlayerNearbyNotification.getValue(mNear);
                         p.sendMessage(mNear);
                     }
-
             }
+
             String coords = "@ " + ChatColor.AQUA + world + " " + x + " " + y + " " + z;
-
             //message = message + " @ " + ChatColor.AQUA + world + " " + x + " " + y + " " + z;
-
             message = message.substring(0, message.indexOf('@')) + " " + coords;
             //System.out.println("Final msg is:" + message);
-
         }
         return message;
     }
 
     public String dateStamp() {
-        String now = "";
+        String now;
 
         now = monthFromNumber(date.get(Calendar.MONTH)) + " " + date.get(Calendar.DAY_OF_MONTH) + " " + date.get(Calendar.YEAR) + " (" + date.get(Calendar.HOUR) + ":" +
                 date.get(Calendar.MINUTE) + ":" + date.get(Calendar.SECOND) + ") - ";
-
         return now;
     }
 
@@ -173,7 +160,6 @@ public class Logg {
             case 12:
                 return "December";
         }
-
         return "Unknown";
     }
 
@@ -182,7 +168,6 @@ public class Logg {
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
                 System.out.println(Msg.PluginPrefix.getValue() + " (Notification Only)" + ChatColor.RED + prot.name() + message);
-
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
                 bw.append(dateStamp()).append(message).append("\r\n");
                 bw.close();
@@ -204,9 +189,7 @@ public class Logg {
                         msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GOLD + "Click to teleport here").create()));
                         msg.setClickEvent(new ClickEvent(Action.RUN_COMMAND, getTeleportLoc(message)));
                         p.spigot().sendMessage(msg);
-
                     } else {
-
                         p.sendMessage(ChatColor.RED + "[IllegalStack] - (Notification Only)" + ChatColor.RESET + message);
                     }
                 }

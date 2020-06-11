@@ -21,15 +21,12 @@ public class FishAttempt {
     private List<Location> BLACKLIST = new ArrayList<>();
 
     public FishAttempt(Player p) {
-
         attempts.put(p.getUniqueId(), this);
     }
 
     public static FishAttempt findPlayer(Player p) {
-
         if (attempts.containsKey(p.getUniqueId()))
             return attempts.get(p.getUniqueId());
-
         return new FishAttempt(p);
     }
 
@@ -38,26 +35,21 @@ public class FishAttempt {
             if (fh.getShooter() instanceof Player)
                 if (fh.getShooter() == player)
                     return fh;
-
         return null;
     }
 
     public void fishCaught(Location hookLoc) {
         if (lastLocation == null || lastLocation.getWorld() != hookLoc.getWorld())
             lastLocation = hookLoc;
-
         Location testLoc = hookLoc.clone();
         testLoc.setY(lastLocation.getY());
-
 
         if (lastLocation.getWorld() == testLoc.getWorld() && lastLocation.distance(testLoc) <= range)
             setSameSpotCount(getSameSpotCount() + 1);
         else {
             setSameSpotCount(1);
             lastLocation = hookLoc;
-
         }
-
     }
 
     public void addAttempt() {
@@ -65,10 +57,7 @@ public class FishAttempt {
             count = 1;
         else
             count++;
-
         lastFish = System.currentTimeMillis() + spamThreshold;
-
-
     }
 
     public int getCount() {
@@ -90,14 +79,11 @@ public class FishAttempt {
     public void reset() {
         sameSpotCount = 0;
         lastLocation = null;
-
     }
 
     public void blackList(Location location) {
-
         if (getBLACKLIST().size() > 3)
             getBLACKLIST().remove(0);
-
         getBLACKLIST().add(location);
     }
 
@@ -105,12 +91,7 @@ public class FishAttempt {
         return BLACKLIST;
     }
 
-    public void setBLACKLIST(List<Location> bLACKLIST) {
-        BLACKLIST = bLACKLIST;
-    }
-
     public boolean isBlackListedSpot(Location location) {
-
         for (Location l : BLACKLIST) {
             Location testLoc = l.clone();
             testLoc.setY(location.getY());
@@ -122,5 +103,4 @@ public class FishAttempt {
         }
         return false;
     }
-
 }

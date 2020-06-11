@@ -17,14 +17,14 @@ import java.util.HashSet;
 
 public class sTimer implements Runnable {
 
-    private static long signCheck = 0l;
-    private static long chunkScan = 0l;
+    private static long signCheck = 0L;
+    private static long chunkScan = 0L;
     private static boolean scanChunks = false;
     private static final HashMap<Block, Player> signBlock = new HashMap<>();
     private static final HashSet<BlockState[]> entList = new HashSet<>();
     private static final HashSet<String> checkedChunks = new HashSet<>();
 
-    public sTimer(IllegalStack illegalStack) {
+    public sTimer() {
         if (Protections.DestroyBadSignsonChunkLoad.isEnabled())
             scanChunks = true;
     }
@@ -40,9 +40,8 @@ public class sTimer implements Runnable {
     public static void checkSign(Block block, Player player) {
 
         signBlock.put(block, player);
-        if (signCheck == -1l)
+        if (signCheck == -1L)
             signCheck = System.currentTimeMillis() + 4000L;
-
     }
 
     public static void checkChunk(String chunkID, BlockState[] tileEntities) {
@@ -51,7 +50,6 @@ public class sTimer implements Runnable {
             entList.add(tileEntities);
             checkedChunks.add(chunkID);
         }
-
     }
 
     @Override
@@ -59,11 +57,8 @@ public class sTimer implements Runnable {
 
         if (!Protections.DestroyBadSignsonChunkLoad.isEnabled() || Protections.DestroyBadSignsonChunkLoad.notifyOnly())
             return;
-        if (getSignCheck() != -1l && System.currentTimeMillis() >= getSignCheck()) {
-
-
+        if (getSignCheck() != -1L && System.currentTimeMillis() >= getSignCheck()) {
             for (Block b : signBlock.keySet()) {
-
                 BlockState st = b.getState();
                 if (st instanceof Sign) {
                     Sign sign = (Sign) st;
@@ -74,28 +69,21 @@ public class sTimer implements Runnable {
                             System.out.println("[IllegalStack Debug]: - Found a sign with illegal chars: " + " line with invalid text was: " + line + " @" + sign.getLocation().toString());
                         }
 
-
                     Player p = signBlock.get(sign.getBlock());
                     if (illegal) {
                         if (p != null)
                             fListener.getLog().append(Msg.SignRemovedOnPlace.getValue(sign.getLocation(), signBlock.get(b).getName()));
-
-
                         sign.getBlock().setType(Material.AIR);
-
                         p.kickPlayer(Msg.SignKickPlayerMsg.getValue());
                     }
                 }
             }
-
             signBlock.clear();
             setSignCheck(-1L);
-
         }
 
         if (System.currentTimeMillis() >= chunkScan && scanChunks) {
             HashSet<Block> found = new HashSet<>();
-
             for (BlockState[] bs : entList)
                 for (BlockState st : bs)
                     if (st instanceof Sign) {
@@ -105,16 +93,12 @@ public class sTimer implements Runnable {
                                 sign.getBlock().setType(Material.AIR);
                                 found.add(sign.getBlock());
                             }
-
                     }
-
             if (!found.isEmpty())
                 for (Block b : found)
                     fListener.getLog().append(Msg.SignRemoved.getValue(b.getLocation(), ""));
             chunkScan = System.currentTimeMillis() + 5000L;
             entList.clear();
         }
-
     }
-
 }

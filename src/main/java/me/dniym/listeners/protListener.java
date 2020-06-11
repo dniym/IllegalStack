@@ -24,16 +24,13 @@ public class protListener implements Listener {
         this.plugin = illegalStack;
     }
 
-
-    @EventHandler
+        @EventHandler
     public void onPlayerSwapHandItemsEvent(PlayerSwapHandItemsEvent e) {
 
         if (!Protections.PreventItemSwapLagExploit.isEnabled())
             return;
-
         if (!fListener.getInstance().getSwapDelay().containsKey(e.getPlayer()))
             fListener.getInstance().getSwapDelay().put(e.getPlayer(), 0l);
-
         if (System.currentTimeMillis() < fListener.getInstance().getSwapDelay().get(e.getPlayer()))
             e.setCancelled(true);
         else
@@ -43,21 +40,15 @@ public class protListener implements Listener {
 
     @EventHandler
     public void onElytraFlight(EntityToggleGlideEvent e) {
-
-
         if (Protections.PreventInfiniteElytraFlight.isEnabled() && e.isGliding() && e.getEntity() instanceof Player) {
-
             Player p = (Player) e.getEntity();
-
             if (p.getLocation().getBlockY() >= 255) {
                 fListener.getLog().append(Msg.GlideActivateMaxBuild.getValue(p, ""));
                 p.setGliding(false);
                 e.setCancelled(true);
             }
-
             new BukkitRunnable() {
                 final Player player = p;
-
                 @Override
                 public void run() {
                     if (player.getLocation().getBlockY() > 255 && player.isGliding()) {
@@ -83,7 +74,6 @@ public class protListener implements Listener {
     @EventHandler
     public void onRepairAttempt(PrepareAnvilEvent e) {
         if (Protections.BlockRepairsInstead.isEnabled()) {
-
             ItemStack is = e.getResult();
             if (NBTStuff.hasNbtTag("IllegalStack", is, "NoRepair", Protections.BlockRepairsInstead)) {
                 e.setResult(new ItemStack(Material.AIR, 1));
@@ -102,5 +92,4 @@ public class protListener implements Listener {
             }
         }
     }
-
 }

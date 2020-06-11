@@ -18,12 +18,13 @@ public class SpigMethods {
         if (!p.isList()) {
             cLink.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack toggle " + p.name()));
             cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Toggle This Protection On/Off").create()));
-        } else if (sTag.equalsIgnoreCase("     ")) {
+        } else {
             cLink = new TextComponent(ChatColor.GRAY + "[" + ChatColor.GREEN + "A");
             String cmd = "/istack value add " + p.name();
             cLink.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, cmd));
             cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add a value to this list").create()));
             TextComponent opt = null;
+
             if (!p.getTxtSet().isEmpty()) {
                 opt = new TextComponent(ChatColor.RED + "R");
                 cmd = "/istack value remove " + p.name();
@@ -96,12 +97,12 @@ public class SpigMethods {
             if (p == Protections.EnchantedItemWhitelist) {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack enchantwhitelistmode"));
                 option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to toggle adding EnchantedItemWhitelist add mode on/off").create()));
-                cLink.addExtra(option);
             } else {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/istack value add " + p.name()));
                 option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to add a value to this list.").create()));
-                cLink.addExtra(option);
             }
+
+            cLink.addExtra(option);
             if (!p.getTxtSet().isEmpty()) {
                 option = new TextComponent(ChatColor.RED + "R");
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/istack value remove " + p.name()));
@@ -167,40 +168,36 @@ public class SpigMethods {
     }
 
     public static String wordWrap(String text, int length) {
-        String newString = "";
+        StringBuilder newString = new StringBuilder();
         if (text.length() <= length) {
             return text;
         }
         String[] words = text.split(" ");
 
         if (words.length == 0) {
-            newString = longWord(text, length);
+            newString = new StringBuilder(longWord(text, length));
         }
 
         if (words.length > 1) {
 
             String temp1 = "";
-            for (int i = 0; i < words.length; i++) {
+            for (String word : words) {
                 if (temp1.length() > length) {
-                    newString = newString + "\n" + temp1;
-                    temp1 = words[i];
+                    newString.append("\n").append(temp1);
+                    temp1 = word;
                 } else {
                     if (!temp1.equalsIgnoreCase(""))
-                        temp1 = temp1 + " " + words[i];
+                        temp1 = temp1 + " " + word;
                     else
-                        temp1 = words[i];
-
-                    if (i == words.length)
-                        newString = newString + " " + temp1;
+                        temp1 = word;
                 }
 
             }
-            if (words.length > 0)
-                newString = newString + " " + words[words.length - 1];
+            newString.append(" ").append(words[words.length - 1]);
 
         }
 
-        return newString;
+        return newString.toString();
 
     }
 

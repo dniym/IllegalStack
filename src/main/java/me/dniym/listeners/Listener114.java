@@ -38,7 +38,7 @@ public class Listener114 implements Listener {
     HashMap<UUID, Long> lastTrade = new HashMap<>();
     HashSet<Material> consumables = new HashSet<>();
 
-    public Listener114(IllegalStack plugin) {
+    public Listener114() {
         Material[] consume = new Material[]{Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
                 Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP, Material.COOKED_SALMON,
                 Material.COOKED_RABBIT, Material.COOKIE, Material.DRIED_KELP, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.GOLDEN_CARROT,
@@ -46,11 +46,8 @@ public class Listener114 implements Listener {
                 Material.BEEF, Material.CHICKEN, Material.COD, Material.MUTTON, Material.PORKCHOP, Material.RABBIT, Material.SALMON, Material.ROTTEN_FLESH,
                 Material.SPIDER_EYE, Material.COOKED_BEEF, Material.SUSPICIOUS_STEW, Material.SWEET_BERRIES, Material.TROPICAL_FISH, Material.MILK_BUCKET,
                 Material.POTION};
-
         consumables.addAll(Arrays.asList(consume));
-
     }
-
     /*
     @EventHandler
     public void onVillagerInteract(PlayerInteractAtEntityEvent e)
@@ -73,6 +70,7 @@ public class Listener114 implements Listener {
         }
     }
     */
+
     @EventHandler
     public void OnVillagerTransform(EntityTransformEvent e) {
 
@@ -94,16 +92,12 @@ public class Listener114 implements Listener {
                 }
             }
         }
-
     }
 
     @EventHandler
     public void OnVillagerInteract(PlayerInteractEntityEvent e) {
-
         if (Protections.DisableInWorlds.getTxtSet().contains(e.getPlayer().getWorld().getName()))
             return;
-
-
         if (Protections.PreventVillagerSwimExploit.isEnabled()) {
             if (e.getRightClicked() != null && e.getRightClicked() instanceof Villager && e.getRightClicked() instanceof Merchant) {
                 boolean cancel = false;
@@ -113,7 +107,6 @@ public class Listener114 implements Listener {
                 if (v.getLocation().getBlock().getType() == Material.WATER) {
                     cancel = true;
                 }
-
                 Block down = v.getLocation().getBlock();
                 if (down.getBlockData() instanceof Waterlogged) {
                     Waterlogged wl = (Waterlogged) down.getBlockData();
@@ -121,7 +114,6 @@ public class Listener114 implements Listener {
                         cancel = true;
                     }
                 }
-
                 if (cancel) {
                     e.setCancelled(cancel);
                     e.getPlayer().sendMessage(Msg.PlayerSwimExploitMsg.getValue());
@@ -131,7 +123,6 @@ public class Listener114 implements Listener {
         }
 
     }
-
     /*
         @EventHandler
         public void onVillagerSpawn(EntitySpawnEvent e) {
@@ -150,13 +141,13 @@ public class Listener114 implements Listener {
             }
         }
         */
+
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
 
 
         if (Protections.SilkTouchBookExploit.isEnabled()) {
             Player p = e.getPlayer();
-
             if (p != null && p.getInventory().getItemInMainHand() != null) {
                 ItemStack is = p.getInventory().getItemInMainHand();
                 if (is.getType() == Material.ENCHANTED_BOOK) {
@@ -175,7 +166,6 @@ public class Listener114 implements Listener {
         }
     }
 
-
     @EventHandler
     public void LockMerchantTrades(InventoryOpenEvent e) {
 
@@ -188,14 +178,10 @@ public class Listener114 implements Listener {
         }
         if (!Protections.VillagerTradeCheesing.isEnabled())
             return;
-
-
         if (e.getInventory() instanceof MerchantInventory) {
             MerchantInventory mi = (MerchantInventory) e.getInventory();
             if (mi.getHolder() instanceof WanderingTrader)
                 return;
-
-
             if (mi.getHolder() instanceof Villager) {
                 Villager v = (Villager) mi.getHolder();
 
@@ -207,26 +193,19 @@ public class Listener114 implements Listener {
 
             }
         }
-
-
     }
 
     @EventHandler
     public void PreventVillagerRestock(VillagerReplenishTradeEvent e) {
-
         if (Protections.DisableInWorlds.getTxtSet().contains(e.getEntity().getWorld().getName()))
             return;
         if (!Protections.VillagerTradeCheesing.isEnabled())
             return;
-
         if (Protections.VillagerRestockTime.getIntValue() <= 0 || !fListener.getIs114())
             return;
-
         //if the villager is not in the list, add them with a new empty timestamp.
         if (!lastTrade.containsKey(e.getEntity().getUniqueId()))
             lastTrade.put(e.getEntity().getUniqueId(), 0l);
-
-
         if (System.currentTimeMillis() >= lastTrade.get(e.getEntity().getUniqueId())) {
             //timestamp is either empty or has expired, allow a restock.
             lastTrade.put(e.getEntity().getUniqueId(), System.currentTimeMillis() + 60000 * Protections.VillagerRestockTime.getIntValue());
@@ -234,15 +213,12 @@ public class Listener114 implements Listener {
             //timestamp has not expired do not allow restocking.
             e.setCancelled(true);
         }
-
     }
 
     @EventHandler
     public void onHandSwap(PlayerSwapHandItemsEvent e) {
         if (!Protections.PreventFoodDupe.isEnabled())
             return;
-
-
         ItemStack itm1 = e.getMainHandItem();
         ItemStack itm2 = e.getOffHandItem();
         if (itm1 == null || itm2 == null)
@@ -250,8 +226,6 @@ public class Listener114 implements Listener {
         if (consumables.contains(itm1.getType()) && consumables.contains(itm2.getType()) && itm1.getType() == itm2.getType()) {
             if (itm1.getAmount() == 1 && itm2.getAmount() == 1)
                 return;
-
-
             e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
             e.setCancelled(true);
@@ -261,14 +235,10 @@ public class Listener114 implements Listener {
                 public void run() {
                     e.getPlayer().getInventory().setItemInMainHand(itm1);
                     e.getPlayer().getInventory().setItemInOffHand(itm2);
-
                 }
 
             }.runTaskLater(IllegalStack.getPlugin(), 3);
-
         }
-
-
     }
 
     @EventHandler
@@ -277,20 +247,16 @@ public class Listener114 implements Listener {
         if (Protections.PreventPearlGlassPhasing.isEnabled()) {
             if (!(e.getEntity() instanceof EnderPearl) || e.getHitBlock() == null || !(e.getEntity().getShooter() instanceof Player) || e.getHitBlockFace() != BlockFace.UP)
                 return;
-
             for (BlockFace face : faces) {
                 Block next = e.getHitBlock().getRelative(face);
                 Block above = next.getRelative(BlockFace.UP);
                 Player p = ((Player) e.getEntity().getShooter());
-
                 if (!fListener.getAirBlocks().contains(above.getType())) {
                     if (!fListener.getInstance().getGlassBlocks().contains(above.getType()))
                         continue;
-
                     Location l = e.getHitBlock().getRelative(e.getHitBlockFace()).getLocation().add(0.5, 0.5, 0.5);
                     fListener.getInstance().getTeleGlitch().put(p.getUniqueId(), l);
                 }
-
             }
         }
     }
@@ -299,19 +265,14 @@ public class Listener114 implements Listener {
     public void onItemSwitch(PlayerItemHeldEvent e) {
         if (!Protections.PreventFoodDupe.isEnabled())
             return;
-
         ItemStack itm1 = e.getPlayer().getInventory().getItem(e.getPreviousSlot());
         ItemStack itm2 = e.getPlayer().getInventory().getItem(e.getNewSlot());
-
         if (itm1 == null || itm2 == null)
             return;
-
 
         if (consumables.contains(itm1.getType()) && consumables.contains(itm2.getType()) && itm1.getType() == itm2.getType()) {
             if (itm1.getAmount() == 1 && itm2.getAmount() == 1)
                 return;
-
-
             int tSlot = e.getNewSlot();
             ItemStack tFood = e.getPlayer().getInventory().getItem(tSlot);
             if (tFood == null) {
@@ -321,7 +282,6 @@ public class Listener114 implements Listener {
             final int slot = tSlot;
             final ItemStack food = tFood;
             e.getPlayer().getInventory().setItem(slot, new ItemStack(Material.AIR));
-
             new BukkitRunnable() {
 
                 @Override
@@ -329,9 +289,7 @@ public class Listener114 implements Listener {
                     e.getPlayer().getInventory().setItem(slot, food);
                 }
             }.runTaskLater(IllegalStack.getPlugin(), 3);
-
-
-        }
+                    }
     }
 
     /*
@@ -350,18 +308,16 @@ public class Listener114 implements Listener {
         }
 
     }
+
     */
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
         if (Protections.PreventProjectileExploit.isEnabled())
             fTimer.trackProjectile(e.getEntity());
-
     }
 
     @EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
     public void onFallingBlockSpawn(EntitySpawnEvent e) {
-
-
         if (e.getEntity() instanceof Projectile && Protections.PreventProjectileExploit.isEnabled())
             fTimer.trackProjectile((Projectile) e.getEntity());
 
