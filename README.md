@@ -4,7 +4,7 @@ A spigot based plugin dedicated to fixing glitches and exploits that have made i
 ## Links
 
 - [Spigot](https://www.spigotmc.org/resources/dupe-fixes-illegal-stack-remover.44411/)
-- [DevBuilds](https://ci.athion.net/job/IllegalStack/)
+- [Dev Builds](https://ci.athion.net/job/IllegalStack/)
 - [Wiki](https://github.com/dniym/IllegalStack/wiki/FAQ)
 - [Discord](https://discord.gg/Gsx4QaT)
 
