@@ -5,7 +5,7 @@ import me.dniym.IllegalStack;
 import me.dniym.utils.MagicHook;
 import me.dniym.utils.NBTStuff;
 import me.sat7.dynamicshop.utilities.LangUtil;
-import net.brcdev.shopgui.core.BInventoryHolder;
+import net.brcdev.shopgui.gui.gui.OpenGui;
 import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -923,7 +923,7 @@ public enum Protections {
         }
 
         if (IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("ShopGUIPlus") != null) {
-			return inv.getTopInventory().getHolder() instanceof BInventoryHolder;
+			return inv.getTopInventory().getHolder() instanceof OpenGui;
         }
 
         return false;
