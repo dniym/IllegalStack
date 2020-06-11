@@ -38,8 +38,5 @@ public class OverstackedItemCheck {
                 fListener.getLog().append(Msg.IllegalStackItemScan.getValue(c, is));
             }
         }
-
-
     }
-
 }

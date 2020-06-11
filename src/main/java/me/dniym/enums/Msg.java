@@ -113,12 +113,10 @@ public enum Msg {
     private String value;
 
     Msg(String val) {
-
         this.setValue(val);
     }
 
     public String getValue(String variable) {
-
         String val = value;
         val = val.replace("~perm~", variable);
         val = val.replace("~prot~", variable);
@@ -132,34 +130,30 @@ public enum Msg {
     }
 
     public String getValue(Location location, String types) {
-
         String val = value;
         val = val.replace("@", "@ " + location.toString());
         val = val.replace("~removedblocks~", types);
         val = val.replace("~contents~", types);
         val = val.replace("~item~", types);
         val = val.replace("~name~", types);
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
     public String getValue(Player player, String displayName) {
-
         String val = value;
         val = val.replace("@", "@ " + player.getLocation().toString());
         val = val.replace("~item~", displayName);
         val = val.replace("~name~", player.getName());
         val = val.replace("~block~", displayName);
         val = val.replace("~effects~", displayName);
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
     public String getValue(HumanEntity le, String value) {
         String val = value;
+
         val = val.replace("~author~", value);
         val = val.replace("~name~", le.getName());
-
         return val;
     }
 
@@ -193,6 +187,7 @@ public enum Msg {
 
     public String getValue(Container c, ItemStack is, Enchantment en) {
         String val = value;
+
         val = val.replace("~item~", is.getType().name());
         val = val.replace("~enchant~", en.getName());
         val = val.replace("~lvl~", is.getEnchantmentLevel(en) + "");
@@ -204,6 +199,7 @@ public enum Msg {
 
     public String getValue(Player p, ItemStack is, Enchantment en) {
         String val = value;
+
         val = val.replace("~item~", is.getType().name());
         val = val.replace("~enchant~", en.getName());
         val = val.replace("~lvl~", is.getEnchantmentLevel(en) + "");
@@ -219,26 +215,20 @@ public enum Msg {
         val = val.replace("@", "@ " + p.getLocation().toString());
         val = val.replace("~type~", et.name());
         val = val.replace("~name~", p.getName());
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
     public String getValue(Container c, ItemStack is) {
-
-
         String val = value;
 
         val = val.replace("@", "@ " + c.getLocation().toString());
         val = val.replace("~item~", is.getType().name());
         val = val.replace("~name~", c.getType().name());
         val = val.replace("~amount~", "" + is.getAmount());
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
     public String getValue(Player p, ItemStack is) {
-
-
         String val = value;
 
         val = val.replace("@", "@ " + p.getLocation().toString());
@@ -250,8 +240,6 @@ public enum Msg {
     }
 
     public String getValue(Player p, ItemStack is, String list) {
-
-
         String val = value;
 
         val = val.replace("@", "@ " + p.getLocation().toString());
@@ -259,7 +247,6 @@ public enum Msg {
         val = val.replace("~name~", p.getName());
         val = val.replace("~amount~", "" + is.getAmount());
         val = val.replace("~attributes~", list);
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
@@ -268,7 +255,6 @@ public enum Msg {
     }
 
     public String getValue() {
-
         return value;
     }
 
@@ -279,11 +265,9 @@ public enum Msg {
     public String getValue(Protections p, String name, String status) {
         String val = value;
 
-
         val = val.replace("~protection~", p.name());
         val = val.replace("~name~", name);
         val = val.replace("~status~", "" + status);
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
@@ -303,8 +287,6 @@ public enum Msg {
 
         val = val.replace("@", "@ " + loc.toString());
         val = val.replace("~size~", "" + size);
-
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
@@ -316,7 +298,6 @@ public enum Msg {
         val = val.replace("~name~", p.getName());
         val = val.replace("~amount~", "" + is.getAmount());
         val = val.replace("~lost~", "" + lostItems);
-
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 

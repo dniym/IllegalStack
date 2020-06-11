@@ -12,21 +12,16 @@ import org.bukkit.persistence.PersistentDataContainer;
 public class NBTApiStuff {
 
     public static ItemStack checkTimestampLegacy(ItemStack item) {
-
         //Old backwards compatible version
         NBTItem nbti = new NBTItem(item);
-
 
         if (System.currentTimeMillis() >= nbti.getLong("TimeStamp")) {
             nbti.removeKey("TimeStamp");
             nbti.setLong("TimeStamp", System.currentTimeMillis() + 4500L);
-
         } else {
-
             //looped item?
             return null;  //return null if the item is looping
         }
-
         return nbti.getItem();  //return the item with an updated timestamp.
     }
 
@@ -35,7 +30,6 @@ public class NBTApiStuff {
         NBTItem nbti = new NBTItem(item);
         if (!nbti.hasKey(value)) {
             nbti.setString(value, value);
-
             return nbti.getItem();
         }
         return null;
@@ -45,7 +39,6 @@ public class NBTApiStuff {
         NBTItem nbti = new NBTItem(item);
         if (!nbti.hasKey("TimeStamp")) {
             nbti.setLong("TimeStamp", (System.currentTimeMillis() + 4500L));
-
             return nbti.getItem();
         }
         return null;
@@ -125,9 +118,7 @@ public class NBTApiStuff {
 
             if (itemTag.size() > 27)
                 return itemTag.size();
-
         }
-
         return 0;
     }
 
@@ -139,9 +130,8 @@ public class NBTApiStuff {
             return;
         }
         if (itemTag.size() > 0) {
-            NBTCompoundList clear = itemTag;
-            clear.clear();
-            nbti.setObject("AttributModifiers", clear);
+            itemTag.clear();
+            nbti.setObject("AttributModifiers", itemTag);
 
             if (sendToPlayer)
                 p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
@@ -152,9 +142,9 @@ public class NBTApiStuff {
         }
     }
 
-    public static boolean isProCosmeticsLegacy(ItemStack is) {
+    public static void isProCosmeticsLegacy(ItemStack is) {
         NBTItem nbti = new NBTItem(is);
-        return nbti.hasKey("PROCOSMETICS");
+        nbti.hasKey("PROCOSMETICS");
 
 
     }

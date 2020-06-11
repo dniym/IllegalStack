@@ -17,14 +17,11 @@ public class mcMMOListener implements Listener {
 
     public mcMMOListener(IllegalStack illegalStack) {
         this.plugin = illegalStack;
-
     }
 
     public static boolean ismcMMOActive(Player p) {
-
         if (mcMMOactive == null)
             return false;
-
         return mcMMOactive.contains(p.getUniqueId());
     }
 
@@ -61,15 +58,11 @@ public class mcMMOListener implements Listener {
     */
     @EventHandler
     public void onAbilActivate(McMMOPlayerAbilityActivateEvent e) {
-
         mcMMOactive.add(e.getPlayer().getUniqueId());
-
     }
 
     @EventHandler
     public void onAbilDeactivate(McMMOPlayerAbilityDeactivateEvent e) {
-
         mcMMOactive.remove(e.getPlayer().getUniqueId());
-
     }
 }

@@ -22,7 +22,6 @@ public class iStackCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("reload")) {
                 if (!hasPerm(sender, "illegalstack.admin"))
@@ -72,13 +71,13 @@ public class iStackCommand implements CommandExecutor {
                 if (args.length == 3)
                     if (StringUtils.isNumeric(args[1].trim()))
                         parentId = Integer.parseInt(args[2].trim());
-
                 for (Protections p : Protections.values()) {
                     if (!p.getCommand().isEmpty())
                         continue;
                     if (p.isVersionSpecific(IllegalStack.getVersion()) && p.isRelevantToVersion(IllegalStack.getVersion()) && p.getCatId() != 2)
                         sendProtection(sender, p, IllegalStack.getVersion(), parentId, catId);
                 }
+
                 //sender.sendMessage(ChatColor.AQUA + "-     Multi-Version Protections     -");
                 sendCategory(sender, "Multi-Version Protections", (catId == 1), 1);
                 if (catId == 1) {
@@ -90,6 +89,7 @@ public class iStackCommand implements CommandExecutor {
                     }
 
                 }
+
                 sendCategory(sender, "Misc / User Requested Features", (catId == 2), 2);
                 //sender.sendMessage(ChatColor.AQUA + "-  Misc / User Requested Features  -");
                 if (catId == 2) {
@@ -101,10 +101,8 @@ public class iStackCommand implements CommandExecutor {
                             sendProtection(sender, p, IllegalStack.getVersion(), parentId, catId);
                     }
                 }
-
                 return true;
             }
-
         }
 
         if (args.length == 1) {
@@ -123,6 +121,7 @@ public class iStackCommand implements CommandExecutor {
                 }
             }
         }
+
         if (args.length >= 2) {
             if (args[0].equalsIgnoreCase("teleport")) {
                 if (!hasPerm(sender, "illegalstack.notify"))
@@ -148,9 +147,7 @@ public class iStackCommand implements CommandExecutor {
                     String status = "ON";
                     if (!p.isEnabled())
                         status = "OFF";
-
                     fListener.getLog().append(Msg.StaffProtectionToggleMsg.getValue(p, sender.getName(), status));
-
                     refreshCommands(sender);
                     return true;
                 }
@@ -198,9 +195,7 @@ public class iStackCommand implements CommandExecutor {
                         //refreshCommands(sender);
                     }
                     return true;
-
                 }
-
             }
         }
         if (args.length > 0) {
@@ -257,32 +252,26 @@ public class iStackCommand implements CommandExecutor {
         sender.sendMessage(ChatColor.GOLD + "/istack toggle <protection>" + ChatColor.GRAY + " - Toggles a protection on/off");
         sender.sendMessage(ChatColor.GOLD + "/istack reload" + ChatColor.GRAY + " - Reloads config from config.yml");
 
-
         return true;
     }
 
     private boolean hasPerm(CommandSender sender, String perm) {
         if (sender.hasPermission(perm))
             return true;
-
         sender.sendMessage(Msg.StaffMsgNoPerm.getValue(perm));
 
         return false;
     }
-
 
     private void sendCategory(CommandSender sender, String category, Boolean show, int catId) {
         Player plr = null;
         if (sender instanceof Player)
             plr = (Player) sender;
 
-
         if (IllegalStack.isSpigot() && plr != null) {
             plr.spigot().sendMessage(SpigMethods.makeCategoryText(plr, category, show, catId));
         }
-
-
-    }
+            }
 
     private void sendProtection(CommandSender sender, Protections p, String serverVersion, int parentId, int catId) {
 
@@ -291,14 +280,11 @@ public class iStackCommand implements CommandExecutor {
         Player plr = null;
         if (sender instanceof Player)
             plr = (Player) sender;
-
         if (!p.isEnabled())
             status = ChatColor.DARK_RED + "OFF";
-
         if (IllegalStack.isSpigot() && plr != null) {
             boolean hasKids = false;
             HashSet<Protections> kids = new HashSet<>();
-
             for (Protections child : Protections.values()) {
                 if (child.getParentId() == p.getProtId()) {
                     hasKids = true;
@@ -312,18 +298,15 @@ public class iStackCommand implements CommandExecutor {
                     plr.spigot().sendMessage(SpigMethods.makeChildText(child, catId));
 
         } else {
-
             if (!p.isList())
                 sender.sendMessage(ChatColor.GOLD + "[" + status + ChatColor.GOLD + "] " + ChatColor.DARK_AQUA + "" + p.getDisplayName() + "");
             else
                 sender.sendMessage(ChatColor.DARK_GRAY + "[" + "   " + ChatColor.DARK_GRAY + "] " + ChatColor.DARK_AQUA + "" + p.getDisplayName() + " " + p.findValue());
             for (Protections child : Protections.values()) {
-
                 if (child.getParentId() == p.getProtId()) {
                     sender.sendMessage(ChatColor.AQUA + "-> " + ChatColor.DARK_AQUA + child.getDisplayName() + " " + ChatColor.GRAY + child.findValue());
                     line = false;
                 }
-
             }
         }
         if (line)
@@ -331,16 +314,13 @@ public class iStackCommand implements CommandExecutor {
     }
 
     private void refreshCommands(final CommandSender sender) {
-
         new BukkitRunnable() {
 
             @Override
             public void run() {
                 IllegalStack.getPlugin().getServer().dispatchCommand(sender, "istack prot");
-
             }
 
         }.runTaskLater(IllegalStack.getPlugin(), 5);
-
     }
 }

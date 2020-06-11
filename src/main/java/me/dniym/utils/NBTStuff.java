@@ -35,7 +35,6 @@ public class NBTStuff {
             item = NBTApiStuff.addNBTTagLegacy(item, value);
         else
             Msg.StaffNoNBTAPI.getValue(prot.name());
-
         return item;
     }
 
@@ -55,8 +54,8 @@ public class NBTStuff {
 
         } else if (IllegalStack.isNbtAPI())
             item = NBTApiStuff.updateTimeStampLegacy(item);
-        else Msg.StaffNoNBTAPI.getValue(prot.name());
 
+        else Msg.StaffNoNBTAPI.getValue(prot.name());
         return item;
     }
 
@@ -143,18 +142,18 @@ public class NBTStuff {
 
         ItemMeta im = is.getItemMeta();
         if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) {
-            String attribs = "";
+            StringBuilder attribs = new StringBuilder();
             HashSet<Attribute> toRemove = new HashSet<Attribute>();
             for (Attribute a : im.getAttributeModifiers().keySet()) {
                 for (AttributeModifier st : im.getAttributeModifiers(a))
-                    attribs = attribs + " " + st.getName() + " value: " + st.getAmount();
+                    attribs.append(" ").append(st.getName()).append(" value: ").append(st.getAmount());
 
                 toRemove.add(a);
             }
             if (sendToPlayer)
-                p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, attribs));
+                p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
             else
-                fListener.getLog().append(Msg.CustomAttribsRemoved.getValue(p, is, attribs));
+                fListener.getLog().append(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
             for (Attribute remove : toRemove)
                 im.removeAttributeModifier(remove);
 
@@ -183,7 +182,6 @@ public class NBTStuff {
     public static boolean hasNbtTag(Entity entity, String tag) {
         if (entity == null)
             return false;
-
 
         PersistentDataContainer data = entity.getPersistentDataContainer();
         NamespacedKey key = new NamespacedKey(IllegalStack.getPlugin(), tag);

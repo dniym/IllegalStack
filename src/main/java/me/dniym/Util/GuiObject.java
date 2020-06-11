@@ -7,7 +7,6 @@
  * class by name.
  */
 
-
 package me.dniym.Util;
 
 import org.bukkit.Bukkit;
@@ -53,12 +52,9 @@ public class GuiObject implements InventoryHolder, Listener {
 
         // Set the name of the item
         meta.setDisplayName(name);
-
         // Set the lore of the item
         meta.setLore(Arrays.asList(lore));
-
         item.setItemMeta(meta);
-
         return item;
     }
 
@@ -67,26 +63,20 @@ public class GuiObject implements InventoryHolder, Listener {
         ent.openInventory(inv);
     }
 
-
-    /* Highly recommend using this method as you can easily identify YOUR custom inventory object by simply doing
-     * if(inventory.getHolder() instanceof GuiObject)
+    /*
+     * Highly recommend using this method as you can easily identify YOUR custom inventory object by simply doing
+     * if (inventory.getHolder() instanceof GuiObject)
      */
 
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e) {
         if (e.getInventory().getHolder() != this) return;
-
         e.setCancelled(true);
-
         final ItemStack clickedItem = e.getCurrentItem();
-
         // verify current item is not null
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
-
         final Player p = (Player) e.getWhoClicked();
-
         // Using slots click is a best option for your inventory click's
         p.sendMessage("You clicked at slot " + e.getRawSlot());
     }
-
 }

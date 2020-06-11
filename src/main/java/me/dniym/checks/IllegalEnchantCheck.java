@@ -19,8 +19,8 @@ public class IllegalEnchantCheck {
             return;
 
         if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !is.getEnchantments().isEmpty()) {
-            if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isnt empty
-                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(c.getWorld().getName())) //isnt in a checked world
+            if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
+                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(c.getWorld().getName())) //isn't in a checked world
                     return;
 
             HashSet<Enchantment> replace = new HashSet<>();
@@ -64,9 +64,5 @@ public class IllegalEnchantCheck {
                     is.addEnchantment(en, en.getMaxLevel());
             }
         }
-
-
     }
-
-
 }
