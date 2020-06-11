@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+repositories {
+    mavenCentral() // Netty, IF
+    maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" } // BungeeCord
+    maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" } // Spigot
+    maven { url = "https://repo.dmulloy2.net/nexus/repository/public/" } // ProtocolLib
+    maven { url = "http://maven.elmakers.com/repository/" } // Magic
+    maven { url = "https://repo.codemc.org/repository/maven-public/" } // NBT API
+    maven { url = "https://jitpack.io" } // Slimefun4, ShopGUI+
+    maven { url = "https://repo.codemc.org/repository/maven-public/" } // McMMO
+    flatDir {
+        dirs("libs") // DynamicShops, CraftingStore
+    }
+}
+dependencies {
+    compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.5.0")
+    implementation("com.elmakers.mine.bukkit:MagicAPI:7.9.5")
+    implementation("de.tr7zw:item-nbt-api-plugin:2.3.1")
+    implementation("com.github.TheBusyBiscuit:Slimefun4:v4.1.15"){ transitive = false }
+    implementation("io.netty:netty-all:4.0.39.Final")
+    implementation("com.gmail.nossr50.mcMMO:mcMMO:2.1.128"){ transitive = false }
+    implementation("com.github.brcdev-minecraft:shopgui-api:1.2.0")
+    implementation("name:DynamicShop-2.11.1")
+    implementation("name:CraftingStore")
+    implementation("com.github.stefvanschie.inventoryframework:IF:0.6.0")
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+processResources {
+    from('src/main/resources') {
+        include 'plugin.yml'
+    }
+}
+
+shadowJar {
+    relocate("com.github.stefvanschie.inventoryframework", "me.dniym.enums.Protections.inventoryframework")
+}
