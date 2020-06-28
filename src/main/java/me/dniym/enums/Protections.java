@@ -1,9 +1,12 @@
 package me.dniym.enums;
 
 import com.massivecraft.factions.shade.stefvanschie.inventoryframework.Gui;
+
 import me.dniym.IllegalStack;
 import me.dniym.utils.MagicHook;
 import me.dniym.utils.NBTStuff;
+import me.jet315.minions.MinionAPI;
+import me.jet315.minions.minions.Minion;
 import me.sat7.dynamicshop.utilities.LangUtil;
 import net.brcdev.shopgui.core.BInventoryHolder;
 import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
@@ -13,6 +16,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
@@ -36,6 +40,7 @@ public enum Protections {
     BreakExploitMachines(22, true, "Break Exploit Machines", "ALL", "Misc.BreakMachinesInsteadOfDroppingItems", "If this setting is set to FALSE, instead of removing pistons etc that are detected in an exploit, IllegalStack will break the block and drop the item instead.", "", 0, false),
     ItemScanTimer(45, 10, "Item Scanner Timer Delay", "ALL", "Misc.ItemScanTimer", "Allows you to set the time (in ticks) between scans for bad items, this defaults to 10 ticks, (twice per second).  Increasing this value too much could result in items being missed adjust with caution.  NOTE:  If you adjust this value you MUST restart the server before the setting will be updated.", "", 0, false),
     //ALL VERSION EXPLOITS
+    PreventMinecartsInBoats(52, true, "Prevent Minecarts In Boats", "ALL", "Exploits.Other.PreventMinecartsInBoats", "Prevent players from putting minecarts into boats, creating the possibility for a dupe.", "", 0, false),
     PreventBedrockDestruction(7, true, "Prevent Bedrock Destruction", "ALL", "Exploits.Other.PreventBedrockDestruction", "Prevent bedrock destruction via players blowing the heads off pistons with TNT", "", 0, false),
     PreventEndPortalDestruction(51, true, "Prevent End Portal Destruction", "ALL", "Exploits.Other.PreventEndPortalDestruction", "Prevent players from using dispensers to break the end portal blocks.", "", 0, false),
     PreventPortalTraps(48, true, "Prevent Nether Portal Traps", "ALL", "Exploits.NetherPortal.PreventPortalTrap", "Prevents players from entering a portal that has no valid exit, meaning if the player cant walk out of the portal the teleport is blocked and a message is sent.", "", 0, false),
@@ -65,7 +70,7 @@ public enum Protections {
     RemoveBooksNotMatchingCharset(4, true, "Invalid Book Protection", "< 1.15", "Exploits.BookExploit.RemoveBooksNotMatchingCharset", "Automatically delete any written book that does not match the charset specified in the configuration (and if the author is NOT on the whitelist).  This exploit is used to create books full of garbage characters that will increase the size of a chunk past what the server will save.  It prevents a chunk from being properly saved and allows players to dupe.", "", 0, false),
     ValidCharset(4, "US-ASCII", "Valid Charset", 4, "Exploits.BookExploit.ValidCharset", "This is the currently set character set that IllegalStack compares sign and book text to, if you have book/sign protections enabled.   Any character that is NOT part of this charset is considered illegal and helps find exploited books and signs.  If you need to change this value a list of valid character sets can be found here: https://docs.oracle.com/javase/7/docs/technotes/guides/intl/encoding.doc.html", "", 0, false),
     BookAuthorWhitelist(4, new String[]{}, "Book Author Whitelist", 4, "Exploits.BookExploit.BookAuthorWhitelist", "Any player names added to this list will bypass all book creation restrictions.", "", 0, false),
-    DisableBookWriting(4, false, "Disable ALL Book Editing", 4, "Exploits.BookExploit.DisableBookWriting", "Disable ALL player book writing, any book and quill that is edited (by a player not on the BookAuthorWhiteList) will be removed and a message sent to the player.  This option is off by default and was a user requested feature.", "", 0, false),
+    
     PageCountThreshold(4, 5, "Page Count Threshold", 4, "Exploits.BookExploit.PageCountThreshold", "Number of pages containing Illegal Characters that can be found per book before it is flagged as illegal", "", 0, false),
     LimitNumberOfPages(4, 0, "Page Number Limit", 4, "Exploits.BookExploit.LimitNumberOfPages", "Maximum number of pages a book can contain, if this is set to any number above ZERO then the book will be removed if it has more than the value set.  Eg setting this to 5 will remove any book with 6 or more pages regardless of the book's contents.", "", 0, false),
     DestroyBadSignsonChunkLoad(5, false, "Destroy Bad Signs on Chunk Load", "ALL", "Exploits.SignExploit.DestroyBadSignsOnChunkLoad", "Check chunks when they're first loaded for signs that have non standard characters (usually from a hacked client) which are used to exploit the save state glitch like the book dupe, and to prevent players from being able to log in while in that chunk (sign banning)..   You should ONLY enable this protection if you know you have chunks with bad signs, as it will use resources checking every block for signs.", "", 0, false),
@@ -97,6 +102,8 @@ public enum Protections {
     PreventNestedShulkers(10, true, "Prevent Nested Shulker Boxes", "> 1.11", "Exploits.Other.PreventNestedShulkers", "Prevent players from putting shulker boxes inside other shulker boxes, this exploit leads to pretty much infinte storage.", "", 0, false),
 
     DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "ALL", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.", "", 0, false),
+    DisableRidingExploitableMobs(27, true, "Disable Riding/Taming of Mobs with chests", 27, "Exploits.Other.DisableRidingExploitableMobs", "Prevents players from being able to ride or tame a creature that can be equipped with a chest.", "", 0, false),
+    
     PunishForChestsOnMobs(27, false, "Violently Punish Repeat Offenders", 27, "Exploits.Other.PunishForChestsOnMobs", "Enabling this option will punish any player who attempts to place a chest on a chested animal, the animal will be destroyed, the player's inventory will be cleared and the player will be kicked from the server.", "", 0, false),
     PreventInvalidPotions(35, true, "Prevent Invalid Potions", "> 1.11", "Exploits.Other.PreventInvalidPotions", "Prevents non-opped players from possessing invalid / uncraftable potions.  Typically these are used for malicious purposes on creative servers such as potions of instant death", "", 0, false),
     PreventInfiniteElytraFlight(36, true, "Prevent Infinite Elytra Flight", "> 1.9", "Exploits.Other.PreventInvalidElytraFlight", "Prevents players from using a glitch that grants unlimited elytra flight time without rockets,  This exploit allows the player to ascend vertically starting at the max build height until they decide to start descending or their elytra breaks.", "", 0, false),
@@ -126,12 +133,12 @@ public enum Protections {
 
     //1.14 / 1.15 ONLY
 
-    VillagerTradeCheesing(19, true, "Prevent Villager Trade Cheesing", "1.14 / 1.15", "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing", "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.", "", 0, false),
+    VillagerTradeCheesing(19, true, "Prevent Villager Trade Cheesing", "1.14 / 1.15 / 1.16", "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing", "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.", "", 0, false),
     VillagerRestockTime(19, 10, "Minimum Restock Time (Minutes)", 19, "Exploits.1_14_Exploits.Traders.VillagerRestockTime", "Sets the minimum number of minutes that a villager is allowed to restock trades.. NOTE* This is in real life minutes, and any changes to the in game time will be ignored, meaning if players trade with a villager then go to sleep to advance the time, they will not normally restock the next morning.", "", 0, false),
     PreventCactusDupe(12, true, "Prevent Zero Tick Exploits", "1.13 / 1.14 / 1.15", "Exploits.Other.PreventZeroTickExploit", "Breaks redstone machines that eploit a game mechanic that causes cacti and other growable blocks grow much faster than normal.", "", 0, false),
-    ZombieVillagerTransformChance(19, 100, "Villager Zombification Chance", 19, "Exploits.1_14_Exploits.Traders.ZombieVillagerTransformChance", "Allows you to lower the chance a Villager will become a Zombie Villager if infected.   This is 100% on Difficulty Hard in vanilla..  This allows players to infect/cure villagers over and over to cheapen their trades.   Setting this to a value less than 100 will cause such players to risk loosing the villager instead of being able to cheese the trades easily. **(Only really matters if your server difficulty is set to HARD)** *If set to zero this setting will totally prevent conversion.", "", 0, false),
+    ZombieVillagerTransformChance(19, 65, "Villager Zombification Chance", 19, "Exploits.1_14_Exploits.Traders.ZombieVillagerTransformChance", "Allows you to lower the chance a Villager will become a Zombie Villager if infected.   This is 100% on Difficulty Hard in vanilla..  This allows players to infect/cure villagers over and over to cheapen their trades.   Setting this to a value less than 100 will cause such players to risk loosing the villager instead of being able to cheese the trades easily. **(Only really matters if your server difficulty is set to HARD)** *If set to zero this setting will totally prevent conversion.", "", 0, false),
 
-    PreventTripwireDupe(46, true, "Prevent Tripwire Dupe", "1.15", "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe", "Prevents players from using trapdoors to dupe tripwire hooks.", "", 0, false),
+    PreventTripwireDupe(46, true, "Prevent Tripwire Dupe", "1.15 / 1.16", "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe", "Prevents players from using trapdoors to dupe tripwire hooks.", "", 0, false),
     //User Requested | Obscure Features
     PreventZombieItemPickup(14, false, "Prevent Item Pick By Zombies", "ALL", "UserRequested.Mobs.PreventZombieItemPickup", "Prevents zombies from picking up items normally, this was used to prevent the drowned dupe and is off by default, left in as it was requested by a user.", "", 2, false),
     PreventCobbleGenerators(45, false, "Prevent Cobblestone Generators", "ALL", "UserRequested.Cobble.PreventCobbleGenerators", "Prevents lava and water from creating cobblestone when they flow into each other.", "", 2, false),
@@ -152,6 +159,7 @@ public enum Protections {
     //CheckGroundForBadHeadsAtLogin(44, false, "Remove Bad Heads On Ground", 44,"Exploits.HeadChunkBan.CheckGroundForBadHeadsAtLogin","Destroys player heads placed in the world that ban players who try to log in near them.  You should ONLY enable this protection if you know you have areas with bad heads in a chunk.  This protection will turn itself off each time the server restarts. **NOTE** Requires NBT API 2.0.0 to work!!","",0),
     IgnoreAllHopperChecks(42, false, "Ignore ALL Hopper Checks", "ALL", "UserRequested.Obscure.HopperCheck.IgnoreAllHopperChecks", "Forces the plugin to Ignore any item or exploit involving a hopper.. WARNING this should only ever be enabled if you are absolutely sure you know what you are doing as it could open up the door to big problems with players being able to xfer duped items, or even allowing them to dupe in specific instances.  Please contact the plugin's author (dNiym) if you even THINK you need to turn this on.", "", 2, false),
     RemoveAllRenamedItems(44, false, "Remove ALL renamed items", "ALL", "UserRequested.Obsure.Misc.RemoveAllRenamedItems", "Removes any item that has been renamed found on any user without the IllegalStack.RenameBypass permission.", "", 2, false),
+    DisableBookWriting(53, false, "Disable ALL Book Editing", "ALL", "Exploits.BookExploit.DisableBookWriting", "Disable ALL player book writing, any book and quill that is edited (by a player not on the BookAuthorWhiteList) will be removed and a message sent to the player.  This option is off by default and was a user requested feature.", "", 2, false),
     ;
 
     ///OPTIONS///
@@ -902,9 +910,23 @@ public enum Protections {
         return false;
     }
 
+    
+    
     public boolean isThirdPartyInventory(InventoryView inv) {
-
-        IllegalStack.getPlugin();
+/*
+    	if (IllegalStack.hasSavageFac()) {
+    		System.out.println("Found savageFac");
+    		
+    		InventoryManager im = FactionsX.getInstance().inventoryManager;
+    		//if(im.getInventory(inv.getPlayer()) != null) {
+    			System.out.println("Finally found a FX inv");
+    			return true;
+    		//} else
+    			//System.out.println("Still not a FX inv");
+    		
+    	} else 
+    		System.out.println("no savagefac"); 
+*/
         if (IllegalStack.hasFactionGUI()) {
             if (inv.getTopInventory().getHolder() instanceof Gui)
                 return true;
@@ -980,6 +1002,17 @@ public enum Protections {
     public void setNukeApples(boolean nukeApples) {
         this.nukeApples = nukeApples;
     }
+
+	public boolean isThirdPartyObject(Entity ent) {
+		
+		if(IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("JetsMinions") != null)
+		{
+			Minion m = MinionAPI.getMinion(ent);
+			if(m != null)
+				return true;
+		}
+		return false;
+	}
 
 
 }

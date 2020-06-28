@@ -8,7 +8,7 @@
  */
 
 
-package me.dniym.Util;
+package me.dniym.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

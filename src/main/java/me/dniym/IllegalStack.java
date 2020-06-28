@@ -39,6 +39,8 @@ public class IllegalStack extends JavaPlugin {
     private static boolean Spigot = false;
     private static boolean blockMetaData = false;
     private static boolean hasFactionGUI = false;
+    private static boolean SmartInv = false;
+    private static boolean SavageFac = false;
     private static boolean CMI = false;
     private static boolean hasMCMMO = false;
     private static boolean hasChestedAnimals = false;
@@ -92,7 +94,7 @@ public class IllegalStack extends JavaPlugin {
 
             }
         }
-
+        
         try {
             if (Class.forName("org.spigotmc.SpigotConfig") != null) {
                 Spigot = true;
@@ -292,6 +294,7 @@ public class IllegalStack extends JavaPlugin {
                 setHasAttribAPI(false);
             }
         }
+        
         try {
             if (Class.forName("net.md_5.bungee.api.chat.ComponentBuilder") != null) {
                 System.out.println("[IllegalStack] Chat Components found! Enabling clickable commands in /istack");
@@ -300,6 +303,22 @@ public class IllegalStack extends JavaPlugin {
             }
         } catch (ClassNotFoundException e) {
             System.out.println("[IllegalStack] - Spigot chat components NOT found! disabling chat components.");
+        }
+        
+        try {
+        	if (Class.forName("fr.minuskube.inv.content.InventoryProvider") != null) 
+        		setSavageFac(true);
+        		
+        } catch (ClassNotFoundException e) {
+        	System.out.println("savagefac gui not found?");
+        }
+        try {
+        	if (Class.forName("fr.minuskube.inv.SmartInventory") != null) 
+        		setSmartInv(true);
+        
+        	
+        } catch (ClassNotFoundException ignored) {
+        	
         }
 
 
@@ -403,6 +422,7 @@ public class IllegalStack extends JavaPlugin {
                 for (Protections child : p.getChildren())
                     if (config.getString(child.getConfigPath()) == null) {
 
+                    	System.out.println("Checking child: " + child.name());
                         if (child.getConfigValue() instanceof Boolean) {
                             child.setEnabled((Boolean) child.getDefaultValue());
                             added.put(child.getConfigPath(), child.getDefaultValue());
@@ -752,5 +772,21 @@ public class IllegalStack extends JavaPlugin {
         }
         IllegalStack.version = version;
     }
+
+	public static boolean hasSmartInv() {
+		return SmartInv;
+	}
+
+	public static void setSmartInv(boolean smartInv) {
+		SmartInv = smartInv;
+	}
+
+	public static boolean hasSavageFac() {
+		return SavageFac;
+	}
+
+	public static void setSavageFac(boolean savageFac) {
+		SavageFac = savageFac;
+	}
 
 }

@@ -2,6 +2,7 @@ package me.dniym.listeners;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import me.dniym.IllegalStack;
+import me.dniym.checks.CheckUtils;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.fishing.FishAttempt;
@@ -40,6 +41,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.nio.charset.Charset;
 import java.util.*;
@@ -62,6 +64,7 @@ public class fListener implements Listener {
     private final Set<Material> removeCheck = new HashSet<>();
     IllegalStack plugin = null;
     HashMap<Block, Long> movedTNT = new HashMap<>();
+    private Boolean is116 = false;
     private Boolean is115 = false;
     private Boolean is1152 = false;
     private Boolean is1142 = false;
@@ -76,7 +79,7 @@ public class fListener implements Listener {
     private HashMap<Player, Long> swapDelay = new HashMap<Player, Long>();
     private Material book = null;
     private Set<Material> glassBlocks = new HashSet<>();
-    private Boolean checkShulker = true;
+    private static Boolean checkShulker = true;
     private HashMap<UUID, Location> teleGlitch = new HashMap<>();
     private HashSet<Player> itemWatcher = new HashSet<>();
 
@@ -96,6 +99,9 @@ public class fListener implements Listener {
             setIs112(true);
 
 
+        if (ver.startsWith("v1_16"))
+        	is116 = true;
+        
         if (ver.startsWith("v1_15"))
             is115(true);
 
@@ -129,7 +135,7 @@ public class fListener implements Listener {
 
         if (ver.contains("v1_8") || ver.contains("v1.9") || ver.equalsIgnoreCase("v1_9_R4") || ver.equalsIgnoreCase("v1_10_R2")) {
             System.out.println("[IllegalStack] version < 1.11 found, not checking for shulker boxes");
-            checkShulker = false;
+            setCheckShulker(false);
         }
 
 
@@ -170,7 +176,7 @@ public class fListener implements Listener {
             setPortal(Material.matchMaterial("NETHER_PORTAL"));
 
 
-        if (!ver.contains("v1_14") && !ver.contains("v1_15")) {
+        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16")) {
             if (ver.contains("v1_13")) {
                 System.out.println("[Illegal Stack] - MC Version 1.13 detected!");
 
@@ -202,7 +208,7 @@ public class fListener implements Listener {
             blacklist.add(Material.DETECTOR_RAIL);
 
         } else {
-            System.out.println("[Illegal Stack] - MC Version 1.14+ detected!");
+            System.out.println("[Illegal Stack] - MC Version " + ver + " detected!");
             pistonCheck.add(Material.PISTON);
             pistonCheck.add(Material.MOVING_PISTON);
             blacklist.add(Material.RAIL);
@@ -295,12 +301,13 @@ public class fListener implements Listener {
     @EventHandler
     public void ShulkerPlaceCheck(BlockPlaceEvent e) {
 
-        if (checkShulker) {
+        if (getCheckShulker()) {
 
             if (IllegalStack.isBlockMetaData()) {  //Modern Versions
                 if (e.getBlockPlaced().getBlockData() instanceof Container) {
                     Container c = (Container) e.getBlock().getState().getBlockData();
                     for (ItemStack is : c.getInventory()) {
+
                         if (Protections.RemoveOverstackedItems.isEnabled())
                             me.dniym.checks.OverstackedItemCheck.CheckContainer(is, c);  //I think all checks probably need to be moved to their own classes
 
@@ -397,12 +404,64 @@ public class fListener implements Listener {
 
     }
 
+    @EventHandler
+    public void onEntityMount(EntityMountEvent e) {
+    	
+    	
+    	if(Protections.DisableRidingExploitableMobs.isEnabled()) {
+    		if (IllegalStack.hasChestedAnimals()) 
+    		{
+    			if(e.getMount() instanceof Mule || e.getMount() instanceof Donkey || e.getMount() instanceof ChestedHorse || e.getMount() instanceof Llama || e.getMount() instanceof TraderLlama)
+    			{
+    				e.setCancelled(true);
+    				((Tameable)e.getMount()).eject();
+    				((Tameable)e.getMount()).setTamed(false);
+    				if(e.getMount() instanceof ChestedHorse)
+    					((ChestedHorse)e.getMount()).setCarryingChest(false);
+    					
+    				if(e.getEntity() instanceof Player) 
+    					e.getEntity().sendMessage(Msg.PlayerDisabledRidingChestedMsg.getValue());
+    				
+    			}
+    		} else {
+    			if(e.getMount() instanceof Horse) {
+    				((Horse)e.getEntity()).eject();
+    				((Horse)e.getEntity()).setTamed(false);
+    				if(e.getEntity() instanceof Player) 
+    					e.getEntity().sendMessage(Msg.PlayerDisabledRidingChestedMsg.getValue());
+    				e.setCancelled(true);
+    			}
+    			
+    				
+    		}
+    	}
+    	if(Protections.PreventMinecartsInBoats.isEnabled()) {
+    		
+    		if(e.getEntity() == null || e.getMount() == null)
+    			return;
+    		
+    		if(e.getEntity() instanceof Minecart && e.getMount() instanceof Boat) {
+    			fListener.getLog().append(Msg.MinecartMount.getValue(e.getEntity(), e.getMount()));
+    			e.setCancelled(true);
+    		}
+    	}
+    }
     /*
      * End portal destruction with buckets of water/lava etc
      */
+    
+ 
     @EventHandler
     public void onDispenserDispense(BlockDispenseEvent e) {
-
+    	
+    	if (Protections.RemoveOverstackedItems.isEnabled() && !is18()) {
+    		if(CheckUtils.CheckEntireContainer((Container) e.getBlock().getState()))
+    		{
+    			e.getItem().setType(Material.AIR);
+    			e.setCancelled(true);
+    			return;
+    		}
+    	}
         if (Protections.PreventEndPortalDestruction.isEnabled()) {
 
 
@@ -446,6 +505,11 @@ public class fListener implements Listener {
         if (Protections.IgnoreAllHopperChecks.isEnabled())
             return;
 
+        if(CheckUtils.CheckEntireInventory(e.getSource())) {
+        	e.setCancelled(true);
+        	return;
+        }
+        	
         if (!Protections.DisableInWorlds.getTxtSet().isEmpty()) {
             HopperMinecart hm = null;
             HopperMinecart hm2 = null;
@@ -656,7 +720,7 @@ public class fListener implements Listener {
                 return;
             }
 
-            if (Protections.PreventNestedShulkers.isEnabled() && checkShulker) {
+            if (Protections.PreventNestedShulkers.isEnabled() && getCheckShulker()) {
                 Set<ItemStack> remove = new HashSet<>();
 
                 try {
@@ -683,6 +747,12 @@ public class fListener implements Listener {
                         getLog().append(Msg.ShulkerClick.getValue(e.getPlayer().getName()));
             }
 
+            
+            if (Protections.FixIllegalEnchantmentLevels.isThirdPartyInventory(e.getView())) {
+            //	System.out.println("Third party inventory, skipping");
+            	return;
+            } 
+            
             for (ItemStack is : e.getInventory().getContents()) {
                 if (is == null)
                     continue;
@@ -709,7 +779,7 @@ public class fListener implements Listener {
 
                             if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
                                 continue;
-
+                            
                             if (en.canEnchantItem(is))
                                 getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
                             else
@@ -846,6 +916,8 @@ public class fListener implements Listener {
 
                 for (Entity ent : b.getWorld().getNearbyEntities(next.getLocation(), 1, 1, 1))
                     if (ent instanceof EnderCrystal || ent instanceof ArmorStand) {
+                    	if(Protections.PreventEndCrystalLagMachine.isThirdPartyObject(ent))
+                    		continue;
                         count++;
                         remove.add(ent);
 
@@ -1265,6 +1337,8 @@ public class fListener implements Listener {
             for (Block b : event.getBlocks())
                 for (Entity ent : b.getWorld().getNearbyEntities(b.getLocation(), 0.5, 0.5, 0.5))
                     if (ent instanceof EnderCrystal || ent instanceof ArmorStand) {
+                    	if(Protections.PreventEndCrystalLagMachine.isThirdPartyObject(ent))
+                    		continue;
                         count++;
                         remove.add(ent);
                     }
@@ -1272,6 +1346,8 @@ public class fListener implements Listener {
             Block next = event.getBlock().getRelative(event.getDirection());
             for (Entity ent : next.getWorld().getNearbyEntities(next.getLocation(), 0.5, 0.5, 0.5))
                 if (ent instanceof EnderCrystal || ent instanceof ArmorStand) {
+                	if(Protections.PreventEndCrystalLagMachine.isThirdPartyObject(ent))
+                		continue;
                     count++;
                     remove.add(ent);
                 }
@@ -1289,6 +1365,8 @@ public class fListener implements Listener {
             Block above = event.getBlock().getRelative(BlockFace.UP);
             for (Entity ent : above.getWorld().getNearbyEntities(above.getLocation().clone().add(0.5, 0, 0.5), 0, 1.5, 0))
                 if (ent instanceof ArmorStand) {
+                	if(Protections.PreventEndCrystalLagMachine.isThirdPartyObject(ent))
+                		continue;
                     if (Protections.BreakExploitMachines.isEnabled())
                         event.getBlock().setType(Material.AIR);
                     getLog().append(Msg.StoppedPushableArmorStand.getValue(ent.getLocation(), ""));
@@ -1299,6 +1377,8 @@ public class fListener implements Listener {
                 for (Block b : event.getBlocks())
                     for (Entity ent : b.getWorld().getNearbyEntities(b.getLocation().clone().add(0.5, 0, 0.5), 0, 1.5, 0))
                         if (ent instanceof ArmorStand) {
+                        	if(Protections.PreventEndCrystalLagMachine.isThirdPartyObject(ent))
+                        		continue;
                             if (Protections.BreakExploitMachines.isEnabled())
                                 event.getBlock().setType(Material.AIR);
                             getLog().append(Msg.StoppedPushableArmorStand.getValue(ent.getLocation(), ""));
@@ -1414,7 +1494,7 @@ public class fListener implements Listener {
                 //check above a piston
                 Block above = head.getRelative(BlockFace.UP);
 
-                if (!is1152 && substrate.contains(above.getType()) && growable.contains(above.getRelative(BlockFace.UP).getType())) {
+                if ( !is1152 && substrate.contains(above.getType()) && growable.contains(above.getRelative(BlockFace.UP).getType())) {
 
                     found = above.getType();
                     above.setType(Material.AIR);
@@ -1587,7 +1667,7 @@ public class fListener implements Listener {
         if (SpigMethods.isNPC(e.getWhoClicked())) return;
 
         if (Protections.BlockCMIShulkerStacking.isEnabled()) {
-            if (Protections.PreventNestedShulkers.isEnabled() && checkShulker && IllegalStack.isCMI()) {
+            if (Protections.PreventNestedShulkers.isEnabled() && getCheckShulker() && IllegalStack.isCMI()) {
                 boolean hasTitle = false;
 
                 try {
@@ -3102,4 +3182,12 @@ public class fListener implements Listener {
     public void setTeleGlitch(HashMap<UUID, Location> teleGlitch) {
         this.teleGlitch = teleGlitch;
     }
+
+	public static Boolean getCheckShulker() {
+		return checkShulker;
+	}
+
+	public void setCheckShulker(Boolean checkShulker) {
+		this.checkShulker = checkShulker;
+	}
 }

@@ -15,6 +15,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDispenseArmorEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -49,6 +50,18 @@ public class Listener114 implements Listener {
 
         consumables.addAll(Arrays.asList(consume));
 
+    }
+    
+    @EventHandler
+    public void onChestDispense(BlockDispenseArmorEvent e) {
+    	//System.out.println("Checking dispense??");
+    	if (Protections.DisableChestsOnMobs.isEnabled()) {
+    		
+    		if(e.getItem().getType() == Material.CHEST) {
+    		//	System.out.println("Prevented a dispenser from spitting out a chest");
+    			e.setCancelled(true);
+    		}
+    	}
     }
 
     /*
