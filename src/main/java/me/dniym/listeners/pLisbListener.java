@@ -3,7 +3,6 @@ package me.dniym.listeners;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import me.dniym.IllegalStack;
 import me.dniym.enums.Msg;
@@ -54,10 +53,20 @@ public class pLisbListener {
         }
 
         if (Protections.DisableChestsOnMobs.isEnabled()) {
+        	
             ProtocolLibrary.getProtocolManager().addPacketListener(
                     new PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
+                    	
                         @Override
                         public void onPacketReceiving(PacketEvent event) {
+                        	
+                        	
+                        	if(event.getPacket().getIntegers().read(0) <= 0) {
+                        		System.out.println(event.getPlayer().getName() + " tried to interact with entity with an invalid id: " + event.getPacket().getIntegers().read(0) + " if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.");
+                        		event.setCancelled(true);
+                        		return;
+                        	}
+                        	
                             if (IllegalStack.hasChestedAnimals()) {
                                 try {
                                     Entity entity = event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
@@ -69,7 +78,7 @@ public class pLisbListener {
                                             return;
                                         exploitMessage(event.getPlayer(), entity);
                                         event.setCancelled(true);
-                                        event.setPacket(new PacketContainer(0));
+//                                        event.setPacket(new PacketContainer(Packet));
                                         ((ChestedHorse) entity).setCarryingChest(true);
                                         ((ChestedHorse) entity).setCarryingChest(false);
                                         fTimer.getPunish().put(event.getPlayer(), entity);

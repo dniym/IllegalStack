@@ -7,7 +7,8 @@
  * class by name.
  */
 
-package me.dniym.Util;
+
+package me.dniym.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -41,8 +42,8 @@ public class GuiObject implements InventoryHolder, Listener {
 
     // You can call this whenever you want to put the items in or use your existing gui code
     public void initializeItems() {
-        inv.addItem(createGuiItem(Material.DIAMOND_SWORD, "Example Sword", "§aFirst line of the lore", "§bSecond line of the lore"));
-        inv.addItem(createGuiItem(Material.IRON_HELMET, "§bExample Helmet", "§aFirst line of the lore", "§bSecond line of the lore"));
+        inv.addItem(createGuiItem(Material.DIAMOND_SWORD, "Example Sword", "ï¿½aFirst line of the lore", "ï¿½bSecond line of the lore"));
+        inv.addItem(createGuiItem(Material.IRON_HELMET, "ï¿½bExample Helmet", "ï¿½aFirst line of the lore", "ï¿½bSecond line of the lore"));
     }
 
     // Nice little method to create a gui item with a custom name, and description
