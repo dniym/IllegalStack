@@ -1663,32 +1663,33 @@ public class fListener implements Listener {
         }
     }
 
-    @EventHandler()
-    public void onPistonExplode(EntityExplodeEvent e) //stuff that still works even in 1.14
-    {
-        if (Protections.DisableInWorlds.isWhitelisted(e.getEntity().getWorld().getName()))
+    @EventHandler
+    public void onPistonExplode(EntityExplodeEvent e) {
+        if (Protections.DisableInWorlds.isWhitelisted(e.getEntity().getWorld().getName())) {
             return;
+        }
         if (Protections.PreventBedrockDestruction.isEnabled()) {
             HashSet<Block> remove = new HashSet<>();
             for (Block b : e.blockList()) {
-                if (pistonCheck.contains(b.getType())) {
-                    for (BlockFace face : BlockFace.values()) {
-                        if (b.getRelative(face).getType() == Material.BEDROCK) {
-                            remove.add(b);
-                            b.setType(Material.AIR);
-                            for (BlockFace face2 : faces) {
-                                Block next = b.getRelative(face2);
-                                if (pistonCheck.contains(next.getType()))
-                                    next.setType(Material.AIR);
-                            }
-                            getLog().append(Msg.PistonHeadRemoval.getValue(b.getLocation(), ""));
-                        }
+                if (!this.pistonCheck.contains(b.getType())) continue;
+                for (BlockFace face : BlockFace.values()) {
+                    if (b.getRelative(face).getType() != Material.BEDROCK) continue;
+                    remove.add(b);
+                    for (BlockFace face2 : faces) {
+                        Block next = b.getRelative(face2);
+                        if (!this.pistonCheck.contains(next.getType())) continue;
+                        remove.add(next);
                     }
+                    fListener.getLog().append(Msg.PistonHeadRemoval.getValue(b.getLocation(), ""));
                 }
-
             }
             if (!remove.isEmpty()) {
                 e.blockList().removeAll(remove);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    for (Block b : remove) {
+                        b.setType(Material.AIR);
+                    }
+                }, 5);
             }
         }
     }
