@@ -70,7 +70,7 @@ public class fListener implements Listener {
     private Boolean is1143 = false;
     private Boolean is1144 = false;
     private Boolean is113 = false;
-    private Boolean is18 = false;
+    private static Boolean is18 = false;
     private Boolean is19 = false;
     private Boolean is112 = false;
     private Boolean is110 = false;
@@ -1208,7 +1208,8 @@ public class fListener implements Listener {
             fTimer.setEndScanFinish(System.currentTimeMillis() + (30 * 1000));
             fTimer.setDragon(event.getEntity().getWorld());
         }
-        if (fListener.getInstance().is18 || !Protections.PreventLootingExploit.isEnabled()) return;
+        fListener.getInstance();
+		if (fListener.is18 || !Protections.PreventLootingExploit.isEnabled()) return;
 
         if (event.getEntity().getKiller() == null || event.getEntity().getKiller() == null || event.getEntity() instanceof Player)
             return;
@@ -2768,12 +2769,12 @@ public class fListener implements Listener {
         this.is113 = is113;
     }
 
-    public Boolean is18() {
+    public static Boolean is18() {
         return is18;
     }
 
     public void setIs18(Boolean is18) {
-        this.is18 = is18;
+        fListener.is18 = is18;
     }
 
     public Boolean is114() {
@@ -2860,6 +2861,6 @@ public class fListener implements Listener {
 	}
 
 	public void setCheckShulker(Boolean checkShulker) {
-		this.checkShulker = checkShulker;
+		fListener.checkShulker = checkShulker;
 	}
 }

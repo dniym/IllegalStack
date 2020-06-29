@@ -76,10 +76,11 @@ public class CheckUtils {
 		for(ItemStack is:inv.getContents())
 			if(OverstackedItemCheck.CheckContainer(is, inv))
 				return true;
-
-		for(ItemStack is:inv.getStorageContents())
-			if(OverstackedItemCheck.CheckContainer(is, inv))
-				return true;
+		
+		if(!fListener.is18())
+			for(ItemStack is:inv.getStorageContents())
+				if(OverstackedItemCheck.CheckContainer(is, inv))
+					return true;
 		
 		return false;
 	}

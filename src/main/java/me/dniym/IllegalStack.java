@@ -302,7 +302,7 @@ public class IllegalStack extends JavaPlugin {
         		setSavageFac(true);
         		
         } catch (ClassNotFoundException e) {
-        	System.out.println("savagefac gui not found?");
+        	
         }
         try {
         	if (Class.forName("fr.minuskube.inv.SmartInventory") != null) 
@@ -405,7 +405,6 @@ public class IllegalStack extends JavaPlugin {
                 for (Protections child : p.getChildren())
                     if (config.getString(child.getConfigPath()) == null) {
 
-                    	System.out.println("Checking child: " + child.name());
                         if (child.getConfigValue() instanceof Boolean) {
                             child.setEnabled((Boolean) child.getDefaultValue());
                         }

@@ -463,6 +463,7 @@ public enum Protections {
         if (this.getVersion().isEmpty())
             return false; //must be a child node
 
+        
         if (this.getVersion().contains("< 1.15"))
 			return !serverVersion.contains("1.15") && !serverVersion.contains("1.16");
 
@@ -475,7 +476,9 @@ public enum Protections {
         if (this.getVersion().contains("ALL"))
             return true;
 
-
+        if (this.getVersion().equalsIgnoreCase("1.16") && serverVersion.contains("1.16"))
+            return true;
+        
         if (this.getVersion().equalsIgnoreCase("1.15") && serverVersion.contains("1.15"))
             return true;
 
@@ -488,17 +491,20 @@ public enum Protections {
         if (this.getVersion().contains("1.15") && serverVersion.contains("1.15"))
             return true;
 
+        if (this.getVersion().contains("1.16") && serverVersion.contains("1.16"))
+            return true;
+        
         if (this.getVersion().contains("> 1.12"))
-            if (serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12"))
+            if (serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12"))
                 return true;
 
         if (this.getVersion().contains("> 1.9"))
-            if (serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11") ||
+            if (serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11") ||
                     this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9"))
                 return true;
 
         if (this.getVersion().contains("> 1.11"))
-            if (serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11"))
+            if (serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11"))
                 return true;
         if (this.getVersion().contains("1.12"))
             if (serverVersion.contains("1.12"))
@@ -507,7 +513,7 @@ public enum Protections {
             return true;
 
         if (this.getVersion().contains("< 1.13"))
-			return !serverVersion.contains("1.14") && !serverVersion.contains("1.15");
+			return !serverVersion.contains("1.14") && !serverVersion.contains("1.15") && !serverVersion.contains("1.16");
 
 
         return false;
@@ -518,6 +524,11 @@ public enum Protections {
         if (this.version.isEmpty())
             return false;
 
+        if (this.getVersion().equals("1.16")) {
+        	if (serverVersion.contains("v1_16"))
+        		return true;
+        			
+        }
         if (this.getVersion().equals("1.15")) {
             if (serverVersion.contains("v1_15_R1"))
                 return true;
@@ -531,6 +542,8 @@ public enum Protections {
         if (this.getVersion().equals("1.14.3")) {
 			return serverVersion.contains("v1_14_R3");
         }
+        if (serverVersion.contains("v1_16") && this.getVersion().contains("1.16"))
+        	return true;
         if (serverVersion.contains("v1_15") && this.getVersion().contains("1.15"))
             return true;
         if (serverVersion.contains("v1_14") && this.getVersion().contains("1.14"))
