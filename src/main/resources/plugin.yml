@@ -4,8 +4,8 @@ version: "${version}"
 api-version: 1.13
 description: Closes some dupe bugs present in vanilla minecraft.
 author: dNiym
-website: "https://www.spigotmc.org/resources/44411/"
-soft-depend: [Magic, Factions, NBTAPI, ProtocolLib, Slimefun, CraftingStore, DynamicShop, ClueScrolls, mcMMO]
+soft-depend: [Magic, Factions, NBTAPI, ProtocolLib, Slimefun, CraftingStore, DynamicShop, ClueScrolls, mcMMO, JetsMinions, SmartInvs, FactionsX]
+website: https://www.spigotmc.org/resources/44411/
 commands:
   istack:
     description: allows access to the /istack command

@@ -8,6 +8,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public enum Msg {
@@ -37,6 +38,7 @@ public enum Msg {
     EndPortalBlock("Blocked an entity from entering or leaving the end: ~name~ @"),
     MinecartGlitch1("Located and removed a minecart glitched inside another block : ~blocktype~ @"),
     MinecartGlitch2("Stopped a minecart from being glitched into a block @"),
+    MinecartMount("Prevented a ~entity~ from being able to mount a ~vehicle~ @"),
     ZeroTickGlitch("Stopped Zero tick crop growth glitch and removed (~removedblocks~) @"),
     NamedItemRemovalHopper("Found an item named ~item~ in a hopper, it has been removed @"),
     NamedItemRemovalPlayer("Found an item named: ~item~ in ~name~'s inventory, it has been removed. @"),
@@ -70,6 +72,7 @@ public enum Msg {
     PlayerSwimExploitMsg("&cThat villager is too busy swimming to trade with you right now!"),
     PlayerCMIShulkerNest("&cSorry you can not put a shulker into another shulker!"),
     PlayerDisabledHorseChestMsg("&cSorry, chests on horses, llamas, mules etc are disabled!"),
+    PlayerDisabledRidingChestedMsg("&cSorry, taming creatures that can carry chests is disabled!"),
     PlayerKickForChestMsg("&cYou were warned about chests on mobs, stop trying."),
 
     PlayerNearbyNotification("a nearby exploit was detected ~prot~"),
@@ -185,14 +188,41 @@ public enum Msg {
         return val;
     }
 
-    public String getValue(Container c, ItemStack is, Enchantment en) {
+    public String getValue(Entity ent1, Entity ent2) {
+    	String val = value;
+        val = val.replace("~entity~", ent1.getType().name());
+        val = val.replace("~vehicle~", ent2.getType().name());
+        val = val.replace("@", "@ " + ent1.getLocation().toString());
+        return val;
+    }
+    public String getValue(Object obj, ItemStack is, Enchantment en) {
+    	
+    	
         String val = value;
 
         val = val.replace("~item~", is.getType().name());
         val = val.replace("~enchant~", en.getName());
         val = val.replace("~lvl~", is.getEnchantmentLevel(en) + "");
-        val = val.replace("~player~", c.getType().name());
-        val = val.replace("@", "@ " + c.getLocation().toString());
+        if(obj instanceof Container)
+        	val = val.replace("~player~", ((Container)obj).getType().name());
+        else if(obj instanceof Player)
+        	val = val.replace("~player~", ((Player)obj).getName());
+        else if(obj instanceof Inventory)
+        	val = val.replace("~player~", ((Inventory)obj).getType().name() + " - ");
+        
+        Location loc = null;
+        if(obj instanceof Container)
+        	loc = ((Container)obj).getLocation();
+        else if(obj instanceof Player)
+        	loc = ((Player)obj).getLocation();
+        else if (obj instanceof Inventory)
+        	loc = ((Inventory)obj).getLocation();
+        
+        
+        if(loc != null)
+        	val = val.replace("@", "@ " + loc.toString());
+        else
+        	val = val.replace("@", "@ UNKNOWN ");
         return val;
 
     }
@@ -218,6 +248,17 @@ public enum Msg {
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
+    public String getValue(Object obj, ItemStack is) {
+    	if(obj instanceof Container)
+    		return getValue(((Container)obj),is);
+    	if(obj instanceof Location)
+    		return getValue(((Location)obj),is);
+    	if(obj instanceof Inventory)
+    		return getValue(((Inventory)obj).getLocation(), is);
+    	
+    	System.out.println("An unknown object " + obj.toString() + " was passed to illegalstack during a logging operation please report this to dNiym at the spigot forums or on the IllegalStack Discord.");
+    	return "???";
+    }
     public String getValue(Container c, ItemStack is) {
         String val = value;
 
