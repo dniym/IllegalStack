@@ -3,7 +3,7 @@ plugins {
 }
 
 repositories {
-    mavenCentral() // Netty, IF
+    mavenCentral() // Netty, IF, SmartInvs
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" } // BungeeCord
     maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" } // Spigot
     maven { url = "https://repo.dmulloy2.net/nexus/repository/public/" } // ProtocolLib
@@ -17,23 +17,25 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.5.0")
+    compileOnly("org.spigotmc:spigot-api:1.16.1-R0.1-SNAPSHOT")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0-SNAPSHOT")
     implementation("com.elmakers.mine.bukkit:MagicAPI:7.9.5")
-    implementation("de.tr7zw:item-nbt-api-plugin:2.3.1")
+    implementation("de.tr7zw:item-nbt-api-plugin:2.4.1")
     implementation("com.github.TheBusyBiscuit:Slimefun4:v4.1.15") { transitive = false }
     implementation("io.netty:netty-all:4.0.39.Final")
-    implementation("com.gmail.nossr50.mcMMO:mcMMO:2.1.128") { transitive = false }
-    implementation("com.github.brcdev-minecraft:shopgui-api:1.2.0")
+    implementation("com.gmail.nossr50.mcMMO:mcMMO:2.1.130") { transitive = false }
+    implementation("com.github.brcdev-minecraft:shopgui-api:1.3.0")
+    implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation("name:DynamicShop-2.11.1")
-    implementation("name:CraftingStore")
-    implementation("name:Factions")
+    implementation("name:CraftingStore-2.3.0")
+    implementation("name:SaberFactions-2.4.0-RC")
+    implementation("name:JetsMinions-6.2.10")
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.1.2e"
+version = "2.1.3b"
 
 processResources {
     from('src/main/resources') {

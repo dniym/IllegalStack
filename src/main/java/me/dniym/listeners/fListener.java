@@ -3,6 +3,8 @@ package me.dniym.listeners;
 import io.netty.util.internal.ThreadLocalRandom;
 import me.dniym.IllegalStack;
 import me.dniym.checks.CheckUtils;
+import me.dniym.checks.IllegalEnchantCheck;
+import me.dniym.checks.OverstackedItemCheck;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.fishing.FishAttempt;
