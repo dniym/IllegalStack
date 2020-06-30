@@ -44,6 +44,7 @@ public class IllegalStack extends JavaPlugin {
     private static boolean CMI = false;
     private static boolean hasMCMMO = false;
     private static boolean hasChestedAnimals = false;
+    private static boolean hasContainers = false;
     private static boolean hasMagicPlugin = false;
     private static String version = "";
     private int ScanTimer = 0;
@@ -82,17 +83,6 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private static void StartupPlugin() {
-
-        if (IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("Factions") != null) {
-            try {
-                Class.forName("com.massivecraft.factions.shade.stefvanschie.inventoryframework.Gui");
-                System.out.println("[IllegalStack] Detected SaberFactions gui object, whitelisting items found inside.");
-                setHasFactionGUI(true);
-            } catch (ClassNotFoundException ignored) {
-
-            }
-        }
-        
         try {
             Class.forName("org.spigotmc.SpigotConfig");
             Spigot = true;
@@ -122,7 +112,8 @@ public class IllegalStack extends JavaPlugin {
         }
 
 
-        if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.getInstance().is18()) {
+        
+		if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
             if (plugin.SignTimer == 0)
                 plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new sTimer(), 10, 10);
         } else {
@@ -130,13 +121,16 @@ public class IllegalStack extends JavaPlugin {
                 plugin.getServer().getScheduler().cancelTask(plugin.SignTimer);
         }
 
-        if (fListener.getInstance().is114() && Protections.VillagerTradeCheesing.isEnabled()) {
+        if ((fListener.getInstance().getIs116() || fListener.getInstance().is115() || fListener.getInstance().is114())) {
             System.out.println("Blocking 1.14 villager trade cheesing.");
-            plugin.getServer().getPluginManager().registerEvents(new Listener114(), plugin);
-
+            IllegalStack.getPlugin().getServer().getPluginManager().registerEvents(new Listener114(), IllegalStack.getPlugin());
             System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
-
         }
+
+
+
+
+         
 
     }
 
@@ -208,6 +202,9 @@ public class IllegalStack extends JavaPlugin {
         IllegalStack.hasFactionGUI = hasFactionGUI;
     }
 
+    public static boolean hasContainers() {
+    	return hasContainers;
+    }
     public static boolean hasChestedAnimals() {
         return hasChestedAnimals;
     }
@@ -257,6 +254,7 @@ public class IllegalStack extends JavaPlugin {
             setClueScrolls(true);
 
         setHasChestedAnimals();
+        setHasContainers();
         try {
             Class.forName("com.github.stefvanschie.inventoryframework.Gui");
             System.out.println("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
@@ -347,18 +345,21 @@ public class IllegalStack extends JavaPlugin {
 
         this.getServer().getPluginManager().registerEvents(new fListener(this), this);
 
-        if (!fListener.getInstance().is18())
+        fListener.getInstance();
+		if (!fListener.is18())
             this.getServer().getPluginManager().registerEvents(new protListener(this), this);
 
         if (Protections.RemoveOverstackedItems.isEnabled() || Protections.PreventVibratingBlocks.isEnabled())
             ScanTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new fTimer(this), Protections.ItemScanTimer.getIntValue(), Protections.ItemScanTimer.getIntValue());
 
-        if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.getInstance().is18())
+        fListener.getInstance();
+		if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18())
             SignTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new sTimer(), 10, 10);
 
-        if ((fListener.getInstance().is115() || fListener.getInstance().is114())) {
+        if ((fListener.getInstance().getIs116() || fListener.getInstance().is115() || fListener.getInstance().is114())) {
             System.out.println("Blocking 1.14 villager trade cheesing.");
             this.getServer().getPluginManager().registerEvents(new Listener114(), this);
+            System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
         }
 
         if (this.getServer().getPluginManager().getPlugin("Magic") != null)
@@ -378,12 +379,21 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
+    private void setHasContainers() {
+    	try {
+    		Class.forName("org.bukkit.block.Container");
+    		hasContainers = true;
+    		
+    	} catch (ClassNotFoundException ignored) {
+    		
+    	}
+    }
     private void setHasChestedAnimals() {
 
         try {
             Class.forName("org.bukkit.entity.ChestedHorse");
             hasChestedAnimals = true;
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignored) {
         }
     }
 

@@ -193,6 +193,7 @@ public class Listener114 implements Listener {
         if (!Protections.VillagerTradeCheesing.isEnabled())
             return;
         if (e.getInventory() instanceof MerchantInventory) {
+        	
             MerchantInventory mi = (MerchantInventory) e.getInventory();
             if (mi.getHolder() instanceof WanderingTrader)
                 return;
@@ -201,9 +202,6 @@ public class Listener114 implements Listener {
 
                 if (v.getVillagerExperience() == 0)
                     v.setVillagerExperience(1);
-
-                //	System.out.println("Verifying trades?");
-                //NBTStuff.verifyTrades(v);
 
             }
         }

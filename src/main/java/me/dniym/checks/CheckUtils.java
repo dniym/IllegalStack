@@ -52,7 +52,11 @@ public class CheckUtils {
 		                }
 		                if(inv.getContents().length > 0) {
 		                	shulker.getInventory().setContents(inv.getContents());
-		                	is.setItemMeta((BlockStateMeta)shulk.getData());
+		                	shulk.setBlockData(shulker.getBlockData());
+		                	im.setBlockState(shulk);
+		                	is.setItemMeta(im);
+		                	
+		                	
 		                	
 		                } 
 		            } 

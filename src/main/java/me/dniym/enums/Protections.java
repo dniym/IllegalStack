@@ -1,6 +1,6 @@
 package me.dniym.enums;
 
-import com.massivecraft.factions.shade.stefvanschie.inventoryframework.Gui;
+
 
 import me.dniym.IllegalStack;
 import me.dniym.utils.MagicHook;
@@ -917,24 +917,6 @@ public enum Protections {
     
     
     public boolean isThirdPartyInventory(InventoryView inv) {
-/*
-    	if (IllegalStack.hasSavageFac()) {
-    		System.out.println("Found savageFac");
-    		
-    		InventoryManager im = FactionsX.getInstance().inventoryManager;
-    		//if(im.getInventory(inv.getPlayer()) != null) {
-    			System.out.println("Finally found a FX inv");
-    			return true;
-    		//} else
-    			//System.out.println("Still not a FX inv");
-    		
-    	} else 
-    		System.out.println("no savagefac"); 
-*/
-        if (IllegalStack.hasFactionGUI()) {
-            if (inv.getTopInventory().getHolder() instanceof Gui)
-                return true;
-        }
 
         if (IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("CraftingStore") != null) {
             if (inv.getTopInventory().getHolder() instanceof CraftingStoreInventoryHolder)

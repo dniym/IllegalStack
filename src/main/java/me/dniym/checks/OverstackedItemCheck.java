@@ -4,7 +4,10 @@ import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.listeners.fListener;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -12,15 +15,13 @@ public class OverstackedItemCheck {
 
 	public static boolean CheckForOverstackedItems (ItemStack is, Object obj) {
 		
-		if(is != null && (obj instanceof Container || obj instanceof Inventory))
+		if(is != null && (obj instanceof Inventory || obj instanceof Container))
 			return CheckContainer(is,obj);
 		
 		return false;
 	}
+	
     public static boolean CheckContainer(ItemStack is, Object obj) {
-    	
-    	if (!(obj instanceof Inventory) && !(obj instanceof Container))
-    		return false;
     	
         if (is == null)
             return false;
@@ -31,15 +32,15 @@ public class OverstackedItemCheck {
             if (!Protections.IllegalStackMode.isEnabled())  //in blacklist mode and on the blacklist
             {
                 if (Protections.FixOverstackedItemInstead.isEnabled()) {
+                	fListener.getLog().append(Msg.IllegalStackShorten.getValue(obj, is));
                     is.setAmount(is.getType().getMaxStackSize());
-                    fListener.getLog().append(Msg.IllegalStackShorten.getValue(obj, is));
                     return true;
                 } else {
-                	if(obj instanceof Container)
-                		((Container)obj).getInventory().remove(is);
-                	else
+                	fListener.getLog().append(Msg.IllegalStackItemScan.getValue(obj, is));
+                	if(obj instanceof Inventory)
                 		((Inventory)obj).remove(is);
-                    fListener.getLog().append(Msg.IllegalStackItemScan.getValue(obj, is));
+                	else
+                		((Container)obj).getInventory().remove(is);
                     return true;
                 }
 
@@ -49,16 +50,16 @@ public class OverstackedItemCheck {
                 return true;
 
             if (Protections.FixOverstackedItemInstead.isEnabled()) {
+            	fListener.getLog().append(Msg.IllegalStackShorten.getValue(obj, is));
                 is.setAmount(is.getType().getMaxStackSize());
-                fListener.getLog().append(Msg.IllegalStackShorten.getValue(obj, is));
+                
                 return true;
             } else {
-            	if(obj instanceof Container)
-            		((Container)obj).getInventory().remove(is);
-            	else
+            	fListener.getLog().append(Msg.IllegalStackItemScan.getValue(obj, is));
+            	if(obj instanceof Inventory)
             		((Inventory)obj).remove(is);
-            	
-                fListener.getLog().append(Msg.IllegalStackItemScan.getValue(obj, is));
+            	else
+            		((Container)obj).getInventory().remove(is);
                 return true;
             }
         }

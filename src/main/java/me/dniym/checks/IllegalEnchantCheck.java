@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -20,7 +21,7 @@ public class IllegalEnchantCheck {
 	
 	public static boolean CheckForIllegalEnchants (ItemStack is, Object obj) {
 		
-		if(is != null && (obj instanceof Container || obj instanceof Inventory))
+		if(is != null && (obj instanceof Inventory || obj instanceof Container))
 			return isIllegallyEnchanted(is,obj);
 		
 		return false;
@@ -35,10 +36,16 @@ public class IllegalEnchantCheck {
         {
             if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) {//world list isnt empty
             	Location loc = null;	
-            	if(obj instanceof Container)
-            		loc = ((Container) obj).getLocation();	
-            	if(obj instanceof Inventory)
+            		
+            	if(obj instanceof Inventory) {
             		loc = ((Inventory)obj).getLocation();
+            		if(loc == null) {
+            			
+            		}
+            	} else if (obj instanceof Location)
+            		loc = ((Location)obj);
+            	else if(obj instanceof Container)
+            		loc = ((Container) obj).getLocation();
             
                 if (loc != null && !Protections.OnlyFunctionInWorlds.getTxtSet().contains(loc.getWorld().getName())) //isnt in a checked world
                     return false;
