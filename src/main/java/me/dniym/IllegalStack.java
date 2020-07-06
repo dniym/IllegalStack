@@ -43,6 +43,7 @@ public class IllegalStack extends JavaPlugin {
     private static boolean SavageFac = false;
     private static boolean CMI = false;
     private static boolean hasMCMMO = false;
+    private static boolean hasTraders = false;
     private static boolean hasChestedAnimals = false;
     private static boolean hasContainers = false;
     private static boolean hasMagicPlugin = false;
@@ -255,6 +256,8 @@ public class IllegalStack extends JavaPlugin {
 
         setHasChestedAnimals();
         setHasContainers();
+        setHasTraders();
+        
         try {
             Class.forName("com.github.stefvanschie.inventoryframework.Gui");
             System.out.println("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
@@ -379,6 +382,17 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
+    public static boolean hasTraders() {
+    	return hasTraders;
+    }
+    private void setHasTraders() {
+    	try {
+    		Class.forName("import org.bukkit.entity.TraderLlama");
+    		hasTraders = true;
+    	} catch (ClassNotFoundException ignored) {
+    		
+    	}
+    }
     private void setHasContainers() {
     	try {
     		Class.forName("org.bukkit.block.Container");

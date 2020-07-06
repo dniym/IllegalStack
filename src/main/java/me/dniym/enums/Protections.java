@@ -97,7 +97,7 @@ public enum Protections {
     PreventLootingExploit(50, true, "Prevent Looting Exploit", "ALL", "Exploits.Looting.PreventLootingExploit", "Prevents an exploit that allows players to use ranged weapons such as bows or crossbows to enable looting by holding a looting sword in their offhand.", "", 0, false),
     //PacketAttackWindowClick(33,false,"Prevent Packet Crasher 1", "ALL", "Exploits.PacketAttack.PacketCrasher1", "Prevents Oversized packets and packet spam that  ")
     //MULTI VERSION EXPLOITS
-    PreventRailDupe(8, true, "Destroy Rail / Carpet Dupers", "1.12/1.13/1.14/1.15", "Exploits.Other.PreventRailDupe", "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.", "", 0, false),
+    PreventRailDupe(8, true, "Destroy Rail / Carpet Dupers", "1.12/1.13/1.14/1.15/1.16", "Exploits.Other.PreventRailDupe", "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.", "", 0, false),
 
     PreventNestedShulkers(10, true, "Prevent Nested Shulker Boxes", "> 1.11", "Exploits.Other.PreventNestedShulkers", "Prevent players from putting shulker boxes inside other shulker boxes, this exploit leads to pretty much infinte storage.", "", 0, false),
 

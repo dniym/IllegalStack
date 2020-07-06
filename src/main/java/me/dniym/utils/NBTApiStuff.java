@@ -1,6 +1,6 @@
 package me.dniym.utils;
 
-import de.tr7zw.nbtapi.*;
+
 import me.dniym.enums.Msg;
 import me.dniym.listeners.fListener;
 import org.bukkit.NamespacedKey;
@@ -8,6 +8,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
+
+import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTCompoundList;
+import de.tr7zw.nbtapi.NBTEntity;
+import de.tr7zw.nbtapi.NBTItem;
+import de.tr7zw.nbtapi.NBTListCompound;
 
 public class NBTApiStuff {
 
