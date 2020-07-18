@@ -6,7 +6,6 @@ package me.dniym.checks;
 import java.util.HashSet;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.ShulkerBox;
@@ -86,10 +85,14 @@ public class IrritaingLegacyChecks {
 				}
 			}
 		} else {  //should be a single item.
-			return OverstackedItemCheck.CheckForOverstackedItems(item, loc);
+			cancel =  CheckForOverstackedItems(item);
 			
 		}
 		return cancel;
+	}
+	private static boolean CheckForOverstackedItems(ItemStack item) {
+		return item.getAmount() > item.getType().getMaxStackSize();
+		
 	}
 	public static boolean CheckContainer(ItemStack is, BlockStateMeta sb, Location loc) {
 

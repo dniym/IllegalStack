@@ -10,10 +10,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Container;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-
 import java.util.HashSet;
 
 
@@ -26,8 +25,24 @@ public class IllegalEnchantCheck {
 		
 		return false;
 	}
-
-    public static boolean isIllegallyEnchanted(ItemStack is, Object obj) {
+	
+	public static boolean CheckStorageInventory(Inventory inv,Player plr) {
+		if(!IllegalStack.hasStorage())
+			return false;
+		
+		boolean invalid = false;
+		for(ItemStack is:inv.getStorageContents())
+			if(invalid = isIllegallyEnchanted(is,inv,true)) 
+				fListener.getLog().append(Msg.GenericItemRemoval.getValue(is,Protections.FixIllegalEnchantmentLevels, plr, "Crafting Inventory"));
+			
+		
+		return invalid;
+	}
+	
+	public static boolean isIllegallyEnchanted(ItemStack is, Object obj) {
+		return isIllegallyEnchanted(is,obj,false);
+	}
+    public static boolean isIllegallyEnchanted(ItemStack is, Object obj, Boolean silent) {
     	
         if (is == null)
             return false;
@@ -67,22 +82,23 @@ public class IllegalEnchantCheck {
                         continue;
 
                     if (Protections.DestroyIllegallyEnchantedItemsInstead.isEnabled()) {
-                        fListener.getLog().append(Msg.DestroyedEnchantedItem.getValue(obj, is, en));
+                        if(!silent) fListener.getLog().append(Msg.DestroyedEnchantedItem.getValue(obj, is, en));
                         is.setType(Material.AIR);
                         return true;
                     }
-                    if (en.canEnchantItem(is))
-                        fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(obj, is, en));
-                    else
-                        fListener.getLog().append(Msg.IllegalEnchantType.getValue(obj, is, en));
+                    if (en.canEnchantItem(is)) {
+                    	if(!silent) fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(obj, is, en));
+                    } else {
+                    	if(!silent) fListener.getLog().append(Msg.IllegalEnchantType.getValue(obj, is, en));
                     replace.add(en);
+                    }
                 } else {
                     if (!en.canEnchantItem(is)) {
                         if (SlimefunCompat.isValid(is, en))
                             continue;
 
                         replace.add(en);
-                        fListener.getLog().append(Msg.IllegalEnchantType.getValue(obj, is, en));
+                        if(!silent) fListener.getLog().append(Msg.IllegalEnchantType.getValue(obj, is, en));
                     }
                 }
 
@@ -95,4 +111,6 @@ public class IllegalEnchantCheck {
 
         return false;
     }
+
+	
 }

@@ -8,7 +8,9 @@ import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import me.dniym.IllegalStack;
 import me.dniym.enums.Msg;
 import me.dniym.listeners.fListener;
 import me.dniym.utils.NBTStuff;
@@ -16,13 +18,14 @@ import me.dniym.utils.NBTStuff;
 public class CheckUtils {
 
 	public static boolean CheckEntireContainer(Container c) {
-		
+		boolean added = false;
 		for(ItemStack is:c.getInventory()) {
 			
-			if(is != null && fListener.getCheckShulker() && is.getType().name().contains("SHULKER_BOX")) 
+			if(is != null && IllegalStack.hasShulkers() && is.getType().name().contains("SHULKER_BOX")) 
 			{
 				
 				int tagSize =NBTStuff.isBadShulker(is); 
+				
 				if (tagSize > 0) {
                     fListener.getLog().append(Msg.StaffBadShulkerRemoved.getValue(c.getLocation(), tagSize));
                     is.setType(Material.AIR);
@@ -31,6 +34,7 @@ public class CheckUtils {
 				
 		        if(is.getItemMeta() instanceof BlockStateMeta){
 		            BlockStateMeta im = (BlockStateMeta)is.getItemMeta();
+		            Boolean remove = false;
 		            if(im.getBlockState() instanceof ShulkerBox) 
 		            {
 		            	BlockState shulk = im.getBlockState();
@@ -44,17 +48,41 @@ public class CheckUtils {
 		                	if (tagSize > 0) {
 		                        fListener.getLog().append(Msg.StaffBadShulkerRemoved.getValue(c.getLocation(), tagSize));
 		                        is2.setType(Material.AIR);
+		                        remove = true;
 		                	}
 		                	
-		                	OverstackedItemCheck.CheckContainer(is2, c);
-		                	IllegalEnchantCheck.isIllegallyEnchanted(is2, c);
-		                	inv.addItem(is2);
+		                	
+		                	if(!remove)
+		                		remove = OverstackedItemCheck.CheckContainer(is2, c);
+		                	if(!remove) 
+		                		remove =IllegalEnchantCheck.isIllegallyEnchanted(is2, c);
+		                	if(!remove)
+		                		remove =RemoveItemTypesCheck.shouldRemove(is2, c);
+		                
+		                	if(remove) {
+		                		inv.removeItem(is2);
+		                		added = true;
+		                	}
 		                }
-		                if(inv.getContents().length > 0) {
-		                	shulker.getInventory().setContents(inv.getContents());
-		                	shulk.setBlockData(shulker.getBlockData());
-		                	im.setBlockState(shulk);
-		                	is.setItemMeta(im);
+		                if(added) {
+		                	new BukkitRunnable() {
+
+								@Override
+								public void run() {
+				                	
+				                	shulker.getInventory().setContents(inv.getContents());
+				                	im.setBlockState(shulker);
+				                	is.setItemMeta(im);
+
+								}
+
+							}.runTaskLater(IllegalStack.getPlugin(), 4);
+
+		                	return true;
+		                	//shulk.update(true);
+		                	//shulk.setBlockData(shulker.getBlockData());
+		                	//im.setBlockState(shulk);
+		                	
 		                	
 		                	
 		                	
@@ -77,11 +105,16 @@ public class CheckUtils {
 	
 	public static boolean CheckEntireInventory(Inventory inv) {
 		
-		for(ItemStack is:inv.getContents())
+		for(int i = 0; i < inv.getContents().length; i++) {
+			ItemStack is = inv.getContents()[i];
 			if(OverstackedItemCheck.CheckContainer(is, inv))
 				return true;
+			if(RemoveItemTypesCheck.shouldRemove(is, inv)) {
+				return true;
+			}
+		}
 		
-		if(!fListener.is18())
+		if(!fListener.is18() && IllegalStack.hasStorage())
 			for(ItemStack is:inv.getStorageContents())
 				if(OverstackedItemCheck.CheckContainer(is, inv))
 					return true;

@@ -3,8 +3,8 @@ package me.dniym.enums;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -12,7 +12,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 
 public enum Msg {
 
@@ -42,11 +41,13 @@ public enum Msg {
     EndPortalBlock("Blocked an entity from entering or leaving the end: ~name~ @"),
     MinecartGlitch1("Located and removed a minecart glitched inside another block : ~blocktype~ @"),
     MinecartGlitch2("Stopped a minecart from being glitched into a block @"),
+    HeadInsideSolidBlock("Stopped ~player~ 's head from being inside a solid block while in a ~vehicle~ @"),
     MinecartMount("Prevented a ~entity~ from being able to mount a ~vehicle~ @"),
     ZeroTickGlitch("Stopped Zero tick crop growth glitch and removed (~removedblocks~) @"),
     NamedItemRemovalHopper("Found an item named ~item~ in a hopper, it has been removed @"),
     NamedItemRemovalPlayer("Found an item named: ~item~ in ~name~'s inventory, it has been removed. @"),
     ItemTypeRemovedPlayer("Found a blacklisted item type: ~item~ in ~name~'s inventory, it has been removed"),
+    ItemTypeRemoved("Found a blacklisted item type: ~item~ in ~player~'s inventory, it has been removed"),
     SilkTouchBookBlocked("Stopped  ~name~ from breaking ~block~ using a silk touch book @"),
 
     PistonHeadRemoval("A piston head was exploded.. removing an orphan piston base @"),
@@ -60,6 +61,7 @@ public enum Msg {
     InvalidPotionRemoved("Removed invalid potion from ~name~ had the following effects: ~effects~"),
     UnbreakableItemCleared("Removed Unbreakable flag from ~item~ found on player ~name~"),
     CustomAttribsRemoved("Removed Custom Attributes on ~item~ held by ~name~ (~attributes~)"),
+    CustomAttribsRemoved2("Removed ~item~ with Custom Attributes worn by ~name~ (~attributes~)"),
     GlideActivateMaxBuild("Prevented ~name~ from activating an elytra while above the max build height. @"),
     GlideAboveMaxBuild("Player ~name~ was using an elytra above the max build height, disabling glide. @"),
     CorrectedPlayerLocation("(possible pearl glitch into block) Corrected an enderpearl teleport location for ~player~ @"),
@@ -67,7 +69,7 @@ public enum Msg {
     StoppedPushableEntity("Prevented an entity (armor stand/end crystal) from being pushed into another entity @"),
     RemovedRenamedItem("Removed a renamed item ~item~ from the inventory of ~name~"),
     BlockedTripwireDupe("Player ~name~ attempted to place a tripwire hook on a trap door, it has been removed (PreventTripwireDupe = true)"),
-
+    GenericItemRemoval("~item~ removed by protection ~protection~, found on source ~source~"),
     PlayerTrappedPortalMsg("&cSorry ~name~ but that portal appears to not have a valid exit!  You would be trapped if you went through it!"),
     PlayerCommandSleepMsg("&cSorry but all commands are disabled while sleeping!"),
     PlayerDisabledBookMsg("&cSorry but player book editing is disabled on this server!"),
@@ -92,6 +94,7 @@ public enum Msg {
     StaffMsgCreativeBlock("~name~ was prevented from loading in an illegal item via the creative saved toolbar."),
     StaffMsgNetherBlock("~name~ was prevented from accessing the top of the nether @"),
     StaffMsgNetherFix("~name~ has been teleported down from above the nether ceiling @"),
+    StaffMsgUnderNether("~name~ has been killed for flying under the nether floor @"),
     StaffMsgNetherCart("Stopped ~name~ riding in a vehicle above the nether ceiling @"),
     StaffMsgBookRemoved("Removed a writable book from player: ~name~ because player book creation is disabled!"),
     StaffProtectionToggleMsg("Protection: ~protection~ has been turned ~status~ by ~name~"),
@@ -146,6 +149,17 @@ public enum Msg {
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
+    public String getValue(ItemStack is, Protections prot, Player plr, String source) {
+        String val = value;
+        
+        val = val.replace("~item~", is.getType().name());
+        val = val.replace("~protection~", prot.getDisplayName());
+        val = val.replace("~source~", source);
+        if(plr != null)
+        	val = plr.getName() + " - " + val;
+        
+        return ChatColor.translateAlternateColorCodes('&', val);
+    }
     public String getValue(Player player, String displayName) {
         String val = value;
         val = val.replace("@", "@ " + player.getLocation().toString());
@@ -200,7 +214,12 @@ public enum Msg {
 
     public String getValue(Entity ent1, Entity ent2) {
     	String val = value;
-        val = val.replace("~entity~", ent1.getType().name());
+    	
+    	if(ent1 instanceof Player)
+    		val = val.replace("~entity~", ((Player)ent1).getName());
+    	else
+    		val = val.replace("~entity~", ent1.getType().name());
+    	
         val = val.replace("~vehicle~", ent2.getType().name());
         val = val.replace("@", "@ " + ent1.getLocation().toString());
         return val;
@@ -220,10 +239,15 @@ public enum Msg {
         String val = value;
 
         val = val.replace("~item~", is.getType().name());
-        val = val.replace("~enchant~", en.getName());
-        val = val.replace("~lvl~", is.getEnchantmentLevel(en) + "");
-        
-        if(obj instanceof Player)
+        if(en == null)
+        	val = val.replace("~enchant~", "");
+        else {
+        	val = val.replace("~enchant~", en.getName());
+            val = val.replace("~lvl~", is.getEnchantmentLevel(en) + "");
+        }
+        if(obj instanceof BlockState) 
+        	val = val.replace("~player~", "a " + ((BlockState)obj).getBlock().getType().name() + "'s inventory");
+        else if(obj instanceof Player)
         	val = val.replace("~player~", ((Player)obj).getName());
         else if(obj instanceof Inventory)
         	val = val.replace("~player~", ((Inventory)obj).getType().name() + " - ");
@@ -234,6 +258,8 @@ public enum Msg {
         
         Location loc = null;
         
+        if(obj instanceof BlockState)
+        	loc = ((BlockState)obj).getLocation();
         if(obj instanceof Player)
         	loc = ((Player)obj).getLocation();
         else if (obj instanceof Block)

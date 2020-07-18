@@ -13,6 +13,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -46,7 +47,15 @@ public class IllegalStack extends JavaPlugin {
     private static boolean hasTraders = false;
     private static boolean hasChestedAnimals = false;
     private static boolean hasContainers = false;
+    private static boolean hasShulkers = false;
+    private static boolean hasElytra = false;
     private static boolean hasMagicPlugin = false;
+    private static boolean isPaper = false;
+    private static boolean disablePaperShulkerCheck = false;
+    private static boolean hasUnbreakable = false;
+    private static boolean hasStorage = false;
+    private static boolean hasIds = false;
+    
     private static String version = "";
     private int ScanTimer = 0;
     private int SignTimer = 0;
@@ -257,6 +266,11 @@ public class IllegalStack extends JavaPlugin {
         setHasChestedAnimals();
         setHasContainers();
         setHasTraders();
+        setHasShulkers();
+        setHasElytra();
+        setIsPaper();
+        setHasUnbreakable();
+        setHasStorage();
         
         try {
             Class.forName("com.github.stefvanschie.inventoryframework.Gui");
@@ -277,11 +291,12 @@ public class IllegalStack extends JavaPlugin {
 			}
 		}
 		*/
-        if (Protections.FixIllegalEnchantmentLevels.isEnabled()) {
+        if (Protections.FixIllegalEnchantmentLevels.isEnabled() || Protections.RemoveCustomAttributes.isEnabled()) {
             ItemStack test = new ItemStack(Material.DIAMOND_AXE, 1);
             ItemMeta im = test.getItemMeta();
+            
             try {
-                im.hasAttributeModifiers();
+            	im.getAttributeModifiers();
                 setHasAttribAPI(true);
 
             } catch (NoSuchMethodError e) {
@@ -389,6 +404,51 @@ public class IllegalStack extends JavaPlugin {
     	try {
     		Class.forName("import org.bukkit.entity.TraderLlama");
     		hasTraders = true;
+    	} catch (ClassNotFoundException ignored) {
+    		
+    	}
+    }
+    private void setHasStorage() {
+    	Inventory inv = Bukkit.getServer().createInventory(null, 9);
+    	try {
+    	inv.getStorageContents();
+    	hasStorage = true;
+    	} catch (NoSuchMethodError ignored) { }
+    }
+    private void setHasUnbreakable() {
+    	ItemStack is = new ItemStack(Material.DIRT);
+    	ItemMeta im = is.getItemMeta();
+    	try {
+    		im.setUnbreakable(false);
+    		hasUnbreakable = true;
+    		
+    	} catch (NoSuchMethodError ignored) { }
+    	
+    }
+    private void setHasElytra() {
+    	
+    	Material m = Material.matchMaterial("Elytra");
+    	if(m != null)
+    		hasElytra = true;
+
+    }
+    private void setIsPaper() {
+    	try {
+    		isPaper = Class.forName("com.destroystokyo.paper.VersionHistoryManager$VersionData") != null;
+    	} catch (ClassNotFoundException ignored) { }
+    }
+    private void setHasIds() {
+    	ItemStack is = new ItemStack(Material.BEDROCK);
+    	try {
+    		is.getType().getId();
+    		hasIds = true;
+    	} catch (IllegalArgumentException ignored) { }
+    }
+    private void setHasShulkers() {
+    	try {
+    		
+    		Class.forName("org.bukkit.block.ShulkerBox");
+    		hasShulkers=true;
     	} catch (ClassNotFoundException ignored) {
     		
     	}
@@ -634,10 +694,28 @@ public class IllegalStack extends JavaPlugin {
             } else {
                 m = Material.matchMaterial(s);
             }
+            int id = -1;
+    		int data = 0;
+    		
             if (m != null)
                 whitelisted.append(s).append(" ");
-            else
-                System.out.println("[IllegalStack] warning unable to find a material matching: " + s + " make sure it is a valid minecraft material type!");
+            else {
+            	if(s.contains(":")) {
+            		String splStr[] = s.split(":");
+            		
+            		try {
+            			id = Integer.parseInt(splStr[0]);
+            			data = Integer.parseInt(splStr[1]);
+            		} catch (NumberFormatException ignored) {}
+            		
+            	}
+            	if(id != -1) 
+        			whitelisted.append(s).append(" ");
+        		 else 
+        			System.out.println("[IllegalStack] warning unable to find a material matching: " + s + " make sure it is a valid minecraft material type!");	
+        		
+                
+            }
         }
         if (whitelisted.length() > 0)
             System.out.println(ChatColor.RED + "The following materials will be removed from player inventories when found: " + whitelisted);
@@ -781,4 +859,35 @@ public class IllegalStack extends JavaPlugin {
 		SavageFac = savageFac;
 	}
 
+	public static boolean hasIds() {
+		return hasIds;
+	}
+	
+	public static boolean hasShulkers() {
+		return hasShulkers;
+	}
+
+	public static boolean hasElytra() {
+		return hasElytra;
+	}
+
+	public static boolean isPaper() {
+		return isPaper;
+	}
+
+	public static boolean hasUnbreakable() {
+		return hasUnbreakable;
+	}
+	public static boolean isDisablePaperShulkerCheck() {
+		return disablePaperShulkerCheck;
+	}
+
+	public static void setDisablePaperShulkerCheck(boolean disablePaperShulkerCheck) {
+		IllegalStack.disablePaperShulkerCheck = disablePaperShulkerCheck;
+	}
+
+	public static boolean hasStorage() {
+		return hasStorage;
+	}
+	
 }

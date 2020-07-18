@@ -418,7 +418,7 @@ public class fTimer implements Runnable {
                     if (is.hasItemMeta()) {
                         ItemMeta im = is.getItemMeta();
 
-                        if (Protections.RemoveUnbreakableFlag.isEnabled()) {
+                        if (Protections.RemoveUnbreakableFlag.isEnabled() && IllegalStack.hasUnbreakable()) {
 
                             if (im.isUnbreakable()) {
                                 if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
@@ -468,8 +468,8 @@ public class fTimer implements Runnable {
                         if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
                             if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p.getWorld().getName())) //isn't in a checked world
                                 continue;
-
-                        if (is != null && !is.getEnchantments().isEmpty()) {
+                        
+                        if (is != null && is.getEnchantments() != null && !is.getEnchantments().isEmpty()) {
                             if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
                                 continue;
 

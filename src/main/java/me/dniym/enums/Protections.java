@@ -64,6 +64,7 @@ public enum Protections {
 
     PreventIndirectTNTPowerDupe(21, true, "Prevent Tnt Dupers", "ALL", "Exploits.TNTDupe.PreventIndirectTNTPowerDupe", "Prevents tnt duping methods that exploit an indirect power bug that causes tnt to ignite and fall away / be launched but leave an unlit block of tnt behind.", "", 0, false),
     BlockPlayersAboveNether(29, true, "Block Players Above Nether", "ALL", "Exploits.Nether.BlockPlayersAboveNether", "Prevents players from teleporting / walking on top of the nether.", "", 0, false),
+    KillPlayersBelowNether(29, false, "Kill Players Under Nether", 29, "Exploits.Nether.KillPlayersBelowNether", "Kills players who fly under the nether floor.", "", 0, false),
     NetherYLevel(29, 128, "Nether Y Level Override", 29, "Exploits.Nether.NetherYLevel", "Adjust the Y Level of the nether, useful for custom world generators.", "", 0, false),
     ExcludeNetherWorldFromHeightCheck(29, new String[]{}, "Exclude These Worlds From Height Check", 29, "Exploits.Nether.ExcludeNetherWorldFromHeightCheck", "Adding a nether world here will exclude it from the height check..  This should only ever be used if you have a nether world that has a non vanilla nether ceiling height, eg maybe bSkyblockNether's.  This will ONLY affect a nether world, no effect if the world is not a nether!", "", 0, false),
 
@@ -160,6 +161,7 @@ public enum Protections {
     IgnoreAllHopperChecks(42, false, "Ignore ALL Hopper Checks", "ALL", "UserRequested.Obscure.HopperCheck.IgnoreAllHopperChecks", "Forces the plugin to Ignore any item or exploit involving a hopper.. WARNING this should only ever be enabled if you are absolutely sure you know what you are doing as it could open up the door to big problems with players being able to xfer duped items, or even allowing them to dupe in specific instances.  Please contact the plugin's author (dNiym) if you even THINK you need to turn this on.", "", 2, false),
     RemoveAllRenamedItems(44, false, "Remove ALL renamed items", "ALL", "UserRequested.Obsure.Misc.RemoveAllRenamedItems", "Removes any item that has been renamed found on any user without the IllegalStack.RenameBypass permission.", "", 2, false),
     DisableBookWriting(53, false, "Disable ALL Book Editing", "ALL", "Exploits.BookExploit.DisableBookWriting", "Disable ALL player book writing, any book and quill that is edited (by a player not on the BookAuthorWhiteList) will be removed and a message sent to the player.  This option is off by default and was a user requested feature.", "", 2, false),
+    PreventHeadInsideBlock(54, false, "PreventHeadInsideBlock", "ALL", "Exploits.MineCart.PreventHeadInsideBlocks", "Kicks a user off/out of a vehicle if they enter a block while inside a vehicle.", "", 2, false),
     ;
 
     ///OPTIONS///
@@ -787,6 +789,24 @@ public enum Protections {
             }
             Material m = Material.matchMaterial(value);
             if (m == null) {
+            	
+            	int id = -1;
+            	int data = 0;
+            	
+            	if(value.contains(":")) {
+            		String magicNumber[] = value.split(":");
+            		try {
+            			id = Integer.parseInt(magicNumber[0]);
+            			data = Integer.parseInt(magicNumber[1]);
+            			return addTxtSet(value,sender);
+            		} catch (NumberFormatException ignored){
+            			sender.sendMessage(ChatColor.DARK_RED + "When using data values, you must use the numeric value for both the itemid and the data.. EG:  397:3");
+            			return false;
+            		}
+            		
+            		
+            	}
+            	
                 sender.sendMessage(ChatColor.DARK_RED + "Sorry! " + value + " does not appear to be a valid Item Type!");
                 return false;
             }
@@ -895,6 +915,26 @@ public enum Protections {
 
     public boolean isWhitelisted(ItemStack is) {
 
+    	if (this == Protections.RemoveItemTypes && IllegalStack.hasIds()) {  //check for magic number type values
+    		int id = -1;
+			int data = 0;
+			
+    		for(String s: this.getTxtSet()) {
+    			if(s.contains(":")) {
+    				String splStr[] = s.split(":");
+    				try {
+    					id = Integer.parseInt(splStr[0]);
+    					data = Integer.parseInt(splStr[1]);
+    				} catch (NumberFormatException ignored) {
+    		
+    				}
+    			}
+    			
+    		}
+    		if(id == is.getType().getId() && data == is.getDurability())
+    			return true;
+    		
+    	}
         if (this == Protections.RemoveItemTypes && is.getType() == Material.matchMaterial("GOLDEN_APPLE") && this.nukeApples && !is.getEnchantments().isEmpty())
             return true;
 

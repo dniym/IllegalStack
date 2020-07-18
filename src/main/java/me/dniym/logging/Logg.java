@@ -23,7 +23,7 @@ public class Logg {
     IllegalStack plugin;
     File file;
     Calendar date;
-
+    
     public Logg(IllegalStack plugin) {
         this.plugin = plugin;
         //System.out.println(plugin.getDataFolder()+"");

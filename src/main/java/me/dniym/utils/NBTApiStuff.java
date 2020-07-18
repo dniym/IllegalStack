@@ -3,6 +3,8 @@ package me.dniym.utils;
 
 import me.dniym.enums.Msg;
 import me.dniym.listeners.fListener;
+
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -128,23 +130,67 @@ public class NBTApiStuff {
         return 0;
     }
 
+    public static void hasBadCustomDataOnArmorLegacy(Player p) {
+    	ItemStack is = p.getInventory().getHelmet();
+    	String slot = "";
+    	if(hasBadCustomDataLegacy(p.getInventory().getBoots())) {
+    		slot = "boots";
+    		p.getInventory().setBoots(new ItemStack(Material.AIR));
+    	} else if(hasBadCustomDataLegacy(p.getInventory().getChestplate())) {
+    		slot = "chestplate";
+    		p.getInventory().setChestplate(new ItemStack(Material.AIR));
+    	} else if(hasBadCustomDataLegacy(p.getInventory().getHelmet())) {
+    		p.getInventory().setHelmet(new ItemStack(Material.AIR));
+    		slot = "helmet";
+    	} else if(hasBadCustomDataLegacy(p.getInventory().getLeggings())) {
+    		p.getInventory().setLeggings(new ItemStack(Material.AIR));
+    		slot = "leggings";
+    	}
+    	
+    	
+    	if(!slot.isEmpty())
+    	{
+    		fListener.getLog().append(Msg.CustomAttribsRemoved2.getValue(p,is, slot));	
+    	}
+    	
+    	
+    			
+    			
+    		
+    				
+    }
+    
+    public static boolean hasBadCustomDataLegacy(ItemStack is) {
+    	if(is == null)
+    		return false;
+    	
+        NBTItem nbti = new NBTItem(is);
+        NBTCompoundList itemTag = nbti.getCompoundList("AttributeModifiers");
+        
+        return (itemTag != null && itemTag.size() > 0);
+    	
+    }
+    
     public static void checkForBadCustomDataLegacy(ItemStack is, Player p, boolean sendToPlayer) {
-
+    	boolean helmet = false;
         NBTItem nbti = new NBTItem(is);
         NBTCompoundList itemTag = nbti.getCompoundList("AttributeModifiers");
         if (itemTag == null) {
             return;
         }
+        
         if (itemTag.size() > 0) {
             itemTag.clear();
-            nbti.setObject("AttributModifiers", itemTag);
-
+            nbti.setObject("AttributeModifiers", itemTag);
+            
             if (sendToPlayer)
                 p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
             else
                 fListener.getLog().append(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
+            
             p.getInventory().remove(is);
-            p.getInventory().addItem(nbti.getItem());
+            
+           // p.getInventory().addItem(nbti.getItem());
         }
     }
 

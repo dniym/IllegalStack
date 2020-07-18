@@ -24,18 +24,18 @@ dependencies {
     implementation("com.github.TheBusyBiscuit:Slimefun4:v4.1.15") { transitive = false }
     implementation("io.netty:netty-all:4.0.39.Final")
     implementation("com.gmail.nossr50.mcMMO:mcMMO:2.1.130") { transitive = false }
-    implementation("com.github.brcdev-minecraft:shopgui-api:1.3.0")
+    implementation("com.github.brcdev-minecraft:shopgui-api:1.5.0")
     implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation("name:DynamicShop-2.11.1")
     implementation("name:CraftingStore-2.3.0")
     implementation("name:SaberFactions-2.4.0-RC")
-    implementation("name:JetsMinions-6.2.10")
+    implementation("name:JetsMinions")
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.1.5"
+version = "2.1.7"
 
 processResources {
     from('src/main/resources') {

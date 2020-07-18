@@ -1,6 +1,5 @@
 package me.dniym.timers;
 
-import me.dniym.IllegalStack;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.listeners.fListener;

@@ -8,7 +8,7 @@ soft-depend: [Magic, Factions, NBTAPI, ProtocolLib, Slimefun, CraftingStore, Dyn
 website: https://www.spigotmc.org/resources/44411/
 commands:
   istack:
-    description: allows access to the /istack command
+    description:  allows access to the /istack command
     permission: illegalstack.help
     usage: "Usage: /istack"
 permissions:

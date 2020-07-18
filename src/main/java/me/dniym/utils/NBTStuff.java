@@ -10,6 +10,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -137,16 +138,33 @@ public class NBTStuff {
 
 
     }
+    public static boolean hasBadCustomData(ItemStack is) {
+
+        ItemMeta im = is.getItemMeta();
+       
+        if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) 
+            return true;
+        else if (IllegalStack.isNbtAPI()) 
+        	return NBTApiStuff.hasBadCustomDataLegacy(is);
+            
+        
+        
+        return false;
+    }
 
     public static void checkForBadCustomData(ItemStack is, Player p, boolean sendToPlayer) {
 
         ItemMeta im = is.getItemMeta();
+       
         if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) {
             StringBuilder attribs = new StringBuilder();
             HashSet<Attribute> toRemove = new HashSet<Attribute>();
             for (Attribute a : im.getAttributeModifiers().keySet()) {
-                for (AttributeModifier st : im.getAttributeModifiers(a))
+       //     	System.out.println("Attrib: " + a.name());
+                for (AttributeModifier st : im.getAttributeModifiers(a)) {
                     attribs.append(" ").append(st.getName()).append(" value: ").append(st.getAmount());
+         //           System.out.println(attribs);
+                }
 
                 toRemove.add(a);
             }
@@ -157,10 +175,13 @@ public class NBTStuff {
             for (Attribute remove : toRemove)
                 im.removeAttributeModifier(remove);
 
+            for(ItemFlag iFlag:im.getItemFlags())
+            	im.removeItemFlags(iFlag);
+            
             is.setItemMeta(im);
 
         } else if (IllegalStack.isNbtAPI()) {
-
+        	NBTApiStuff.hasBadCustomDataOnArmorLegacy(p);
             NBTApiStuff.checkForBadCustomDataLegacy(is, p, sendToPlayer);
 
         } else Msg.StaffNoNBTAPI.getValue(Protections.RemoveCustomAttributes.name());
