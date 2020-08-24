@@ -347,7 +347,7 @@ public class fListener implements Listener {
 	@EventHandler
 	public void ShulkerPlaceCheck(BlockPlaceEvent e) {
 
-		if(IllegalStack.isDisablePaperShulkerCheck())
+		if(IllegalStack.isDisablePaperShulkerCheck() || Protections.IgnoreAllShulkerPlaceChecks.isEnabled())
 			return;
 		
 		boolean cancel = false;
