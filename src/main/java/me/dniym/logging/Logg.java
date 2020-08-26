@@ -3,11 +3,14 @@ package me.dniym.logging;
 import me.dniym.IllegalStack;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
+import me.dniym.events.IllegalStackLogEvent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -31,9 +34,22 @@ public class Logg {
             file = new File(plugin.getDataFolder() + "/OffenseLog.txt");
         date = Calendar.getInstance();
     }
+    
+    @Deprecated
+    public void append2(String message) {
+    	this.append(message, null);
+    
+    }
+    public void append(String message,Protections prot) {
 
-    public void append(String message) {
-
+    	if(prot != null) {
+    		IllegalStackLogEvent event = new IllegalStackLogEvent(message,prot);
+    		Bukkit.getPluginManager().callEvent(event);
+    	 
+    		if (event.isCancelled()) 
+    			return;
+    	}
+        
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
                 System.out.println(Msg.PluginPrefix.getValue() + ChatColor.stripColor(message));
@@ -63,7 +79,7 @@ public class Logg {
                 }
         }
     }
-
+    
     private String getTeleportLoc(String message) {
         String[] words = message.split("@");
         //System.out.println("Msg is: " + message);
@@ -195,4 +211,5 @@ public class Logg {
                 }
         }
     }
+	
 }

@@ -116,6 +116,7 @@ public enum Msg {
     StaffEnchantNotFixed("IllegalStack did not detect any invalid enchantments on this item."),
     StaffEndPortalProtected("Prevented the end portal from being broken using a dispenser @"),
     StaffMsgNoPerm("You do not have permission to use that IllegalStack feature, node required: ~perm~"),
+    StaffMsgBedExplosion("Prevented a bed from being used as an explosive @"),
     DestroyedEnchantedItem("Destroyed an Illegally Enchanted Item ~item~ ~enchant~.(~lvl) found on player: ~player~"),
     IllegalEnchantLevel("&aFixed Enchantment Level ~enchant~.(~lvl~) on ~item~ found on player: ~player~"),
     IllegalEnchantType("&aCould not fix Enchantment ~enchant~.(~lvl~) on ~item~ found on player: ~player~ this enchantment is not valid for this item type!");

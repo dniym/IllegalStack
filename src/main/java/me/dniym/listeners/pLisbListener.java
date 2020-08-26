@@ -35,7 +35,7 @@ public class pLisbListener {
                     new PacketAdapter(plugin, PacketType.Play.Client.SET_CREATIVE_SLOT) {
                         @Override
                         public void onPacketReceiving(PacketEvent event) {
-                            if (!Protections.BlockBadItemsFromCreativeTab.isEnabled() || event.getPlayer().isOp())
+                            if (!Protections.BlockBadItemsFromCreativeTab.isEnabled() || event.getPlayer().isOp() || event.getPlayer().hasPermission("illegalstack.admin"))
                                 return;
                             try {
                                 ItemStack stack = event.getPacket().getItemModifier().readSafely(0);
@@ -120,7 +120,7 @@ public class pLisbListener {
 
         if (System.currentTimeMillis() > messageDelay.get(p.getUniqueId())) {
             p.sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
-            fListener.getLog().append(Msg.ChestPrevented.getValue(p, ent));
+            fListener.getLog().append2(Msg.ChestPrevented.getValue(p, ent));
             messageDelay.put(p.getUniqueId(), System.currentTimeMillis() + 2000L);
         }
     }

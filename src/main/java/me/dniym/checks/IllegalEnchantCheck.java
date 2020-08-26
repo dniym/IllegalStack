@@ -32,8 +32,8 @@ public class IllegalEnchantCheck {
 		
 		boolean invalid = false;
 		for(ItemStack is:inv.getStorageContents())
-			if(invalid = isIllegallyEnchanted(is,inv,true)) 
-				fListener.getLog().append(Msg.GenericItemRemoval.getValue(is,Protections.FixIllegalEnchantmentLevels, plr, "Crafting Inventory"));
+			if(is != null && is.getType() != Material.AIR && (invalid = isIllegallyEnchanted(is,inv,true))) 
+				fListener.getLog().append2(Msg.GenericItemRemoval.getValue(is,Protections.FixIllegalEnchantmentLevels, plr, "Crafting Inventory"));
 			
 		
 		return invalid;
@@ -82,14 +82,14 @@ public class IllegalEnchantCheck {
                         continue;
 
                     if (Protections.DestroyIllegallyEnchantedItemsInstead.isEnabled()) {
-                        if(!silent) fListener.getLog().append(Msg.DestroyedEnchantedItem.getValue(obj, is, en));
+                        if(!silent) fListener.getLog().append2(Msg.DestroyedEnchantedItem.getValue(obj, is, en));
                         is.setType(Material.AIR);
                         return true;
                     }
                     if (en.canEnchantItem(is)) {
-                    	if(!silent) fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(obj, is, en));
+                    	if(!silent) fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(obj, is, en));
                     } else {
-                    	if(!silent) fListener.getLog().append(Msg.IllegalEnchantType.getValue(obj, is, en));
+                    	if(!silent) fListener.getLog().append2(Msg.IllegalEnchantType.getValue(obj, is, en));
                     replace.add(en);
                     }
                 } else {
@@ -98,7 +98,7 @@ public class IllegalEnchantCheck {
                             continue;
 
                         replace.add(en);
-                        if(!silent) fListener.getLog().append(Msg.IllegalEnchantType.getValue(obj, is, en));
+                        if(!silent) fListener.getLog().append2(Msg.IllegalEnchantType.getValue(obj, is, en));
                     }
                 }
 

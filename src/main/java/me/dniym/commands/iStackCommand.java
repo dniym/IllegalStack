@@ -147,7 +147,7 @@ public class iStackCommand implements CommandExecutor {
                     String status = "ON";
                     if (!p.isEnabled())
                         status = "OFF";
-                    fListener.getLog().append(Msg.StaffProtectionToggleMsg.getValue(p, sender.getName(), status));
+                    fListener.getLog().append2(Msg.StaffProtectionToggleMsg.getValue(p, sender.getName(), status));
                     refreshCommands(sender);
                     return true;
                 }

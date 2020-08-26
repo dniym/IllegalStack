@@ -155,7 +155,7 @@ public class fTimer implements Runnable {
                     } //didn't find a valid exit point at the exit block, lets search and try to find a new valid portal block to check
                     if (!valid) {
                         p.getLocation().getBlock().breakNaturally();
-                        fListener.getLog().append(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
+                        fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
                         System.out.println("invalid was: " + invalid);
                         return;
 
@@ -207,7 +207,7 @@ public class fTimer implements Runnable {
                             if (Protections.RemoveItemTypes.notifyOnly())
                                 fListener.getLog().notify(Protections.RemoveItemTypes, " Triggered by: " + p.getName() + " with item: " + is.getType().name());
                             else {
-                                fListener.getLog().append(Msg.ItemTypeRemovedPlayer.getValue(p, is));
+                                fListener.getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
                                 p.getInventory().remove(is);
                             }
                         }
@@ -216,7 +216,7 @@ public class fTimer implements Runnable {
                     if (Protections.RemoveAllRenamedItems.isEnabled()) {
                         if (!p.hasPermission("IllegalStack.RenameBypass")) {
                             if (is != null && is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
-                                fListener.getLog().append(Msg.RemovedRenamedItem.getValue(p, is));
+                                fListener.getLog().append2(Msg.RemovedRenamedItem.getValue(p, is));
                                 p.getInventory().removeItem(is);
                             }
                         }
@@ -228,7 +228,7 @@ public class fTimer implements Runnable {
                             for (String ignored : Protections.ItemNamesToRemove.getTxtSet()) {
                                 if (Protections.RemoveItemsMatchingName.loreNameMatch(im)) {
                                     if (!Protections.RemoveItemsMatchingName.notifyOnly()) {
-                                        fListener.getLog().append(Msg.NamedItemRemovalPlayer.getValue(p, is));
+                                        fListener.getLog().append2(Msg.NamedItemRemovalPlayer.getValue(p, is));
                                         is.setAmount(0);
                                         is.setType(Material.AIR);
                                     }
@@ -258,10 +258,10 @@ public class fTimer implements Runnable {
 
                             if (Protections.FixOverstackedItemInstead.isEnabled()) {
                                 is.setAmount(is.getType().getMaxStackSize());
-                                fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+                                fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
                             } else {
                                 p.getInventory().remove(is);
-                                fListener.getLog().append(Msg.IllegalStackItemScan.getValue(p, is));
+                                fListener.getLog().append2(Msg.IllegalStackItemScan.getValue(p, is));
                             }
                             continue;
                         }
@@ -297,7 +297,7 @@ public class fTimer implements Runnable {
                                             break;
                                         if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
                                             continue;
-                                        fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
+                                        fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
                                         replace.add(en);
 
                                     } else {
@@ -308,7 +308,7 @@ public class fTimer implements Runnable {
                                                 continue;
 
                                             replace.add(en);
-                                            fListener.getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+                                            fListener.getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
                                         }
                                     }
 
@@ -321,12 +321,12 @@ public class fTimer implements Runnable {
 
                         }
                         if (Protections.FixOverstackedItemInstead.isEnabled()) {
-                            fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+                            fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
                             is.setAmount(is.getType().getMaxStackSize());
                             p.getInventory().setItemInOffHand(is);
                         } else {
                             p.getInventory().setItemInOffHand(new ItemStack(Material.ROTTEN_FLESH, 1));
-                            fListener.getLog().append(Msg.IllegalStackOffhand.getValue(p, is));
+                            fListener.getLog().append2(Msg.IllegalStackOffhand.getValue(p, is));
                         }
                     }
                 }
@@ -341,10 +341,10 @@ public class fTimer implements Runnable {
                                 continue;
                             if (Protections.FixOverstackedItemInstead.isEnabled()) {
                                 is.setAmount(is.getType().getMaxStackSize());
-                                fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+                                fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
                             } else {
                                 p.getInventory().remove(is);
-                                fListener.getLog().append(Msg.IllegalStackPlayerBody.getValue(p, is));
+                                fListener.getLog().append2(Msg.IllegalStackPlayerBody.getValue(p, is));
                             }
                             continue;
                         }
@@ -378,7 +378,7 @@ public class fTimer implements Runnable {
                                             break;
                                         if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
                                             continue;
-                                        fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
+                                        fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
                                         replace.add(en);
                                     } else {
                                         if (!en.canEnchantItem(is)) {
@@ -388,7 +388,7 @@ public class fTimer implements Runnable {
                                                 continue;
 
                                             replace.add(en);
-                                            fListener.getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+                                            fListener.getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
                                         }
                                     }
 
@@ -400,10 +400,10 @@ public class fTimer implements Runnable {
                             }
                         }
                         if (Protections.FixOverstackedItemInstead.isEnabled()) {
-                            fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+                            fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
                             is.setAmount(is.getType().getMaxStackSize());
                         } else {
-                            fListener.getLog().append(Msg.IllegalStackPlayerBody.getValue(p, is));
+                            fListener.getLog().append2(Msg.IllegalStackPlayerBody.getValue(p, is));
                             is.setAmount(0);
                             is.setType(Material.AIR);
                             p.getInventory().remove(is);
@@ -423,7 +423,7 @@ public class fTimer implements Runnable {
                             if (im.isUnbreakable()) {
                                 if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
                                     continue;
-                                fListener.getLog().append(Msg.UnbreakableItemCleared.getValue(p, is));
+                                fListener.getLog().append2(Msg.UnbreakableItemCleared.getValue(p, is));
                                 im.setUnbreakable(false);
                                 is.setItemMeta(im);
 
@@ -458,7 +458,7 @@ public class fTimer implements Runnable {
                                 for (PotionEffect ce : potion.getCustomEffects())
                                     efx.append(ce.getType().getName()).append(" amplifier: ").append(ce.getAmplifier()).append(" duration: ").append(ce.getDuration()).append(",");
 
-                                fListener.getLog().append(Msg.InvalidPotionRemoved.getValue(p, efx.toString()));
+                                fListener.getLog().append2(Msg.InvalidPotionRemoved.getValue(p, efx.toString()));
                             }
 
                         }
@@ -487,7 +487,7 @@ public class fTimer implements Runnable {
                                         break;
                                     if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
                                         continue;
-                                    fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
+                                    fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
                                     replace.add(en);
 
                                 } else {
@@ -497,7 +497,7 @@ public class fTimer implements Runnable {
                                         if (SlimefunCompat.isValid(is, en))
                                             continue;
                                         replace.add(en);
-                                        fListener.getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+                                        fListener.getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
                                     }
                                 }
 
@@ -517,11 +517,11 @@ public class fTimer implements Runnable {
 
                             if (Protections.FixOverstackedItemInstead.isEnabled()) {
                                 is.setAmount(is.getType().getMaxStackSize());
-                                fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+                                fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
                                 continue;
                             } else {
                                 p.getInventory().remove(is);
-                                fListener.getLog().append(Msg.IllegalStackItemScan.getValue(p, is));
+                                fListener.getLog().append2(Msg.IllegalStackItemScan.getValue(p, is));
                                 continue;
                             }
 
@@ -536,10 +536,10 @@ public class fTimer implements Runnable {
                             continue;
 
                         if (Protections.FixOverstackedItemInstead.isEnabled()) {
-                            fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+                            fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
                             is.setAmount(is.getType().getMaxStackSize());
                         } else {
-                            fListener.getLog().append(Msg.IllegalStackItemScan.getValue(p, is));
+                            fListener.getLog().append2(Msg.IllegalStackItemScan.getValue(p, is));
                             p.getInventory().remove(is);
                         }
                     }

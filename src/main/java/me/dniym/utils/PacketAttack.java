@@ -56,7 +56,7 @@ public class PacketAttack {
                 int size = event.getPacket().getBytes().toString().length();
 
                 if (size > 2700) { //sending too large of a packet, cancel it regardless
-                    fListener.getLog().append("Player sent a packet too large for the server to handle!  Probably a packet attack!");
+                    fListener.getLog().append2("Player sent a packet too large for the server to handle!  Probably a packet attack!");
                     event.getPlayer().kickPlayer("Invalid Packet Detected (packet too large)");
                     return true;
                 } else if (maxAttempts > 0) {

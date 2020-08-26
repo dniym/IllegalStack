@@ -171,7 +171,7 @@ public class NBTStuff {
             if (sendToPlayer)
                 p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
             else
-                fListener.getLog().append(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
+                fListener.getLog().append2(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
             for (Attribute remove : toRemove)
                 im.removeAttributeModifier(remove);
 

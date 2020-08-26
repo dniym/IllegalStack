@@ -184,7 +184,7 @@ public class Listener114 implements Listener {
                                 return;
 
                             e.setCancelled(true);
-                            fListener.getLog().append(Msg.SilkTouchBookBlocked.getValue(p, e.getBlock().getType().name()));
+                            fListener.getLog().append2(Msg.SilkTouchBookBlocked.getValue(p, e.getBlock().getType().name()));
 
                         }
                 }

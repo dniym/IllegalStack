@@ -8,11 +8,17 @@ import me.dniym.timers.fTimer;
 import me.dniym.timers.sTimer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -55,6 +61,7 @@ public class IllegalStack extends JavaPlugin {
     private static boolean hasUnbreakable = false;
     private static boolean hasStorage = false;
     private static boolean hasIds = false;
+    
     
     private static String version = "";
     private int ScanTimer = 0;
@@ -137,7 +144,8 @@ public class IllegalStack extends JavaPlugin {
             System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
         }
 
-
+        if ((fListener.getInstance().getIs116()))
+        	new Listener116(IllegalStack.getPlugin());
 
 
          
@@ -395,6 +403,9 @@ public class IllegalStack extends JavaPlugin {
         if (this.getServer().getPluginManager().getPlugin("Slimefun") != null) {
             SlimeFun = true;
         }
+        
+        if ((fListener.getInstance().getIs116()))
+        	new Listener116(IllegalStack.getPlugin());
     }
 
     public static boolean hasTraders() {
@@ -408,6 +419,7 @@ public class IllegalStack extends JavaPlugin {
     		
     	}
     }
+
     private void setHasStorage() {
     	Inventory inv = Bukkit.getServer().createInventory(null, 9);
     	try {
@@ -885,7 +897,7 @@ public class IllegalStack extends JavaPlugin {
 	public static void setDisablePaperShulkerCheck(boolean disablePaperShulkerCheck) {
 		IllegalStack.disablePaperShulkerCheck = disablePaperShulkerCheck;
 	}
-
+	
 	public static boolean hasStorage() {
 		return hasStorage;
 	}

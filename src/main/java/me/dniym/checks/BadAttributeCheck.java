@@ -1,5 +1,6 @@
 package me.dniym.checks;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
@@ -21,8 +22,8 @@ public class BadAttributeCheck {
                 return;
             
             for(ItemStack is:inventory.getStorageContents()) {
-            	if(NBTStuff.hasBadCustomData(is)) {
-            		fListener.getLog().append(Msg.GenericItemRemoval.getValue(is,Protections.RemoveCustomAttributes,player,"Crafting Inventory"));
+            	if(is != null && is.getType() != Material.AIR && NBTStuff.hasBadCustomData(is)) {
+            		fListener.getLog().append2(Msg.GenericItemRemoval.getValue(is,Protections.RemoveCustomAttributes,player,"Crafting Inventory"));
             		inventory.removeItem(is);
             	}
             		

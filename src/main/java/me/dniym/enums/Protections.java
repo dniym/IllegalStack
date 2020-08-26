@@ -96,6 +96,7 @@ public enum Protections {
     BlockLoopedDroppers(32, false, "Block Looped Droppers", "ALL", "Exploits.DropperDupe.BlockLoopedDroppers", "Prevent Dropper/Dispensers from feeding items back and forth", "", 0, false),
     PreventRNGEnchant(34, true, "Prevent RNG Enchant", "> 1.9", "Exploits.RNGEnchant.PreventRNGEnchant", "Prevents an exploit that allowed players to crack the random enchantment seed, allowing them to pick exactly which enchantments they want on an item.", "", 0, false),
     PreventLootingExploit(50, true, "Prevent Looting Exploit", "ALL", "Exploits.Looting.PreventLootingExploit", "Prevents an exploit that allows players to use ranged weapons such as bows or crossbows to enable looting by holding a looting sword in their offhand.", "", 0, false),
+    PreventLavaDupe(55, true, "Prevent Lava Dupe", "ALL", "Exploits.LavaDupe.PreventLavaDupe", "Prevents an exploit using lava and hoppers to dupe on multiple versions", "", 0, false),
     //PacketAttackWindowClick(33,false,"Prevent Packet Crasher 1", "ALL", "Exploits.PacketAttack.PacketCrasher1", "Prevents Oversized packets and packet spam that  ")
     //MULTI VERSION EXPLOITS
     PreventRailDupe(8, true, "Destroy Rail / Carpet Dupers", "1.12/1.13/1.14/1.15/1.16", "Exploits.Other.PreventRailDupe", "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.", "", 0, false),
@@ -116,7 +117,7 @@ public enum Protections {
     PreventEndCrystalLagMachine(43, true, "Prevent End Crystal Lag Machine", "> 1.11", "Exploit.LagMachines.End Crystal", "Prevents pistons pushing end crystals into a huge pile, typically used to construct lag machines.", "", 0, false),
     PreventProjectileExploit(41, true, "Prevent Projectile Lag Exploit", "1.14", "Exploits.1_14_Exploits.Entities.PreventProjectileExploit", "Prevents Projectiles such as arrows from getting trapped inside bubble columns, creating lag when lots of these items are floating and falling constantly.", "", 0, false),
     PreventCommandsInBed(47, true, "Prevent Commands While In Bed", "ALL", "Exploits.Other.PreventCommandsInBed", "Prevent players from being able to use me.dniym.commands while in bed.  This has been linked to a serious exploit where not all events fire properly while a player is in bed, one huge exploit with this is players can get any item out of a GUI if they can open it while sleeping.", "", 0, false),
-
+    PreventBedExplosions(56, true, "Prevent Bed Explosions", "ALL", "Exploits.Other.PreventBedExplosions", "Prevent players from using beds in the end/nether as cheap explosives for PVP and destroying blocks.","",0,false),
     //3rd Party Plugins
     BlockCMIShulkerStacking(10, true, "CMI Shulker Box Fix", "ALL", "Exploits.3rdParty.BlockCMIShulkerStacking", "The CMI plugin offers a feature that allows a shulker box to be opened without being placed.  Since this is not an actual shulker box it allows players to put shulkers inside shulkers without any exploit.  This setting prevents that behavior.", "", 0, false),
 
@@ -130,7 +131,8 @@ public enum Protections {
     SilkTouchBookExploit(28, true, "Block Silk Touch Book Exploit", "1.14", "Exploits.1_14_Exploits.Misc.BlockSilkTouchBookExploit", "Prevents players from using a Silk Touch book (in hand) to break blocks as if they were using a silk touch tool.", "", 0, false),
     PreventFoodDupe(31, true, "Prevent Food/Consumable Dupe Glitch", "1.14.4", "Exploits.1_14_Exploits.Misc.PreventFoodDupe", "Stops the 1.14.4 consumable / food dupe exploit.", "", 0, false),
     PreventVibratingBlocks(40, true, "Prevent Vibrating Block Exploit", "1.14", "Exploits.1_14_Exploits.Entities.VibratingBlockExploit", "Prevents Falling blocks from getting trapped in a state where they constantly update causing crops to grow like a zero tick farm.", "", 0, false),
-
+    //1.16 ONLY
+    PreventPiglinDupe(57, true, "Prevent Piglin Dupe", "1.16", "Exploits.1_16_Exploits.Dupes.PreventPiglinDupe", "Prevents piglins from being abused to duplicate items while bartering (does not affect paper)", "", 0, false),
 
     //1.14 / 1.15 ONLY
 
@@ -162,6 +164,7 @@ public enum Protections {
     RemoveAllRenamedItems(44, false, "Remove ALL renamed items", "ALL", "UserRequested.Obsure.Misc.RemoveAllRenamedItems", "Removes any item that has been renamed found on any user without the IllegalStack.RenameBypass permission.", "", 2, false),
     DisableBookWriting(53, false, "Disable ALL Book Editing", "ALL", "Exploits.BookExploit.DisableBookWriting", "Disable ALL player book writing, any book and quill that is edited (by a player not on the BookAuthorWhiteList) will be removed and a message sent to the player.  This option is off by default and was a user requested feature.", "", 2, false),
     PreventHeadInsideBlock(54, false, "PreventHeadInsideBlock", "ALL", "Exploits.MineCart.PreventHeadInsideBlocks", "Kicks a user off/out of a vehicle if they enter a block while inside a vehicle.", "", 2, false),
+    IgnoreAllShulkerPlaceChecks(58, false, "Ignore ALL Shulker Place Checks", "> 1.11", "UserRequested.Obscure.IgnoreAllShulkerPlaceChecks", "Forces the plugin to Ignore any shulker place event. This will disable removal of stacked items when a shulker is placed", "", 2, false),
     ;
 
     ///OPTIONS///
@@ -874,6 +877,10 @@ public enum Protections {
 
     public boolean isWhitelisted(String name, Player plr) {
 
+    	if (this == Protections.RemoveItemTypes && plr != null)
+    		if(plr.hasPermission("illegalstack.removeitemsoftypebypass"))
+    			return true;
+    	
         if (this == Protections.AllowStack && plr != null)
             if (plr.hasPermission("illegalstack.overstack") || plr.isOp())
                 for (String s : Protections.AllowStackForGroup.getTxtSet())

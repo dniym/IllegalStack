@@ -71,7 +71,7 @@ public class sTimer implements Runnable {
                     Player p = signBlock.get(sign.getBlock());
                     if (illegal) {
                         if (p != null)
-                            fListener.getLog().append(Msg.SignRemovedOnPlace.getValue(sign.getLocation(), signBlock.get(b).getName()));
+                            fListener.getLog().append2(Msg.SignRemovedOnPlace.getValue(sign.getLocation(), signBlock.get(b).getName()));
                         sign.getBlock().setType(Material.AIR);
                         p.kickPlayer(Msg.SignKickPlayerMsg.getValue());
                     }
@@ -95,7 +95,7 @@ public class sTimer implements Runnable {
                     }
             if (!found.isEmpty())
                 for (Block b : found)
-                    fListener.getLog().append(Msg.SignRemoved.getValue(b.getLocation(), ""));
+                    fListener.getLog().append2(Msg.SignRemoved.getValue(b.getLocation(), ""));
             chunkScan = System.currentTimeMillis() + 5000L;
             entList.clear();
         }

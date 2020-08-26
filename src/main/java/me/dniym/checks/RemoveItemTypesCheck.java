@@ -36,7 +36,7 @@ public class RemoveItemTypesCheck {
 				fListener.getLog().notify(Protections.RemoveItemTypes, " Triggered by: a contianer with item: " + is.getType().name());
 				return false;
 			} else if (obj != null) 
-				fListener.getLog().append(Msg.ItemTypeRemoved.getValue(obj,is,null));
+				fListener.getLog().append2(Msg.ItemTypeRemoved.getValue(obj,is,null));
 				return true;
 			
 		}

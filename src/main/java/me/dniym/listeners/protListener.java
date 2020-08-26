@@ -43,7 +43,7 @@ public class protListener implements Listener {
         if (Protections.PreventInfiniteElytraFlight.isEnabled() && e.isGliding() && e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             if (p.getLocation().getBlockY() >= 255) {
-                fListener.getLog().append(Msg.GlideActivateMaxBuild.getValue(p, ""));
+                fListener.getLog().append2(Msg.GlideActivateMaxBuild.getValue(p, ""));
                 p.setGliding(false);
                 e.setCancelled(true);
             }
@@ -52,7 +52,7 @@ public class protListener implements Listener {
                 @Override
                 public void run() {
                     if (player.getLocation().getBlockY() > 255 && player.isGliding()) {
-                        fListener.getLog().append(Msg.GlideAboveMaxBuild.getValue(p, ""));
+                        fListener.getLog().append2(Msg.GlideAboveMaxBuild.getValue(p, ""));
                         player.setGliding(false);
                     }
                 }
@@ -78,7 +78,7 @@ public class protListener implements Listener {
             if (NBTStuff.hasNbtTag("IllegalStack", is, "NoRepair", Protections.BlockRepairsInstead)) {
                 e.setResult(new ItemStack(Material.AIR, 1));
                 e.getView().close();
-                fListener.getLog().append(Msg.PlayerRepairBlocked.getValue(e.getView().getPlayer().getName()));
+                fListener.getLog().append2(Msg.PlayerRepairBlocked.getValue(e.getView().getPlayer().getName()));
                 return;
             }
 
@@ -87,7 +87,7 @@ public class protListener implements Listener {
                 if (Protections.RemoveItemsMatchingName.loreNameMatch(im)) {
                     e.setResult(new ItemStack(Material.AIR, 1));
                     e.getView().close();
-                    fListener.getLog().append(Msg.PlayerRepairBlocked.getValue(e.getView().getPlayer().getName()));
+                    fListener.getLog().append2(Msg.PlayerRepairBlocked.getValue(e.getView().getPlayer().getName()));
                 }
             }
         }

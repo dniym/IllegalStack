@@ -150,7 +150,7 @@ public class NBTApiStuff {
     	
     	if(!slot.isEmpty())
     	{
-    		fListener.getLog().append(Msg.CustomAttribsRemoved2.getValue(p,is, slot));	
+    		fListener.getLog().append2(Msg.CustomAttribsRemoved2.getValue(p,is, slot));	
     	}
     	
     	
@@ -186,7 +186,7 @@ public class NBTApiStuff {
             if (sendToPlayer)
                 p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
             else
-                fListener.getLog().append(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
+                fListener.getLog().append2(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
             
             p.getInventory().remove(is);
             

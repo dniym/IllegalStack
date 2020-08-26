@@ -2,6 +2,7 @@ package me.dniym.listeners;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import me.dniym.IllegalStack;
+import me.dniym.actions.IllegalStackAction;
 import me.dniym.checks.BadAttributeCheck;
 import me.dniym.checks.CheckUtils;
 import me.dniym.checks.IllegalEnchantCheck;
@@ -10,6 +11,7 @@ import me.dniym.checks.OverstackedItemCheck;
 import me.dniym.checks.RemoveItemTypesCheck;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
+import me.dniym.events.IllegalStackLogEvent;
 import me.dniym.fishing.FishAttempt;
 import me.dniym.logging.Logg;
 import me.dniym.timers.fTimer;
@@ -38,6 +40,7 @@ import org.bukkit.block.Hopper;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.Directional;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.ArmorStand;
@@ -69,6 +72,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -83,6 +87,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -152,6 +157,7 @@ public class fListener implements Listener {
 	private HashMap<UUID, Location> teleGlitch = new HashMap<>();
 	private HashSet<Player> itemWatcher = new HashSet<>();
 	
+	private static int hasPassengers = -1;
 	
 	public fListener(IllegalStack plugin) {
 		this.plugin = plugin;
@@ -159,8 +165,8 @@ public class fListener implements Listener {
 		this.setLog(new Logg(plugin));
 		String ver = IllegalStack.getVersion().toLowerCase();
 
-		if (IllegalStack.isPaper() &&  ver.equalsIgnoreCase("v1_13_R2"))  {
-			System.out.println("WARNING:  using this version of paper on 1.13.2 with IllegalStack creates a issue with placed shulkers..  Placed/Dispensed blocks will NOT be checked for Overstacked Items or Illegal Enchants!");
+		if (ver.equalsIgnoreCase("v1_13_R2"))  {
+			System.out.println("WARNING:  using 1.13.2 with IllegalStack creates a issue with placed shulkers..  Placed/Dispensed blocks will NOT be checked for Overstacked Items or Illegal Enchants!");
 			IllegalStack.setDisablePaperShulkerCheck(true);
 		}
 			
@@ -286,8 +292,8 @@ public class fListener implements Listener {
 
 		if (!Protections.PunishForChestsOnMobs.isEnabled())
 			return;
-		if (chestOffense.contains(player.getUniqueId())) {
-			fListener.getLog().append(Msg.StaffChestPunishment.getValue(player, rightClicked));
+		if (chestOffense.contains(player.getUniqueId()) && IllegalStackAction.isCompleted(Protections.PunishForChestsOnMobs,rightClicked,player)) {
+			fListener.getLog().append(Msg.StaffChestPunishment.getValue(player, rightClicked),Protections.PunishForChestsOnMobs);
 			rightClicked.eject();
 			rightClicked.remove();
 			player.getInventory().clear();
@@ -347,7 +353,7 @@ public class fListener implements Listener {
 	@EventHandler
 	public void ShulkerPlaceCheck(BlockPlaceEvent e) {
 
-		if(IllegalStack.isDisablePaperShulkerCheck())
+		if(IllegalStack.isDisablePaperShulkerCheck() || Protections.IgnoreAllShulkerPlaceChecks.isEnabled())
 			return;
 		
 		boolean cancel = false;
@@ -363,31 +369,43 @@ public class fListener implements Listener {
 						final ShulkerBox shulker = (ShulkerBox)sbm.getBlockState();
 						for(ItemStack is:shulker.getInventory().getContents()) 
 						{
+							if(is == null)
+								continue;
+							
 							boolean overstacked = false;
 							boolean illegalEnchanted = false;
+							Protections prot = null;
 							if (Protections.RemoveOverstackedItems.isEnabled()) {
 								overstacked = IrritaingLegacyChecks.CheckContainer(is, sbm, e.getPlayer().getLocation());
-
+								prot = Protections.RemoveOverstackedItems;
 							}
 							if (Protections.FixIllegalEnchantmentLevels.isEnabled()) {
 								illegalEnchanted = IrritaingLegacyChecks.isIllegallyEnchanted(is);
-
+								prot = Protections.FixIllegalEnchantmentLevels;
 							}
 							
 							if(overstacked || illegalEnchanted || RemoveItemTypesCheck.shouldRemove(is, null))
 							{
-								cancel = true;
+								
+								if(!overstacked && !illegalEnchanted)
+									prot = Protections.RemoveItemTypes;
+								
+								Protections p = prot;
+								
+								if(IllegalStackAction.isCompleted(prot,e.getPlayer(),e.getBlock(),e.getItemInHand())) {
+									cancel = true;
+								
+									new BukkitRunnable() {
 
-								new BukkitRunnable() {
+										@Override
+										public void run() {
+											e.getPlayer().getInventory().removeItem(e.getItemInHand());
+											fListener.getLog().append(Msg.ShulkerPlace.getValue(e.getPlayer(), e.getBlockPlaced().getLocation()),p);
+										}
 
-									@Override
-									public void run() {
-										e.getPlayer().getInventory().removeItem(e.getItemInHand());
-										fListener.getLog().append(Msg.ShulkerPlace.getValue(e.getPlayer(), e.getBlockPlaced().getLocation()));
-									}
-
-								}.runTaskLater(this.plugin, 2);
-								break;
+									}.runTaskLater(this.plugin, 2);
+								}
+									break;
 							}
 						}
 					}            	
@@ -399,7 +417,9 @@ public class fListener implements Listener {
 					ShulkerBox c = (ShulkerBox) e.getBlock().getState();
 					for (ItemStack is : c.getInventory()) 
 					{
-
+						if (is == null)
+							continue;
+						
 						if (Protections.RemoveOverstackedItems.isEnabled())//I think all checks probably need to be moved to their own classes
 							OverstackedItemCheck.CheckContainer(is, c);
 								
@@ -426,7 +446,7 @@ public class fListener implements Listener {
 	 */
 	@EventHandler
 	public void onCommand(PlayerCommandPreprocessEvent e) {
-		if (e.getMessage().startsWith("/") && e.getPlayer().isSleeping() && Protections.PreventCommandsInBed.isEnabled()) {
+		if (e.getMessage().startsWith("/") && e.getPlayer().isSleeping() && Protections.PreventCommandsInBed.isEnabled() && IllegalStackAction.isCompleted(Protections.PreventCommandsInBed, e.getPlayer())) {
 			e.setCancelled(true);
 			e.getPlayer().sendMessage(Msg.PlayerCommandSleepMsg.getValue());
 		}
@@ -450,10 +470,11 @@ public class fListener implements Listener {
 		if (Protections.PreventTripwireDupe.isEnabled()) {
 			if (e.getBlock().getType() == Material.TRIPWIRE_HOOK)
 				for (BlockFace face : BlockFace.values())
-					if (Tag.TRAPDOORS.getValues().contains(e.getBlock().getRelative(face).getType())) {
+					if (Tag.TRAPDOORS.getValues().contains(e.getBlock().getRelative(face).getType()) 
+							&& IllegalStackAction.isCompleted(Protections.PreventTripwireDupe, e.getPlayer(),e.getBlockPlaced(),e.getItemInHand())) {
 						e.setCancelled(true);
 						e.getPlayer().getInventory().removeItem(e.getItemInHand());
-						getLog().append(Msg.BlockedTripwireDupe.getValue(e.getPlayer(), e.getPlayer().getLocation().toString()));
+						getLog().append(Msg.BlockedTripwireDupe.getValue(e.getPlayer(), e.getPlayer().getLocation().toString()),Protections.PreventTripwireDupe);
 					}
 		}
 
@@ -465,7 +486,7 @@ public class fListener implements Listener {
 				if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
 					if (l.getBlockY() >= Protections.NetherYLevel.getIntValue() && (l.getWorld().getName().toLowerCase().contains("nether") || l.getWorld().getEnvironment() == Environment.NETHER)) //already on top of the nether..
 					{
-						e.setCancelled(true);
+						e.setCancelled(IllegalStackAction.isCompleted(Protections.BlockPlayersAboveNether, e.getPlayer(),e.getBlockPlaced(),e.getItemInHand()));
 					}
 				}
 			}
@@ -487,30 +508,29 @@ public class fListener implements Listener {
 	@EventHandler
 	public void onEntityMount(EntityMountEvent e) {
 
-
+		if(e.getMount() instanceof Player)
+			return;
+		
+		
+		if(Protections.PreventHeadInsideBlock.isEnabled() && e.getEntity() instanceof Player) {
+			Player driver = (Player)e.getEntity();
+			if(e.getMount().getLocation().getBlock().getRelative(BlockFace.UP).getType().isSolid() 
+					&& IllegalStackAction.isCompleted(Protections.PreventHeadInsideBlock, e.getMount(),driver,e.getMount().getLocation().getBlock().getRelative(BlockFace.UP))) {
+				fListener.getLog().append(Msg.HeadInsideSolidBlock.getValue(driver, e.getMount()),Protections.PreventHeadInsideBlock);
+				e.getMount().eject();
+				e.getMount().remove();
+			} 
+		}
+		
 		if(Protections.DisableRidingExploitableMobs.isEnabled()) {
-			if(e.getMount() instanceof Player)
-				return;
-			
-			
-			if(Protections.PreventHeadInsideBlock.isEnabled() && e.getEntity() instanceof Player) {
-				Player driver = (Player)e.getEntity();
-				if(e.getMount().getLocation().getBlock().getRelative(BlockFace.UP).getType().isSolid()) {
-				//if(driver.getEyeLocation().getBlock().getType().isSolid()) {
-					fListener.getLog().append(Msg.HeadInsideSolidBlock.getValue(driver, e.getMount()));
-					e.getMount().eject();
-					e.getMount().remove();
-				} else {
-					System.out.println("not solid: " + driver.getEyeLocation().getBlock().getType().name());
-				}
-				
-			}
 			if (IllegalStack.hasChestedAnimals()) 
 			{
-				
 				if((e.getMount() instanceof Mule || e.getMount() instanceof Donkey || e.getMount() instanceof ChestedHorse) || 
 						(IllegalStack.hasTraders() && ( e.getMount() instanceof Llama || e.getMount() instanceof TraderLlama))) 
 				{
+					if(!IllegalStackAction.isCompleted(Protections.DisableRidingExploitableMobs, (Player) e.getEntity(), null, null, e.getMount(),null))
+						return;
+					
 					e.setCancelled(true);
 					((Tameable)e.getMount()).eject();
 					((Tameable)e.getMount()).setTamed(false);
@@ -522,7 +542,7 @@ public class fListener implements Listener {
 
 				}
 			} else {
-				if(e.getMount() instanceof Horse) {
+				if(e.getMount() instanceof Horse && IllegalStackAction.isCompleted(Protections.DisableRidingExploitableMobs, (Player) e.getEntity(), null, null, e.getMount(),null)) {
 					((Horse)e.getMount()).eject();
 					((Horse)e.getMount()).setTamed(false);
 					if(e.getEntity() instanceof Player) 
@@ -538,8 +558,8 @@ public class fListener implements Listener {
 			if(e.getEntity() == null || e.getMount() == null)
 				return;
 
-			if(e.getEntity() instanceof Minecart && e.getMount() instanceof Boat) {
-				fListener.getLog().append(Msg.MinecartMount.getValue(e.getEntity(), e.getMount()));
+			if(e.getEntity() instanceof Minecart && e.getMount() instanceof Boat && IllegalStackAction.isCompleted(Protections.PreventMinecartsInBoats,e.getEntity(), e.getMount())) {
+				fListener.getLog().append(Msg.MinecartMount.getValue(e.getEntity(), e.getMount()),Protections.PreventMinecartsInBoats);
 				e.setCancelled(true);
 			}
 		}
@@ -557,7 +577,7 @@ public class fListener implements Listener {
 		
 		if (!Protections.RemoveItemTypes.getTxtSet().isEmpty())
 		{
-			if(RemoveItemTypesCheck.shouldRemove(e.getItem(), e.getBlock().getState())) {
+			if(RemoveItemTypesCheck.shouldRemove(e.getItem(), e.getBlock().getState())&& IllegalStackAction.isCompleted(Protections.RemoveItemTypes, e.getItem(), e.getBlock())) {
 				
 				if(IllegalStack.hasContainers()) {
 					
@@ -605,7 +625,7 @@ public class fListener implements Listener {
 			} else {
 				if(IrritaingLegacyChecks.CheckContainer(e.getBlock()))
 				{
-					fListener.getLog().append(Msg.ShulkerPlace.getValue(e.getItem().getType().name(), e.getBlock().getLocation()));
+					fListener.getLog().append2(Msg.ShulkerPlace.getValue(e.getItem().getType().name(), e.getBlock().getLocation()));
 					e.setCancelled(true);
 				}
 				
@@ -620,14 +640,14 @@ public class fListener implements Listener {
 					Directional d = (Directional) e.getBlock().getState().getBlockData();
 					if (e.getBlock().getRelative(d.getFacing()).getType() == Material.END_PORTAL) {
 						e.setCancelled(true);
-						getLog().append(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
+						getLog().append2(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
 					}
 				}
 			} else {  //1.12 and below don't have directional data have to do this another way.
 				for (BlockFace face : BlockFace.values())
 					if (e.getBlock().getRelative(face).getType() == endPortal) {
 						e.setCancelled(true);
-						getLog().append(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
+						getLog().append2(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
 
 					}
 			}
@@ -649,8 +669,23 @@ public class fListener implements Listener {
 	 */
 
 	@EventHandler
+	public void onHopperPickup(InventoryPickupItemEvent e) {
+		if (Protections.PreventLavaDupe.isEnabled())  {
+			if(e.getInventory().getHolder() instanceof Hopper) {
+				Hopper h = (Hopper) e.getInventory().getHolder();
+				if(h.getBlock().getRelative(BlockFace.UP).getType() == Material.LAVA)
+					e.setCancelled(true);
+			} else if (e.getInventory().getHolder() instanceof HopperMinecart) {
+				HopperMinecart h = (HopperMinecart) e.getInventory().getHolder();
+				if(h.getLocation().getBlock().getRelative(BlockFace.UP).getType() == Material.LAVA)
+					e.setCancelled(true);
+			}
+		}
+	}
+	@EventHandler
 	public void onHopperXfer(InventoryMoveItemEvent e) { //possibly affects all versions
-		if (Protections.IgnoreAllHopperChecks.isEnabled())
+		
+		if (Protections.IgnoreAllHopperChecks.isEnabled() || e.getItem() == null || e.getItem().getType() == Material.AIR)
 			return;
 
 		if(CheckUtils.CheckEntireInventory(e.getSource())) {
@@ -732,7 +767,7 @@ public class fListener implements Listener {
 				if (disp != null) disp.getBlock().setType(Material.AIR);
 				if (drop != null) drop.getBlock().setType(Material.AIR);
 				e.setItem(new ItemStack(Material.AIR, 1));
-				fListener.getLog().append(Msg.StaffMsgDropperExploit.getValue(h.getLocation().toString()));
+				fListener.getLog().append2(Msg.StaffMsgDropperExploit.getValue(h.getLocation().toString()));
 				e.setCancelled(true);
 			}
 
@@ -773,7 +808,7 @@ public class fListener implements Listener {
 			Player p = (Player) e.getDestination().getHolder();
 			if (!p.hasPermission("IllegalStack.RenameBypass")) {
 				if (e.getItem().hasItemMeta() && e.getItem().getItemMeta().hasDisplayName()) {
-					getLog().append(Msg.RemovedRenamedItem.getValue(p, e.getItem()));
+					getLog().append2(Msg.RemovedRenamedItem.getValue(p, e.getItem()));
 					p.getInventory().removeItem(e.getItem());
 				}
 			}
@@ -794,7 +829,7 @@ public class fListener implements Listener {
 						if (Protections.ItemNamesToRemove.notifyOnly())
 							getLog().notify(Protections.RemoveItemsMatchingName, " Triggered by: " + p.getName() + "with item: " + is.getType().name());
 						else {
-							getLog().append(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
+							getLog().append2(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
 							e.setCancelled(true);
 							p.getInventory().removeItem(is);
 						}
@@ -828,7 +863,7 @@ public class fListener implements Listener {
 			ItemStack is = e.getItem();
 			if (NBTStuff.hasNbtTag("IllegalStack", is, "NoEnchant", Protections.BlockEnchantingInstead)) {
 				e.setCancelled(true);
-				getLog().append(Msg.PlayerEnchantBlocked.getValue(e.getEnchanter().getName()));
+				getLog().append2(Msg.PlayerEnchantBlocked.getValue(e.getEnchanter().getName()));
 				return;
 			}
 
@@ -836,7 +871,7 @@ public class fListener implements Listener {
 				ItemMeta im = is.getItemMeta();
 				if (Protections.RemoveItemsMatchingName.loreNameMatch(im)) {
 					e.setCancelled(true);
-					getLog().append(Msg.PlayerEnchantBlocked.getValue(e.getEnchanter().getName()));
+					getLog().append2(Msg.PlayerEnchantBlocked.getValue(e.getEnchanter().getName()));
 				}
 			}
 		}
@@ -888,7 +923,7 @@ public class fListener implements Listener {
 					if (Protections.PreventNestedShulkers.notifyOnly())
 						getLog().notify(Protections.PreventNestedShulkers, " Triggered by: " + e.getPlayer().getName());
 					else
-						getLog().append(Msg.ShulkerClick.getValue(e.getPlayer().getName()));
+						getLog().append2(Msg.ShulkerClick.getValue(e.getPlayer().getName()));
 			}
 
 
@@ -924,16 +959,16 @@ public class fListener implements Listener {
 								continue;
 
 							if (en.canEnchantItem(is))
-								getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
+								getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
 							else
-								getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+								getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
 							replace.add(en);
 						} else {
 							if (!en.canEnchantItem(is)) {
 								if (SlimefunCompat.isValid(is, en))
 									continue;
 								replace.add(en);
-								getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+								getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
 							}
 						}
 
@@ -950,7 +985,7 @@ public class fListener implements Listener {
 							if (Protections.RemoveItemTypes.notifyOnly())
 								getLog().notify(Protections.RemoveItemTypes, " Triggered by: " + e.getPlayer().getName() + " with item: " + is.getType().name());
 							else {
-								getLog().append(Msg.ItemTypeRemovedPlayer.getValue(p, is));
+								getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
 								e.getInventory().remove(is);
 							}
 						}
@@ -966,10 +1001,10 @@ public class fListener implements Listener {
 								continue;
 							if (Protections.FixOverstackedItemInstead.isEnabled()) {
 								is.setAmount(is.getType().getMaxStackSize());
-								fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+								fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 							} else {
 								p.getInventory().remove(is);
-								fListener.getLog().append(Msg.IllegalStackItemScan.getValue(p, is));
+								fListener.getLog().append2(Msg.IllegalStackItemScan.getValue(p, is));
 							}
 							continue;
 						}
@@ -986,10 +1021,10 @@ public class fListener implements Listener {
 							getLog().notify(Protections.RemoveOverstackedItems, " Triggered by: " + e.getPlayer().getName() + " with item: " + is.getType().name());
 						else if (Protections.FixOverstackedItemInstead.isEnabled()) {
 							is.setAmount(is.getType().getMaxStackSize());
-							getLog().append(Msg.IllegalStackShorten.getValue((Player) e.getPlayer(), is));
+							getLog().append2(Msg.IllegalStackShorten.getValue((Player) e.getPlayer(), is));
 						} else {
 							e.getInventory().remove(is);
-							getLog().append(Msg.IllegalStackItemScan.getValue((Player) e.getPlayer(), is));
+							getLog().append2(Msg.IllegalStackItemScan.getValue((Player) e.getPlayer(), is));
 						}
 					}
 
@@ -1007,7 +1042,7 @@ public class fListener implements Listener {
 							author = bm.getAuthor();
 
 						if (Protections.LimitNumberOfPages.getIntValue() > 0 && bm.getPageCount() > Protections.LimitNumberOfPages.getIntValue()) {
-							getLog().append(Msg.TooManyPages.getValue(e.getPlayer().getName()));
+							getLog().append2(Msg.TooManyPages.getValue(e.getPlayer().getName()));
 							e.getInventory().removeItem(is);
 							e.setCancelled(true);
 						}
@@ -1021,7 +1056,7 @@ public class fListener implements Listener {
 								if (Protections.RemoveBooksNotMatchingCharset.notifyOnly())
 									getLog().notify(Protections.RemoveBooksNotMatchingCharset, " Triggered by: " + author);
 								else {
-									getLog().append(Msg.BookRemoved.getValue(author));
+									getLog().append2(Msg.BookRemoved.getValue(author));
 									bm.setPages(new ArrayList<>());
 									is.setItemMeta(bm);
 
@@ -1059,7 +1094,7 @@ public class fListener implements Listener {
 
 			if (count > 1 && !remove.isEmpty()) {
 				event.setCancelled(true);
-				getLog().append(Msg.StoppedPushableEntity.getValue(remove.get(0).getLocation(), ""));
+				getLog().append2(Msg.StoppedPushableEntity.getValue(remove.get(0).getLocation(), ""));
 				for (Entity ec : remove)
 					ec.remove();
 			}
@@ -1097,7 +1132,7 @@ public class fListener implements Listener {
 				if (Protections.PreventItemFramePistonDupe.notifyOnly())
 					getLog().notify(Protections.PreventItemFramePistonDupe, " Triggered @" + frame.getLocation().toString());
 				else {
-					getLog().append(Msg.ItemFrameRemoveOnExtend + " @" + frame.getLocation().toString());
+					getLog().append2(Msg.ItemFrameRemoveOnExtend + " @" + frame.getLocation().toString());
 					frame.setItem(null);
 					ent.remove();
 				}
@@ -1124,7 +1159,7 @@ public class fListener implements Listener {
 									if (Protections.PreventItemFramePistonDupe.notifyOnly())
 										getLog().notify(Protections.PreventItemFramePistonDupe, " Triggered @" + frame.getLocation().toString());
 									else {
-										getLog().append(Msg.ItemFrameRemoveOnRetract + " @" + frame.getLocation().toString());
+										getLog().append2(Msg.ItemFrameRemoveOnRetract + " @" + frame.getLocation().toString());
 										frame.setItem(null);
 										removed.add(ent);
 									}
@@ -1167,7 +1202,7 @@ public class fListener implements Listener {
 				if (Protections.PreventRailDupe.notifyOnly())
 					getLog().notify(Protections.PreventRailDupe, " Triggered @" + event.getBlock().getLocation().toString() + " blocks affected: " + types);
 				else {
-					getLog().append(Msg.PistonRetractionDupe.getValue(event.getBlock().getLocation(), types.toString()));
+					getLog().append2(Msg.PistonRetractionDupe.getValue(event.getBlock().getLocation(), types.toString()));
 					if (!Protections.BreakExploitMachines.isEnabled())
 						if (event.getBlock().getType() != Material.AIR)
 							event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType(), 1));
@@ -1247,8 +1282,17 @@ public class fListener implements Listener {
 	@EventHandler
 	public void EndGatewayTeleportProtection(VehicleMoveEvent e) {
 
+		if(hasPassengers == -1) {
+		    	
+		    	try {
+		    		e.getVehicle().getPassengers();
+		    		hasPassengers = 1;
+		    	} catch (NoSuchMethodError ignored) { }
+		    
+			hasPassengers = 0;
+		}
 		
-		if (Protections.DisableInWorlds.isWhitelisted(e.getVehicle().getWorld().getName()))
+		if (hasPassengers == 0 || Protections.DisableInWorlds.isWhitelisted(e.getVehicle().getWorld().getName()))
 			return;
 		
 		if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ())
@@ -1266,7 +1310,7 @@ public class fListener implements Listener {
 
 		if(Protections.PreventHeadInsideBlock.isEnabled()) {
 			if(driver.getEyeLocation().getBlock().getType().isSolid()) {
-				fListener.getLog().append(Msg.HeadInsideSolidBlock.getValue(driver, e.getVehicle()));
+				fListener.getLog().append2(Msg.HeadInsideSolidBlock.getValue(driver, e.getVehicle()));
 				e.getVehicle().eject();
 				e.getVehicle().remove();
 			}
@@ -1283,7 +1327,7 @@ public class fListener implements Listener {
 				if (next.getType() == Material.END_GATEWAY) {
 					e.getVehicle().eject();
 					e.getVehicle().remove();
-					getLog().append(Msg.StaffMsgEndGatewayVehicleRemoved.getValue(driver, e.getVehicle()));
+					getLog().append2(Msg.StaffMsgEndGatewayVehicleRemoved.getValue(driver, e.getVehicle()));
 				}
 			}
 
@@ -1299,7 +1343,7 @@ public class fListener implements Listener {
 						if(b.getType() == Material.END_GATEWAY || next.getType() == Material.END_GATEWAY) {
 							e.getVehicle().eject();
 							e.getVehicle().remove();
-							getLog().append(Msg.StaffMsgEndGatewayVehicleRemoved.getValue(driver,e.getVehicle()));
+							getLog().append2(Msg.StaffMsgEndGatewayVehicleRemoved.getValue(driver,e.getVehicle()));
 						}
 					}
 				}
@@ -1343,7 +1387,7 @@ public class fListener implements Listener {
 						Vector v = e.getEntity().getVelocity().multiply(-2);
 						e.getEntity().setVelocity(v);
 						if (Protections.NotifyBlockedPortalAttempts.isEnabled())
-							getLog().append(Msg.NetherPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()));
+							getLog().append2(Msg.NetherPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()));
 					}
 				}
 			}
@@ -1367,7 +1411,7 @@ public class fListener implements Listener {
 						v.setY(randY);
 						e.getEntity().setVelocity(v);
 						if (Protections.NotifyBlockedPortalAttempts.isEnabled())
-							getLog().append(Msg.EndPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()));
+							getLog().append2(Msg.EndPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()));
 					}
 				}
 			}
@@ -1397,7 +1441,7 @@ public class fListener implements Listener {
 								if (Protections.RemoveExistingGlitchedMinecarts.notifyOnly())
 									getLog().notify(Protections.RemoveExistingGlitchedMinecarts, " Triggered @" + b.getLocation());
 								else {
-									getLog().append(Msg.MinecartGlitch1.getValue(b.getLocation(), b.getType().name()));
+									getLog().append2(Msg.MinecartGlitch1.getValue(b.getLocation(), b.getType().name()));
 									ent.remove();
 								}
 							}
@@ -1489,7 +1533,7 @@ public class fListener implements Listener {
 				}
 			if (count > 1 && !remove.isEmpty()) {
 				event.setCancelled(true);
-				getLog().append(Msg.StoppedPushableEntity.getValue(remove.get(0).getLocation(), ""));
+				getLog().append2(Msg.StoppedPushableEntity.getValue(remove.get(0).getLocation(), ""));
 				for (Entity ec : remove)
 					ec.remove();
 			}
@@ -1505,7 +1549,7 @@ public class fListener implements Listener {
 						continue;
 					if (Protections.BreakExploitMachines.isEnabled())
 						event.getBlock().setType(Material.AIR);
-					getLog().append(Msg.StoppedPushableArmorStand.getValue(ent.getLocation(), ""));
+					getLog().append2(Msg.StoppedPushableArmorStand.getValue(ent.getLocation(), ""));
 					event.setCancelled(true);
 					return;
 				}
@@ -1517,7 +1561,7 @@ public class fListener implements Listener {
 								continue;
 							if (Protections.BreakExploitMachines.isEnabled())
 								event.getBlock().setType(Material.AIR);
-							getLog().append(Msg.StoppedPushableArmorStand.getValue(ent.getLocation(), ""));
+							getLog().append2(Msg.StoppedPushableArmorStand.getValue(ent.getLocation(), ""));
 							event.setCancelled(true);
 							return;
 						}
@@ -1542,7 +1586,7 @@ public class fListener implements Listener {
 								if (Protections.PreventMinecartGlitch.notifyOnly())
 									getLog().notify(Protections.PreventMinecartGlitch, " Triggered @" + ent.getLocation().toString());
 								else {
-									getLog().append(Msg.MinecartGlitch2.getValue(ent.getLocation(), ""));
+									getLog().append2(Msg.MinecartGlitch2.getValue(ent.getLocation(), ""));
 									ent.remove();
 								}
 							}
@@ -1576,7 +1620,7 @@ public class fListener implements Listener {
 								w.dropItemNaturally(above.getLocation(), new ItemStack(above.getType(), 1));
 								w.dropItemNaturally(b.getLocation(), new ItemStack(b.getType(), 1));
 							}
-							getLog().append(Msg.ZeroTickGlitch.getValue(event.getBlock().getLocation(), above.getType().name() + ", " + b.getType().name() + ", " + event.getBlock().getType().name()));
+							getLog().append2(Msg.ZeroTickGlitch.getValue(event.getBlock().getLocation(), above.getType().name() + ", " + b.getType().name() + ", " + event.getBlock().getType().name()));
 							b.setType(Material.AIR);
 							above.setType(Material.AIR);
 							event.getBlock().setType(Material.AIR);
@@ -1625,7 +1669,7 @@ public class fListener implements Listener {
 						event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType(), 1));
 					event.getBlock().setType(Material.AIR);
 					//check2
-					getLog().append(Msg.ZeroTickGlitch.getValue(event.getBlock().getLocation(), found.name()));
+					getLog().append2(Msg.ZeroTickGlitch.getValue(event.getBlock().getLocation(), found.name()));
 					break;
 				}
 			}
@@ -1660,7 +1704,7 @@ public class fListener implements Listener {
 				if (Protections.PreventItemFramePistonDupe.notifyOnly())
 					getLog().notify(Protections.PreventItemFramePistonDupe, " Triggered @" + frame.getLocation() + " with contents: " + contents);
 				else {
-					getLog().append(Msg.ItemFrameRemoveOnExtend.getValue(frame.getLocation(), contents));
+					getLog().append2(Msg.ItemFrameRemoveOnExtend.getValue(frame.getLocation(), contents));
 
 					frame.setItem(null);
 					ent.remove();
@@ -1688,7 +1732,7 @@ public class fListener implements Listener {
 								if (Protections.PreventItemFramePistonDupe.notifyOnly())
 									getLog().notify(Protections.PreventItemFramePistonDupe, " Triggered @" + frame.getLocation() + " with contents: " + contents);
 								else {
-									getLog().append(Msg.ItemFrameRemoveOnExtend.getValue(frame.getLocation(), contents));
+									getLog().append2(Msg.ItemFrameRemoveOnExtend.getValue(frame.getLocation(), contents));
 									frame.setItem(null);
 									removed.add(ent);
 								}
@@ -1731,7 +1775,7 @@ public class fListener implements Listener {
 				if (Protections.PreventRailDupe.notifyOnly())
 					getLog().notify(Protections.PreventRailDupe, " Triggered @" + event.getBlock().getLocation().toString() + " affected blocks: " + types);
 				else {
-					getLog().append(Msg.PistonRetractionDupe.getValue(event.getBlock().getLocation(), types.toString()));
+					getLog().append2(Msg.PistonRetractionDupe.getValue(event.getBlock().getLocation(), types.toString()));
 
 					if (!Protections.BreakExploitMachines.isEnabled())
 						event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(event.getBlock().getType(), 1));
@@ -1807,7 +1851,6 @@ public class fListener implements Listener {
 		if (Protections.IgnoreAllHopperChecks.isEnabled())
 			return;
 
-
 		if (Protections.RemoveItemsMatchingName.isEnabled() && e.getSource() instanceof Hopper) {
 			if (Protections.BlockEnchantingInstead.isEnabled() || Protections.BlockRepairsInstead.isEnabled())
 				return;
@@ -1840,7 +1883,7 @@ public class fListener implements Listener {
 						if (Protections.ItemNamesToRemove.notifyOnly())
 							getLog().notify(Protections.RemoveItemsMatchingName, " Triggered by: " + is.getType().name() + " @" + h.getLocation());
 						else {
-							getLog().append(Msg.NamedItemRemovalHopper.getValue(h.getLocation(), is.getType().name()));
+							getLog().append2(Msg.NamedItemRemovalHopper.getValue(h.getLocation(), is.getType().name()));
 							h.getInventory().removeItem(is);
 
 						}
@@ -1863,8 +1906,8 @@ public class fListener implements Listener {
 				for(Enchantment en:is.getEnchantments().keySet())
 					if(is.getEnchantmentLevel(en) > en.getMaxLevel() && is.getEnchantmentLevel(en) > Protections.RemoveEnchantsLargerThan.getIntValue())
 					{
-						getLog().append(Msg.);
-						//getLog().append("Illegal Enchantment Found: " + is.getType().name() + " Enchantment: " + en.getName()
+						getLog().append2(Msg.);
+						//getLog().append2("Illegal Enchantment Found: " + is.getType().name() + " Enchantment: " + en.getName()
 						+ " Level: (" + is.getEnchantmentLevel(en) + ") " + " Server max level is: " + Protections.RemoveEnchantsLargerThan.getIntValue()
 						+ " " ); //getSource(e.getSource()));
 						remove.add(en);
@@ -1887,10 +1930,23 @@ public class fListener implements Listener {
 	}
 
 	@EventHandler()
+	public void onBlockExplode(BlockExplodeEvent e) {
+		if (Protections.PreventBedExplosions.isEnabled()) {
+			if(e.getYield() == 0.2f && e.getBlock().getLocation().getWorld().getName().toUpperCase().contains("_NETHER") || e.getBlock().getLocation().getWorld().getName().toUpperCase().contains("_THE_END")) {
+				e.blockList().clear();
+				e.setYield(0f);
+				e.setCancelled(true);
+				getLog().append(Msg.StaffMsgBedExplosion.getValue(e.getBlock().getLocation().toString()), Protections.PreventBedExplosions);
+			} 
+		}
+	}
+	@EventHandler()
 	public void onPistonExplode(EntityExplodeEvent e) //stuff that still works even in 1.14
 	{
+		
 		if (Protections.DisableInWorlds.isWhitelisted(e.getEntity().getWorld().getName()))
 			return;
+		
 		if (Protections.PreventBedrockDestruction.isEnabled()) {
 			HashSet<Block> remove = new HashSet<>();
 			for (Block b : e.blockList()) {
@@ -1904,7 +1960,7 @@ public class fListener implements Listener {
 								if (pistonCheck.contains(next.getType()))
 									next.setType(Material.AIR);
 							}
-							getLog().append(Msg.PistonHeadRemoval.getValue(b.getLocation(), ""));
+							getLog().append2(Msg.PistonHeadRemoval.getValue(b.getLocation(), ""));
 						}
 					}
 				}
@@ -1992,7 +2048,7 @@ public class fListener implements Listener {
 					} //didn't find a valid exit point at the exit block, lets search and try to find a new valid portal block to check
 					if (!valid) {
 						p.getLocation().getBlock().breakNaturally();
-						fListener.getLog().append(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
+						fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
 						
 						return;
 					}
@@ -2007,7 +2063,7 @@ public class fListener implements Listener {
 					if (itm.getItemStack().getType().name().contains("SHULKER_BOX")) {
 						int tagSize = NBTStuff.isBadShulker(itm.getItemStack());
 						if (tagSize > 0) {
-							getLog().append(Msg.StaffBadShulkerRemoved.getValue(itm.getLocation(), tagSize));
+							getLog().append2(Msg.StaffBadShulkerRemoved.getValue(itm.getLocation(), tagSize));
 							itm.remove();
 						}
 					}
@@ -2023,7 +2079,7 @@ public class fListener implements Listener {
 			if (Protections.RemoveAllRenamedItems.isEnabled()) {
 				if (!p.hasPermission("IllegalStack.RenameBypass")) {
 					if (is != null && is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
-						getLog().append(Msg.RemovedRenamedItem.getValue(p, is));
+						getLog().append2(Msg.RemovedRenamedItem.getValue(p, is));
 						p.getInventory().removeItem(is);
 					}
 				}
@@ -2058,7 +2114,7 @@ public class fListener implements Listener {
 							if (Protections.RemoveItemsMatchingName.notifyOnly())
 								getLog().notify(Protections.RemoveItemsMatchingName, " Triggered by: " + e.getPlayer().getName() + " item was: " + is.getType().name());
 							else {
-								getLog().append(Msg.NamedItemRemovalPlayer.getValue(e.getPlayer(), is.getType().name()));
+								getLog().append2(Msg.NamedItemRemovalPlayer.getValue(e.getPlayer(), is.getType().name()));
 								e.getPlayer().getInventory().removeItem(is);
 
 							}
@@ -2071,7 +2127,7 @@ public class fListener implements Listener {
 			if (Protections.DestroyInvalidShulkers.isEnabled()) {
 				int tagSize = NBTStuff.isBadShulker(is);
 				if (tagSize > 0) {
-					getLog().append(Msg.StaffBadShulkerRemoved.getValue(e.getPlayer(), tagSize));
+					getLog().append2(Msg.StaffBadShulkerRemoved.getValue(e.getPlayer(), tagSize));
 					e.getPlayer().getInventory().setItem(i, new ItemStack(Material.AIR));
 				}
 			}
@@ -2097,9 +2153,9 @@ public class fListener implements Listener {
 						if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
 							continue;
 						if (en.canEnchantItem(is))
-							getLog().append(Msg.IllegalEnchantLevel.getValue(e.getPlayer(), is, en));
+							getLog().append2(Msg.IllegalEnchantLevel.getValue(e.getPlayer(), is, en));
 						else
-							getLog().append(Msg.IllegalEnchantType.getValue(e.getPlayer(), is, en));
+							getLog().append2(Msg.IllegalEnchantType.getValue(e.getPlayer(), is, en));
 						replace.add(en);
 					} else {
 						if (!en.canEnchantItem(is)) {
@@ -2107,7 +2163,7 @@ public class fListener implements Listener {
 								continue;
 
 							replace.add(en);
-							getLog().append(Msg.IllegalEnchantType.getValue(e.getPlayer(), is, en));
+							getLog().append2(Msg.IllegalEnchantType.getValue(e.getPlayer(), is, en));
 						}
 					}
 				for (Enchantment en : replace) {
@@ -2123,7 +2179,7 @@ public class fListener implements Listener {
 						if (Protections.RemoveItemTypes.notifyOnly())
 							getLog().notify(Protections.RemoveItemTypes, " Triggered by: " + e.getPlayer().getName() + " with item: " + is.getType().name());
 						else {
-							getLog().append(Msg.ItemTypeRemovedPlayer.getValue(p, is));
+							getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
 							p.getInventory().remove(is);
 						}
 					}
@@ -2135,10 +2191,10 @@ public class fListener implements Listener {
 								continue;
 							if (Protections.FixOverstackedItemInstead.isEnabled()) {
 								is.setAmount(is.getType().getMaxStackSize());
-								fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+								fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 							} else {
 								p.getInventory().remove(is);
-								fListener.getLog().append(Msg.IllegalStackLogin.getValue(p, is));
+								fListener.getLog().append2(Msg.IllegalStackLogin.getValue(p, is));
 							}
 							continue;
 						}
@@ -2149,10 +2205,10 @@ public class fListener implements Listener {
 						if (Protections.RemoveOverstackedItems.notifyOnly())
 							getLog().notify(Protections.RemoveOverstackedItems, " Triggered by: " + p.getName() + " item was: " + is.getType().name());
 						else if (Protections.FixOverstackedItemInstead.isEnabled()) {
-							getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+							getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 							is.setAmount(is.getType().getMaxStackSize());
 						} else {
-							getLog().append(Msg.IllegalStackLogin.getValue(p, is));
+							getLog().append2(Msg.IllegalStackLogin.getValue(p, is));
 							p.getInventory().remove(is);
 						}
 					}
@@ -2195,9 +2251,9 @@ public class fListener implements Listener {
 						if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
 							continue;
 						if (en.canEnchantItem(is))
-							getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
+							getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
 						else
-							getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+							getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
 						replace.add(en);
 					} else {
 						if (!en.canEnchantItem(is)) {
@@ -2205,7 +2261,7 @@ public class fListener implements Listener {
 								continue;
 
 							replace.add(en);
-							getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+							getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
 						}
 					}
 				for (Enchantment en : replace) {
@@ -2227,13 +2283,13 @@ public class fListener implements Listener {
 							return;
 						if (Protections.FixOverstackedItemInstead.isEnabled()) {
 							is.setAmount(is.getType().getMaxStackSize());
-							fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+							fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 						} else {
 							e.setCancelled(true);
 							p.getInventory().remove(is);
 							is.setAmount(1);
 							is.setType(Material.AIR);
-							fListener.getLog().append(Msg.IllegalStackOnClick.getValue(p, is));
+							fListener.getLog().append2(Msg.IllegalStackOnClick.getValue(p, is));
 						}
 						return;
 					}
@@ -2244,10 +2300,10 @@ public class fListener implements Listener {
 					if (Protections.RemoveOverstackedItems.notifyOnly())
 						getLog().notify(Protections.RemoveOverstackedItems, " Triggered by: " + p.getName() + " item was: " + is.getType());
 					else if (Protections.FixOverstackedItemInstead.isEnabled()) {
-						getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+						getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 						is.setAmount(is.getType().getMaxStackSize());
 					} else {
-						getLog().append(Msg.IllegalStackOnClick.getValue(p, is));
+						getLog().append2(Msg.IllegalStackOnClick.getValue(p, is));
 						p.getInventory().remove(is);
 					}
 				}
@@ -2280,7 +2336,7 @@ public class fListener implements Listener {
 				}
 
 			if (Protections.LimitNumberOfPages.getIntValue() > 0 && bm.getPageCount() > Protections.LimitNumberOfPages.getIntValue()) {
-				getLog().append(Msg.TooManyPages.getValue(e.getWhoClicked().getName()));
+				getLog().append2(Msg.TooManyPages.getValue(e.getWhoClicked().getName()));
 				e.getWhoClicked().getInventory().removeItem(is);
 
 				e.setCancelled(true);
@@ -2298,7 +2354,7 @@ public class fListener implements Listener {
 					if (Protections.RemoveBooksNotMatchingCharset.notifyOnly())
 						getLog().notify(Protections.RemoveBooksNotMatchingCharset, " Triggered by: " + author);
 					else {
-						getLog().append(Msg.BookRemoved.getValue(author));
+						getLog().append2(Msg.BookRemoved.getValue(author));
 						bm.setPages(new ArrayList<String>());
 						is.setItemMeta(bm);
 
@@ -2320,7 +2376,7 @@ public class fListener implements Listener {
 						if (Protections.RemoveItemsMatchingName.notifyOnly()) {
 							getLog().notify(Protections.RemoveItemsMatchingName, " Triggered by: " + p.getName() + " item was: " + is.getType().name());
 						} else {
-							getLog().append(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
+							getLog().append2(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
 							e.setCancelled(true);
 							e.setResult(Result.DENY);
 							e.setCurrentItem(new ItemStack(Material.AIR));
@@ -2336,7 +2392,7 @@ public class fListener implements Listener {
 					if (Protections.RemoveAllRenamedItems.isEnabled()) {
 						if (!p.hasPermission("IllegalStack.RenameBypass")) {
 							if (is != null && is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
-								getLog().append(Msg.RemovedRenamedItem.getValue(p, is));
+								getLog().append2(Msg.RemovedRenamedItem.getValue(p, is));
 								e.setResult(Result.DENY);
 								e.getCursor().setType(Material.AIR);
 								e.getCursor().setAmount(0);
@@ -2349,7 +2405,7 @@ public class fListener implements Listener {
 						if (Protections.RemoveItemsMatchingName.notifyOnly()) {
 							getLog().notify(Protections.RemoveItemsMatchingName, " Triggered by: " + p.getName() + " item was: " + is.getType().name());
 						} else {
-							getLog().append(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
+							getLog().append2(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
 							e.setCancelled(true);
 							e.setResult(Result.DENY);
 							e.getCursor().setType(Material.AIR);
@@ -2367,7 +2423,7 @@ public class fListener implements Listener {
 				if (Protections.RemoveAllRenamedItems.isEnabled()) {
 					if (!p.hasPermission("IllegalStack.RenameBypass")) {
 						if (is != null && is.hasItemMeta() && is.getItemMeta().hasDisplayName()) {
-							getLog().append(Msg.RemovedRenamedItem.getValue(p, is));
+							getLog().append2(Msg.RemovedRenamedItem.getValue(p, is));
 							e.setResult(Result.DENY);
 							e.getCursor().setType(Material.AIR);
 							e.getCursor().setAmount(0);
@@ -2408,16 +2464,16 @@ public class fListener implements Listener {
 								if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
 									continue;
 								if (en.canEnchantItem(is))
-									getLog().append(Msg.IllegalEnchantLevel.getValue(p, is, en));
+									getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
 								else
-									getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+									getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
 								replace.add(en);
 							} else {
 								if (!en.canEnchantItem(is)) {
 									if (SlimefunCompat.isValid(is, en))
 										continue;
 									replace.add(en);
-									getLog().append(Msg.IllegalEnchantType.getValue(p, is, en));
+									getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
 								}
 							}
 						for (Enchantment en : replace) {
@@ -2434,7 +2490,7 @@ public class fListener implements Listener {
 						if (Protections.RemoveItemsMatchingName.notifyOnly())
 							getLog().notify(Protections.RemoveItemsMatchingName, " Triggered by: " + p.getName() + " item was: " + is.getType().name());
 						else {
-							getLog().append(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
+							getLog().append2(Msg.NamedItemRemovalPlayer.getValue(p, is.getType().name()));
 
 							e.setCancelled(true);
 							final ItemStack isRemove = is;
@@ -2465,13 +2521,13 @@ public class fListener implements Listener {
 							return;
 						if (Protections.FixOverstackedItemInstead.isEnabled()) {
 							is.setAmount(is.getType().getMaxStackSize());
-							fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+							fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 						} else {
 							e.setCancelled(true);
 							p.getInventory().remove(is);
 							is.setAmount(1);
 							is.setType(Material.AIR);
-							fListener.getLog().append(Msg.IllegalStackOnClick.getValue(p, is));
+							fListener.getLog().append2(Msg.IllegalStackOnClick.getValue(p, is));
 						}
 						return;
 					}
@@ -2482,10 +2538,10 @@ public class fListener implements Listener {
 					if (Protections.RemoveOverstackedItems.notifyOnly())
 						getLog().notify(Protections.RemoveOverstackedItems, " Triggered by: " + p.getName() + " item was: " + is.getType());
 					else if (Protections.FixOverstackedItemInstead.isEnabled()) {
-						getLog().append(Msg.IllegalStackShorten.getValue(p, is));
+						getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
 						is.setAmount(is.getType().getMaxStackSize());
 					} else {
-						getLog().append(Msg.IllegalStackOnClick.getValue(p, is));
+						getLog().append2(Msg.IllegalStackOnClick.getValue(p, is));
 						p.getInventory().remove(is);
 					}
 					for (ItemStack is2 : p.getInventory().getContents()) {
@@ -2496,7 +2552,7 @@ public class fListener implements Listener {
 								if (Protections.RemoveItemTypes.notifyOnly())
 									getLog().notify(Protections.RemoveItemTypes, " Triggered by: " + p.getName() + " with item: " + is.getType().name());
 								else {
-									getLog().append(Msg.ItemTypeRemovedPlayer.getValue(p, is));
+									getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
 									p.getInventory().remove(is);
 								}
 							}
@@ -2510,10 +2566,10 @@ public class fListener implements Listener {
 									getLog().notify(Protections.RemoveOverstackedItems, " Triggered by: " + p.getName() + " item was: " + is.getType());
 								else if (Protections.FixOverstackedItemInstead.isEnabled()) {
 									is2.setAmount(is2.getType().getMaxStackSize());
-									fListener.getLog().append(Msg.IllegalStackShorten.getValue(p, is2));
+									fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is2));
 								} else {
 									p.getInventory().remove(is2);
-									fListener.getLog().append(Msg.IllegalStackItemScan.getValue(p, is2));
+									fListener.getLog().append2(Msg.IllegalStackItemScan.getValue(p, is2));
 								}
 							}
 						}
@@ -2558,7 +2614,7 @@ public class fListener implements Listener {
 					else {
 						e.setCancelled(true);
 						e.getPlayer().sendMessage(Msg.PlayerDisabledBookMsg.getValue(e.getPlayer(), ""));
-						getLog().append(Msg.StaffMsgBookRemoved.getValue(e.getPlayer(), ""));
+						getLog().append2(Msg.StaffMsgBookRemoved.getValue(e.getPlayer(), ""));
 						final ItemStack remove = e.getItem();
 						final Player player = e.getPlayer();
 						final boolean offhandRemove = wasOffhand;
@@ -2673,8 +2729,8 @@ public class fListener implements Listener {
 						if (Protections.WatchForAutoFishMod.notifyOnly())
 							getLog().notify(Protections.WatchForAutoFishMod, " Triggered by: " + e.getPlayer().getName());
 						else {
-							getLog().append(Msg.StaffAutoFishingNotice.getValue(e.getPlayer(), fa.getSameSpotCount(), e.getPlayer().getLocation()));
-							//getLog().append(e.getPlayer().getName() + " appears to be using an autofishing mod.. " + fa.getSameSpotCount() + " caught within 0.3 blocks of each other @" + e.getPlayer().getLocation());
+							getLog().append2(Msg.StaffAutoFishingNotice.getValue(e.getPlayer(), fa.getSameSpotCount(), e.getPlayer().getLocation()));
+							//getLog().append2(e.getPlayer().getName() + " appears to be using an autofishing mod.. " + fa.getSameSpotCount() + " caught within 0.3 blocks of each other @" + e.getPlayer().getLocation());
 							e.setCancelled(true);
 							e.setExpToDrop(0);
 							if (hook != null) {
@@ -2689,7 +2745,7 @@ public class fListener implements Listener {
 				if (Protections.KickForAutoClickerFishing.notifyOnly())
 					getLog().notify(Protections.KickForAutoClickerFishing, " Triggered by: " + e.getPlayer().getName());
 				else {
-					getLog().append(Msg.StaffSpamFishingNotice.getValue(e.getPlayer(), fa.getCount(), e.getPlayer().getLocation()));
+					getLog().append2(Msg.StaffSpamFishingNotice.getValue(e.getPlayer(), fa.getCount(), e.getPlayer().getLocation()));
 					e.setCancelled(true);
 					e.setExpToDrop(0);
 					shouldKick = true;
@@ -2763,7 +2819,7 @@ public class fListener implements Listener {
 						if (horse.isCarryingChest()) {
 							horse.setCarryingChest(false);
 							e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
-							getLog().append(Msg.ChestRemoved.getValue(e.getPlayer(), horse));
+							getLog().append2(Msg.ChestRemoved.getValue(e.getPlayer(), horse));
 							System.out.println(ChatColor.RED + "[IllegalStack] WARNING:  Protocollib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 							punishPlayer(e.getPlayer(), e.getRightClicked());
 						} else {
@@ -2773,7 +2829,7 @@ public class fListener implements Listener {
 								@Override
 								public void run() {
 									e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
-									getLog().append(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
+									getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
 									horse.setCarryingChest(false);
 									punishPlayer(e.getPlayer(), e.getRightClicked());
 								}
@@ -2792,7 +2848,7 @@ public class fListener implements Listener {
 						@Override
 						public void run() {
 							e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
-							getLog().append(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
+							getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
 							horse.setCarryingChest(false);
 							System.out.println(ChatColor.RED + "[IllegalStack] WARNING:  Protocollib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 							punishPlayer(e.getPlayer(), e.getRightClicked());
@@ -2817,7 +2873,7 @@ public class fListener implements Listener {
 					e.getPlayer().teleport(corrected);
 					getTeleGlitch().remove(e.getPlayer().getUniqueId());
 					if (Protections.TeleportCorrectionNotify.isEnabled())
-						getLog().append(Msg.CorrectedPlayerLocation.getValue(e.getPlayer(), corrected));
+						getLog().append2(Msg.CorrectedPlayerLocation.getValue(e.getPlayer(), corrected));
 				}
 			}
 		}.runTaskLater(this.plugin, 5);
@@ -2830,7 +2886,7 @@ public class fListener implements Listener {
 			if (l.getY() >= Protections.NetherYLevel.getIntValue())
 				if (!e.getPlayer().isOp() && (l.getWorld().getName().toLowerCase().contains("nether") || l.getWorld().getEnvironment() == Environment.NETHER)) {
 					e.setCancelled(true);
-					getLog().append(Msg.StaffMsgNetherBlock.getValue(e.getPlayer(), l.toString()));
+					getLog().append2(Msg.StaffMsgNetherBlock.getValue(e.getPlayer(), l.toString()));
 					e.getPlayer().sendMessage(Msg.PlayerNetherBlock.getValue(e.getPlayer().getName()));
 				}
 		}
@@ -2848,7 +2904,7 @@ public class fListener implements Listener {
 					{
 						e.setCancelled(true);
 						e.getVehicle().remove();
-						getLog().append(Msg.StaffMsgNetherCart.getValue((Player) e.getEntered(), l.toString()));
+						getLog().append2(Msg.StaffMsgNetherCart.getValue((Player) e.getEntered(), l.toString()));
 					}
 				}
 			}
@@ -2867,7 +2923,7 @@ public class fListener implements Listener {
 					{
 						e.setCancelled(true);
 						e.getVehicle().remove();
-						getLog().append(Msg.StaffMsgNetherCart.getValue((Player) e.getExited(), l.toString()));
+						getLog().append2(Msg.StaffMsgNetherCart.getValue((Player) e.getExited(), l.toString()));
 					}
 				}
 			}
@@ -2903,7 +2959,7 @@ public class fListener implements Listener {
 						e.getPlayer().setInvulnerable(false);
 					
 					e.setCancelled(true);
-					getLog().append(Msg.StaffMsgUnderNether.getValue(e.getPlayer(), e.getPlayer().getLocation().toString()));
+					getLog().append2(Msg.StaffMsgUnderNether.getValue(e.getPlayer(), e.getPlayer().getLocation().toString()));
 					new BukkitRunnable() {
 
 						@Override
@@ -2945,7 +3001,7 @@ public class fListener implements Listener {
 							if (b.getRelative(BlockFace.DOWN).getType() != Material.BEDROCK)
 								b.getRelative(BlockFace.DOWN).setType(Material.NETHERRACK);
 							Location loc = b.getLocation();
-							getLog().append(Msg.StaffMsgNetherFix.getValue(e.getPlayer(), loc.toString()));
+							getLog().append2(Msg.StaffMsgNetherFix.getValue(e.getPlayer(), loc.toString()));
 							e.setCancelled(true);
 							new BukkitRunnable() {
 
@@ -2959,7 +3015,7 @@ public class fListener implements Listener {
 						}
 					}
 					e.setCancelled(true);
-					getLog().append(Msg.StaffMsgNetherBlock.getValue(e.getPlayer(), l.toString()));
+					getLog().append2(Msg.StaffMsgNetherBlock.getValue(e.getPlayer(), l.toString()));
 					e.getPlayer().sendMessage(Msg.PlayerNetherBlock.getValue(e.getPlayer().getName()));
 				}
 			}
@@ -2988,7 +3044,7 @@ public class fListener implements Listener {
 				spawner.setSpawnedType(EntityType.PIG);
 				bs.setBlockData(spawner.getBlockData());
 				bs.update(true);
-				getLog().append(Msg.StaffMsgSpawnerReset.getValue(e.getPlayer(), oldType));
+				getLog().append2(Msg.StaffMsgSpawnerReset.getValue(e.getPlayer(), oldType));
 			}
 		}
 	}
@@ -3016,7 +3072,7 @@ public class fListener implements Listener {
 			//debug = debug + " [" + i + "] new: " + eo.getCost() + " old: " + oldCost;
 			//System.out.println("Modified enchantment offer: " + i + " new cost: " + eo.getCost() + " / old cost " + oldCost);
 		}
-		//fListener.getLog().append("DEBUG: Modified " + modified + " enchantment offers. " + debug);
+		//fListener.getLog().append2("DEBUG: Modified " + modified + " enchantment offers. " + debug);
 		for (int i = 0; i < newOffers.length; i++)
 			if (newOffers[i] != null)
 				e.getOffers()[i] = newOffers[i];
@@ -3035,7 +3091,7 @@ public class fListener implements Listener {
 			if (enc == null)
 				continue;
 			enchants = enc.getName() + " - " + e.getEnchantsToAdd().get(enc) + ", ";
-			//fListener.getLog().append("DEBUG: Random xp for enchanting was: " + rndXp + " oldXp: " + oldXp + " new " + p.getExp()  + " " + p.getName() + " itm " + e.getItem().getType().name() + " added " + enchants);
+			//fListener.getLog().append2("DEBUG: Random xp for enchanting was: " + rndXp + " oldXp: " + oldXp + " new " + p.getExp()  + " " + p.getName() + " itm " + e.getItem().getType().name() + " added " + enchants);
 		}
 	}
 
@@ -3141,4 +3197,6 @@ public class fListener implements Listener {
 	public void setIs116(Boolean is116) {
 		this.is116 = is116;
 	}
+	
+	
 }
