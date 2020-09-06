@@ -60,7 +60,7 @@ public class IrritaingLegacyChecks {
 	public static boolean CheckItem(ItemStack item, Location loc) {
 		boolean cancel = false;
 
-		if(item.hasItemMeta()) { //check for shulkers
+		if(item.hasItemMeta() && IllegalStack.hasShulkers()) { //check for shulkers
 			final BlockStateMeta sbm = (BlockStateMeta)item.getItemMeta();
 			if (sbm.getBlockState() instanceof ShulkerBox) 
 			{

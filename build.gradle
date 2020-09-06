@@ -35,7 +35,7 @@ dependencies {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.1.9b"
+version = "2.2.0b"
 
 processResources {
     from('src/main/resources') {

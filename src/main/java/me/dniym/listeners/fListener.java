@@ -91,6 +91,7 @@ import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -348,6 +349,27 @@ public class fListener implements Listener {
 	}
 
 	/*
+	 * Check dropped items for blacklisted types
+	 */
+	
+	@EventHandler
+	public void OnItemDrop(PlayerDropItemEvent e) {
+		if(Protections.RemoveItemTypes.isEnabled() && RemoveItemTypesCheck.shouldRemove(e.getItemDrop().getItemStack().getType(), null)) {
+			e.setCancelled(true);
+			new BukkitRunnable() {
+				
+				@Override
+				public void run() {
+					fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnDrop.getValue(e.getPlayer(), e.getItemDrop().getItemStack().getType().name()), Protections.RemoveItemTypes);
+					e.getPlayer().getInventory().remove(e.getItemDrop().getItemStack());
+				}
+
+			}.runTaskLater(this.plugin, 2);
+
+		}
+
+	}
+	/*
 	 * Examine Shulker Boxes when they're placed for Illegal Items
 	 */
 	@EventHandler
@@ -357,6 +379,21 @@ public class fListener implements Listener {
 			return;
 		
 		boolean cancel = false;
+		
+		if(Protections.RemoveItemTypes.isEnabled() && RemoveItemTypesCheck.shouldRemove(e.getBlockPlaced().getType(), null)) {
+			new BukkitRunnable() {
+
+				@Override
+				public void run() {
+					fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnPlace.getValue(e.getPlayer(), e.getBlockPlaced().getType().name()), Protections.RemoveItemTypes);
+					e.getBlockPlaced().setType(Material.AIR);
+					
+				}
+
+			}.runTaskLater(this.plugin, 2);
+
+		}
+			
 		if (IllegalStack.hasShulkers()) 
 		{
 

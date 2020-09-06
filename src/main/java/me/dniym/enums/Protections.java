@@ -920,6 +920,14 @@ public enum Protections {
         return found;
     }
 
+    public boolean isWhitelisted(Material type) {
+    	for (String s : this.getTxtSet()) {
+            Material m = Material.matchMaterial(s);
+            if (m != null && type == m)
+                return true;
+        }
+    	return false;
+    }
     public boolean isWhitelisted(ItemStack is) {
 
     	if (this == Protections.RemoveItemTypes && IllegalStack.hasIds()) {  //check for magic number type values

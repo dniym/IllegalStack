@@ -1,7 +1,9 @@
 package me.dniym.checks;
 
+import org.bukkit.Material;
 import org.bukkit.block.Container;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -27,6 +29,12 @@ public class RemoveItemTypesCheck {
 
 	}
 
+	public static boolean shouldRemove(Material type, Player player) {
+		return Protections.RemoveItemTypes.isWhitelisted(type); 
+			
+		
+	}
+	
 	public static boolean shouldRemove(ItemStack is, Object obj) {
 
 

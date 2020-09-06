@@ -47,6 +47,8 @@ public enum Msg {
     NamedItemRemovalHopper("Found an item named ~item~ in a hopper, it has been removed @"),
     NamedItemRemovalPlayer("Found an item named: ~item~ in ~name~'s inventory, it has been removed. @"),
     ItemTypeRemovedPlayer("Found a blacklisted item type: ~item~ in ~name~'s inventory, it has been removed"),
+    ItemTypeRemovedPlayerOnPlace("~name~ attempted to place a blacklisted item type: ~item~, it has been removed"),
+    ItemTypeRemovedPlayerOnDrop("~name~ attempted to drop a blacklisted item type: ~item~, it has been removed"),
     ItemTypeRemoved("Found a blacklisted item type: ~item~ in ~player~'s inventory, it has been removed"),
     SilkTouchBookBlocked("Stopped  ~name~ from breaking ~block~ using a silk touch book @"),
 
