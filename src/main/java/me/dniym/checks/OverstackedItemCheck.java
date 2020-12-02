@@ -51,11 +51,11 @@ public class OverstackedItemCheck {
             if (!Protections.IllegalStackMode.isEnabled())  //in blacklist mode and on the blacklist
             {
                 if (Protections.FixOverstackedItemInstead.isEnabled()) {
-                	if(!silent) fListener.getLog().append2(Msg.IllegalStackShorten.getValue(obj, is));
+                	if(!silent) fListener.getLog().append(Msg.IllegalStackShorten.getValue(obj, is), Protections.RemoveOverstackedItems);
                     is.setAmount(is.getType().getMaxStackSize());
                     return true;
                 } else {
-                	if(!silent) fListener.getLog().append2(Msg.IllegalStackItemScan.getValue(obj, is));
+                	if(!silent) fListener.getLog().append(Msg.IllegalStackItemScan.getValue(obj, is), Protections.RemoveOverstackedItems);
                 	if(obj instanceof Inventory)
                 		((Inventory)obj).remove(is);
                 	else

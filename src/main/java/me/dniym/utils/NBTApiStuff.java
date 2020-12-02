@@ -2,7 +2,11 @@ package me.dniym.utils;
 
 
 import me.dniym.enums.Msg;
+import me.dniym.enums.Protections;
 import me.dniym.listeners.fListener;
+
+
+import java.util.ArrayList;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -16,6 +20,7 @@ import de.tr7zw.nbtapi.NBTCompoundList;
 import de.tr7zw.nbtapi.NBTEntity;
 import de.tr7zw.nbtapi.NBTItem;
 import de.tr7zw.nbtapi.NBTListCompound;
+import java.util.List;
 
 public class NBTApiStuff {
 
@@ -55,7 +60,7 @@ public class NBTApiStuff {
     public static void getEntityTags(Entity ent) {
 
         NBTEntity nbtent = new NBTEntity(ent);
-        System.out.println("checking nbt?");
+        
 
         NamespacedKey key = new NamespacedKey(NamespacedKey.MINECRAFT, "gossips");
         PersistentDataContainer data = ent.getPersistentDataContainer();
@@ -170,7 +175,33 @@ public class NBTApiStuff {
         return (itemTag != null && itemTag.size() > 0);
     	
     }
-    
+    public static boolean checkForBadCustomDataLegacy(ItemStack is, Object obj) {
+    	boolean helmet = false;
+        NBTItem nbti = new NBTItem(is);
+        NBTCompoundList itemTag = nbti.getCompoundList("AttributeModifiers");
+        if (itemTag == null) {
+            return false;
+        }
+        
+        if (itemTag.size() > 0) {
+            itemTag.clear();
+            nbti.setObject("AttributeModifiers", itemTag);
+            
+            
+            StringBuilder attribs = new StringBuilder();
+            attribs.append("Custom Attribute Data");
+            fListener.getLog().append(Msg.CustomAttribsRemoved3.getValue(is,obj,attribs),Protections.RemoveCustomAttributes);
+            
+            if(obj instanceof Player)
+            	((Player)obj).getInventory().remove(is);
+            else
+            	System.out.println("The object type: " + obj.toString() + " is not accounted for in the legacy NBT Api check.. Please report this to dNiym at the IllegalStack discord or via spigot!");
+            	
+            return true;
+           
+        }
+        return false;
+    }
     public static void checkForBadCustomDataLegacy(ItemStack is, Player p, boolean sendToPlayer) {
     	boolean helmet = false;
         NBTItem nbti = new NBTItem(is);

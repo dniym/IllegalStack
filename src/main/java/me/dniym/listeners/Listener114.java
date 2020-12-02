@@ -50,8 +50,12 @@ public class Listener114 implements Listener {
     private static final BlockFace[] faces = {BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH, BlockFace.NORTH};
     HashMap<UUID, Long> lastTrade = new HashMap<>();
     HashSet<Material> consumables = new HashSet<>();
-
-    public Listener114() {
+    IllegalStack plugin;
+    
+    public Listener114(IllegalStack illegalStack) {
+    	plugin = illegalStack;
+    	//System.out.println("Registering 1.14 listener");
+        
         Material[] consume = new Material[]{Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
                 Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP, Material.COOKED_SALMON,
                 Material.COOKED_RABBIT, Material.COOKIE, Material.DRIED_KELP, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.GOLDEN_CARROT,
@@ -60,6 +64,8 @@ public class Listener114 implements Listener {
                 Material.SPIDER_EYE, Material.COOKED_BEEF, Material.SUSPICIOUS_STEW, Material.SWEET_BERRIES, Material.TROPICAL_FISH, Material.MILK_BUCKET,
                 Material.POTION};
         consumables.addAll(Arrays.asList(consume));
+        
+        plugin.getServer().getPluginManager().registerEvents(this,plugin);
     }
     
     @EventHandler
@@ -73,29 +79,6 @@ public class Listener114 implements Listener {
     		}
     	}
     }
-
-    /*
-    @EventHandler
-    public void onVillagerInteract(PlayerInteractAtEntityEvent e)
-    {
-
-        if(e.getRightClicked() instanceof Villager) {
-
-            if(NBTStuff.hasNbtTag(e.getRightClicked(), "iStackVillager")) {
-                System.out.println("Villager already patched");
-                return;
-            }
-
-                Location location = e.getRightClicked().getLocation();
-                iStackVillager iStackVillager = new iStackVillager(location.getWorld());
-                iStackVillager.setPosition(location.getX(), location.getY(), location.getZ());
-                ((CraftWorld)location.getWorld()).getHandle().addEntity(iStackVillager, CreatureSpawnEvent.SpawnReason.CUSTOM);
-                NBTStuff.copyNbt(e.getRightClicked(), iStackVillager);
-                e.getRightClicked().remove();
-                System.out.println("Patching villager");
-        }
-    }
-    */
 
     @EventHandler
     public void OnVillagerTransform(EntityTransformEvent e) {
@@ -149,24 +132,6 @@ public class Listener114 implements Listener {
         }
 
     }
-    /*
-        @EventHandler
-        public void onVillagerSpawn(EntitySpawnEvent e) {
-            if(e.getEntity() instanceof NMSEntityVillager)
-            {
-                System.out.println("Spawned in custom villager");
-                return;
-            }
-            if(e.getEntity() instanceof CraftVillager )
-            {
-
-                e.getEntity().remove();
-                System.out.println("Replacing vanilla villager");
-                NMSGarbage.spawnVillager(e.getLocation());
-
-            }
-        }
-        */
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
@@ -316,24 +281,6 @@ public class Listener114 implements Listener {
                     }
     }
 
-    /*
-    @EventHandler
-    public void onBlockGrow(StructureGrowEvent e) {
-
-        if(e.getSpecies() == TreeType.BROWN_MUSHROOM || e.getSpecies() == TreeType.RED_MUSHROOM) {
-            for(BlockState bs:e.getBlocks()) {
-                if(bs.getType() == Material.END_PORTAL_FRAME)
-                    System.out.println("Mushroom replaced portal frame");
-                else
-                    System.out.println("Replaced: " + bs.getType().name());
-                bs.
-            }
-
-        }
-
-    }
-
-    */
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
         if (Protections.PreventProjectileExploit.isEnabled())
@@ -354,4 +301,6 @@ public class Listener114 implements Listener {
         fTimer.trackBlock((FallingBlock) e.getEntity());
 
     }
+    
+    
 }

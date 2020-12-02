@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
@@ -111,11 +112,17 @@ public class CheckUtils {
 			ItemStack is = inv.getContents()[i];
 			if(is == null)
 				continue;
-			if(OverstackedItemCheck.CheckContainer(is, inv))
+			if(RemoveItemTypesCheck.shouldRemove(is, inv)) 
 				return true;
-			if(RemoveItemTypesCheck.shouldRemove(is, inv)) {
+			else if(IllegalEnchantCheck.isIllegallyEnchanted(is, inv))
 				return true;
-			}
+			else if(BadAttributeCheck.hasBadAttributes(is,inv))
+				return true;
+			else if(OverstackedItemCheck.CheckContainer(is, inv)) 
+				return true;
+			
+			
+			
 		}
 
 		if(!fListener.is18() && IllegalStack.hasStorage())

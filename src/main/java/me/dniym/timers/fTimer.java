@@ -2,6 +2,7 @@ package me.dniym.timers;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import me.dniym.IllegalStack;
+import me.dniym.checks.BadAttributeCheck;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.listeners.fListener;
@@ -10,6 +11,7 @@ import me.dniym.utils.NBTStuff;
 import me.dniym.utils.SlimefunCompat;
 import me.dniym.utils.SpigMethods;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -97,6 +99,7 @@ public class fTimer implements Runnable {
             fListener.punishPlayer(p, punish.get(p));
         punish.clear();
 
+        
         if (Protections.BlockNonPlayersInEndPortal.isEnabled() && getDragon() != null && System.currentTimeMillis() > endScan) {
             endScan = System.currentTimeMillis() + 500L;
             if (getDragon().getEnvironment() == Environment.THE_END) {
@@ -201,6 +204,14 @@ public class fTimer implements Runnable {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 if (SpigMethods.isNPC(p)) continue;
 
+                if (Protections.PreventHeadInsideBlock.isEnabled() && p.getGameMode() == GameMode.SURVIVAL) {
+                	Material type = p.getEyeLocation().getBlock().getType();
+                	if(Protections.AlsoPreventHeadInside.isWhitelisted(type)) {
+                		fListener.getLog().append(Msg.HeadInsideSolidBlock2.getValue(p,p.getEyeLocation().getBlock().getType().name()), Protections.PreventHeadInsideBlock);
+                		p.getEyeLocation().getBlock().breakNaturally();
+                		
+                	}
+                }
                 for (ItemStack is : p.getInventory().getContents()) {
                     if (is != null && !p.isOp()) {
                         if (Protections.RemoveItemTypes.isWhitelisted(is)) {
@@ -434,7 +445,8 @@ public class fTimer implements Runnable {
 
                             if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
                                 continue;
-                            NBTStuff.checkForBadCustomData(is, p, false);
+                            //NBTStuff.checkForBadCustomData(is, p, false);
+                            BadAttributeCheck.checkForBadCustomData(is, p);
                         }
 
                         if (Protections.PreventInvalidPotions.isEnabled() && im instanceof PotionMeta) {
@@ -547,8 +559,8 @@ public class fTimer implements Runnable {
             }
         }
     }
-
-    public World getDragon() {
+    
+	public World getDragon() {
         return dragon;
     }
 

@@ -138,13 +138,15 @@ public class NBTStuff {
 
 
     }
+    
     public static boolean hasBadCustomData(ItemStack is) {
 
         ItemMeta im = is.getItemMeta();
        
-        if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) 
+        if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) {
+        	
             return true;
-        else if (IllegalStack.isNbtAPI()) 
+        } else if (IllegalStack.isNbtAPI()) 
         	return NBTApiStuff.hasBadCustomDataLegacy(is);
             
         
@@ -171,7 +173,7 @@ public class NBTStuff {
             if (sendToPlayer)
                 p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
             else
-                fListener.getLog().append2(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()));
+                fListener.getLog().append(Msg.CustomAttribsRemoved.getValue(p, is, attribs.toString()),Protections.RemoveCustomAttributes);
             for (Attribute remove : toRemove)
                 im.removeAttributeModifier(remove);
 

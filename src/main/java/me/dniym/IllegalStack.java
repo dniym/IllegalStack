@@ -138,9 +138,11 @@ public class IllegalStack extends JavaPlugin {
                 plugin.getServer().getScheduler().cancelTask(plugin.SignTimer);
         }
 
-        if ((fListener.getInstance().getIs116() || fListener.getInstance().is115() || fListener.getInstance().is114())) {
-            System.out.println("Blocking 1.14 villager trade cheesing.");
-            IllegalStack.getPlugin().getServer().getPluginManager().registerEvents(new Listener114(), IllegalStack.getPlugin());
+		if(fListener.getInstance().isAtLeast113()) 
+			new Listener113(IllegalStack.getPlugin());
+		
+		if(fListener.getInstance().isAtLeast114()) {
+			new Listener114(IllegalStack.getPlugin());
             System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
         }
 
@@ -280,37 +282,27 @@ public class IllegalStack extends JavaPlugin {
         setHasUnbreakable();
         setHasStorage();
         
-        try {
-            Class.forName("com.github.stefvanschie.inventoryframework.Gui");
-            System.out.println("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
-            setHasFactionGUI(true);
-        } catch (ClassNotFoundException ignored) {
+        	try {
+            	Class.forName("com.github.stefvanschie.inventoryframework.Gui");
+            	System.out.println("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
+            	setHasFactionGUI(true);
+        	} catch (ClassNotFoundException ignored) {
         }
-    	/*
-		if(this.getServer().getPluginManager().getPlugin("Factions") != null) {
-			try {
-				if(Class.forName("com.massivecraft.factions.shade.stefvanschie.inventoryframework.Gui") != null)
-				{
-					System.out.println("[IllegalStack] Detected SaberFactions gui object, whitelisting items found inside.");
-					setHasFactionGUI(true);
-				}
-			} catch (ClassNotFoundException e) {
 
-			}
-		}
-		*/
-        if (Protections.FixIllegalEnchantmentLevels.isEnabled() || Protections.RemoveCustomAttributes.isEnabled()) {
-            ItemStack test = new ItemStack(Material.DIAMOND_AXE, 1);
-            ItemMeta im = test.getItemMeta();
+        
+           ItemStack test = new ItemStack(Material.DIAMOND_AXE, 1);
+           ItemMeta im = test.getItemMeta();
             
             try {
             	im.getAttributeModifiers();
                 setHasAttribAPI(true);
+            
 
             } catch (NoSuchMethodError e) {
                 setHasAttribAPI(false);
+            
             }
-        }
+        
         
         try {
             Class.forName("net.md_5.bungee.api.chat.ComponentBuilder");
@@ -371,20 +363,20 @@ public class IllegalStack extends JavaPlugin {
 
         this.getServer().getPluginManager().registerEvents(new fListener(this), this);
 
-        fListener.getInstance();
 		if (!fListener.is18())
             this.getServer().getPluginManager().registerEvents(new protListener(this), this);
 
         if (Protections.RemoveOverstackedItems.isEnabled() || Protections.PreventVibratingBlocks.isEnabled())
             ScanTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new fTimer(this), Protections.ItemScanTimer.getIntValue(), Protections.ItemScanTimer.getIntValue());
 
-        fListener.getInstance();
 		if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18())
             SignTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new sTimer(), 10, 10);
-
-        if ((fListener.getInstance().getIs116() || fListener.getInstance().is115() || fListener.getInstance().is114())) {
-            System.out.println("Blocking 1.14 villager trade cheesing.");
-            this.getServer().getPluginManager().registerEvents(new Listener114(), this);
+		if ((fListener.getInstance().isAtLeast113()))
+		{
+			new Listener113(this);
+		}
+		if (fListener.getInstance().isAtLeast114()) {
+			new Listener114(this);
             System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
         }
 
@@ -537,6 +529,8 @@ public class IllegalStack extends JavaPlugin {
                 Protections p = Protections.findByConfig(key);
                 if (p != null && (added.get(key) instanceof Boolean))
                     p.setEnabled((Boolean) added.get(key));
+                if (p == Protections.AlsoPreventHeadInside && Material.matchMaterial("COMPOSTER") != null)
+                	Protections.AlsoPreventHeadInside.addTxtSet("COMPOSTER", null);
 
 
             }

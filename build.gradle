@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT")
+	compileOnly("org.spigotmc:spigot-1.16.4")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0-SNAPSHOT")
     implementation("com.elmakers.mine.bukkit:MagicAPI:7.9.5")
     implementation("de.tr7zw:item-nbt-api-plugin:2.4.1")
@@ -28,14 +28,14 @@ dependencies {
     implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation("name:DynamicShop-2.11.1")
     implementation("name:CraftingStore-2.3.0")
-    implementation("name:SaberFactions-2.4.0-RC")
-    implementation("name:JetsMinions")
+    compileOnly("name:SaberFactions-2.4.0-RC")
+    compileOnly("name:JetsMinions")
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.2.0b"
+version = "2.2.1"
 
 processResources {
     from('src/main/resources') {

@@ -4,7 +4,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -42,6 +44,7 @@ public enum Msg {
     MinecartGlitch1("Located and removed a minecart glitched inside another block : ~blocktype~ @"),
     MinecartGlitch2("Stopped a minecart from being glitched into a block @"),
     HeadInsideSolidBlock("Stopped ~player~ 's head from being inside a solid block while in a ~vehicle~ @"),
+    HeadInsideSolidBlock2("Stopped ~player~ 's head from being inside a ~block~ Reason: potential Xray Glitch"),
     MinecartMount("Prevented a ~entity~ from being able to mount a ~vehicle~ @"),
     ZeroTickGlitch("Stopped Zero tick crop growth glitch and removed (~removedblocks~) @"),
     NamedItemRemovalHopper("Found an item named ~item~ in a hopper, it has been removed @"),
@@ -51,7 +54,7 @@ public enum Msg {
     ItemTypeRemovedPlayerOnDrop("~name~ attempted to drop a blacklisted item type: ~item~, it has been removed"),
     ItemTypeRemoved("Found a blacklisted item type: ~item~ in ~player~'s inventory, it has been removed"),
     SilkTouchBookBlocked("Stopped  ~name~ from breaking ~block~ using a silk touch book @"),
-
+    
     PistonHeadRemoval("A piston head was exploded.. removing an orphan piston base @"),
     IllegalStackLogin("Illegal stack of items removed: ~item~ (~amount~) from player: ~name~ at login."),
     IllegalStackOffhand("Removed an illegal stack of items from the off hand of ~name~, ~item~ ( ~amount~)"),
@@ -64,6 +67,7 @@ public enum Msg {
     UnbreakableItemCleared("Removed Unbreakable flag from ~item~ found on player ~name~"),
     CustomAttribsRemoved("Removed Custom Attributes on ~item~ held by ~name~ (~attributes~)"),
     CustomAttribsRemoved2("Removed ~item~ with Custom Attributes worn by ~name~ (~attributes~)"),
+    CustomAttribsRemoved3("Removed ~item~ with Custom attributes found in ~name~'s inventory (~attributes~)"),
     GlideActivateMaxBuild("Prevented ~name~ from activating an elytra while above the max build height. @"),
     GlideAboveMaxBuild("Player ~name~ was using an elytra above the max build height, disabling glide. @"),
     CorrectedPlayerLocation("(possible pearl glitch into block) Corrected an enderpearl teleport location for ~player~ @"),
@@ -87,7 +91,9 @@ public enum Msg {
     PlayerNetherBlock("&cSorry ~name~ players are not allowed on top of the nether!"),
     PlayerEnchantBlocked("&cSorry ~name~ Enchanting this item is not permitted."),
     PlayerRepairBlocked("&cSorry ~name~ Repairing this item is not permitted."),
-
+    PlayerSpawnEggBlock("&cSorry you can not use spawn eggs to change spawner types!"),
+    
+    StaffMsgChangedSpawnerType("Player ~player~ used ~type~ to change a spawner type @"),
     StaffMsgEndGatewayVehicleRemoved("player ~name~ attempted to take a ~vehicle~ through an end gateway, it has been removed."),
     StaffMsgBlockedPortalLogin("broke a trapped nether portal @"),
     StaffMsgBlockedPortal("~player~ was prevented from going through a blocked/trapped nether portal @"),
@@ -168,6 +174,8 @@ public enum Msg {
         val = val.replace("@", "@ " + player.getLocation().toString());
         val = val.replace("~item~", displayName);
         val = val.replace("~name~", player.getName());
+        val = val.replace("~player~", player.getName());
+        val = val.replace("~type~", displayName);
         val = val.replace("~block~", displayName);
         val = val.replace("~effects~", displayName);
         return ChatColor.translateAlternateColorCodes('&', val);
@@ -305,9 +313,13 @@ public enum Msg {
 
     
     public String getValue(Object obj, ItemStack is) {
-    	if(obj instanceof Inventory) 
-    		return getValue(((Inventory)obj).getLocation(), is);
-    	else if(obj instanceof Container)
+    	if(obj instanceof Inventory) {
+    		if(((Inventory)obj).getHolder() instanceof Player) {
+    			Inventory inv = (Inventory)obj;
+    			return getValue((Player)inv.getHolder(),is);
+    		} else 
+    			return getValue(((Inventory)obj).getLocation(), is);
+    	} else if(obj instanceof Container)
     		return getValue(((Container)obj),is);
     	System.out.println("An unknown object " + obj.toString() + " was passed to illegalstack during a logging operation please report this to dNiym at the spigot forums or on the IllegalStack Discord.");
     	return "???";
@@ -334,6 +346,32 @@ public enum Msg {
         return ChatColor.translateAlternateColorCodes('&', val);
     }
 
+    public String getValue(ItemStack is, Object obj, StringBuilder list) {
+    	String val = value;
+    	
+    	if(obj instanceof Player) {
+    		val = val.replace("@", "@ " + ((Player)obj).getLocation().toString());
+    		val = val.replace("~name~", ((Player)obj).getName());
+    	} else if(obj instanceof Inventory) {
+    		Inventory inv = null;
+    		inv = (Inventory) obj;
+    		if(inv.getHolder() instanceof Container)
+        		val = val.replace("~name~", ((Container)inv.getHolder()).getLocation().getBlock().getType().name() + " @" + ((Container)inv.getHolder()).getLocation().toString());
+    		else if(inv.getHolder() instanceof DoubleChest)
+    			val = val.replace("~name~", ((DoubleChest)inv.getHolder()).getLocation().getBlock().getType().name() + " @" + inv.getLocation().toString());
+    		else if(inv.getHolder() instanceof Player)
+    			val = val.replace("~name~", ((Player)inv.getHolder()).getName() + " @" + inv.getLocation().toString());
+        	else
+        		System.out.println("[IllegalStack] was supposed to send a message detailing an inventory but could not determine its type!  Please contact dNiym at the IllegalStack discord or on Spigot with this message -> " + obj.toString());
+    	}
+    		
+    	
+        val = val.replace("~item~", is.getType().name());
+        val = val.replace("~amount~", "" + is.getAmount());
+        val = val.replace("~attributes~", list);
+
+        return ChatColor.translateAlternateColorCodes('&', val);
+    }
     public String getValue(Player p, ItemStack is, String list) {
         String val = value;
 
