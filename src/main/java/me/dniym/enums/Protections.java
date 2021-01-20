@@ -111,7 +111,7 @@ public enum Protections {
     PreventInfiniteElytraFlight(36, true, "Prevent Infinite Elytra Flight", "> 1.9", "Exploits.Other.PreventInvalidElytraFlight", "Prevents players from using a glitch that grants unlimited elytra flight time without rockets,  This exploit allows the player to ascend vertically starting at the max build height until they decide to start descending or their elytra breaks.", "", 0, false),
 
     PreventItemSwapLagExploit(59, true, "Prevent Item Swap Lag Exploit", "> 1.9", "Exploits.ItemSwap.PreventItemSwapLagExploit", "Prevents players from spamming the server with held item swaps creating lag on the server.", "", 0, false),
-    ItemSwapCooldown(59, 500, "Cooldown Time (Miliseconds)", 59, "Exploits.ItemSwap.ItemSwapCooldown", "Time the player has to wait between item swaps in miliseconds.", "", 0, false),
+    ItemSwapCooldown(59, 500, "Cooldown Time (Miliseconds)", 59, "Exploits.ItemSwap.ItemSwapCooldown", "Time the player has to wait between item swaps in miliseconds. Don't set this lower than 50 or players might still be able to lag other players.", "", 0, false),
     
     PreventPearlGlassPhasing(38, true, "Prevent Enderpearl Glass Phasing", "> 1.9", "Exploits.Teleport.PearlPhasing", "Prevents players from using enderpearls to phase through glass blocks.", "", 0, false),
     TeleportCorrectionNotify(38, false, "Notify of teleport corrections", 38, "Exploit.Teleport.CorrectionNotify", "If set to true the plugin will notify staff whenever a correction to a teleport is made due to ender pearl phasing detection, this is off by default as it can be spammy.", "", 0, false),
