@@ -26,6 +26,8 @@ public enum Msg {
     //~item~
 
     PluginPrefix("[IllegalStack] -"),
+    PluginTeleportText(ChatColor.GOLD + "Click to teleport here"),
+    
     ChestRemoved("removed a chest from a ~entity~ @"),
     ChestPrevented("prevented ~player~ from putting a chest on a ~entity~ @"),
     StaffChestPunishment("punished ~player~ for continuing to try to put chests on a creature.  A ~entity~ was removed, the player's inventory has been cleared and the player has been kicked from the server. @"),
@@ -36,6 +38,7 @@ public enum Msg {
     SignKickPlayerMsg("Placing signs with unicode characters is NOT permitted."),
     ShulkerClick("Removed a shulker box from inside another shulker box clicked by: ~name~"),
     ShulkerPlace("Removed a shulker box containing illegally stacked, or enchanted items on player ~player~  @"),
+    
     ItemFrameRemoveOnExtend("removed an item frame containing - ~contents~ on the back of a retracting piston @"),
     ItemFrameRemoveOnRetract("removed an item frame containing - ~contents~ pulled by a sticky piston"),
     PistonRetractionDupe("Stopped Rail/Carpet Dupe & Removed Piston @ ~removedblocks~"),
@@ -98,6 +101,7 @@ public enum Msg {
     StaffMsgBlockedPortalLogin("broke a trapped nether portal @"),
     StaffMsgBlockedPortal("~player~ was prevented from going through a blocked/trapped nether portal @"),
     StaffMsgDropperExploit("Detected a hopper/dropper loop exploit and removed a dispenser/dropper @"),
+    StaffMsgDispenerFlint("Detected a downward facing dispenser from dispensing flint and steel which would crash the server @"),
     StaffMsgSpawnerReset("A ~type~ spawner was reset to a pig spawner when broken by ~name~ @"),
     StaffMsgCreativeBlock("~name~ was prevented from loading in an illegal item via the creative saved toolbar."),
     StaffMsgNetherBlock("~name~ was prevented from accessing the top of the nether @"),

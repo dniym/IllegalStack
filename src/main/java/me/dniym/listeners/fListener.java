@@ -61,6 +61,7 @@ import org.bukkit.entity.Llama;
 import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Mule;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TraderLlama;
@@ -92,6 +93,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerEditBookEvent;
@@ -119,6 +121,7 @@ import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import java.nio.charset.Charset;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -160,8 +163,8 @@ public class fListener implements Listener {
 	private HashMap<UUID, Location> teleGlitch = new HashMap<>();
 	private HashSet<Player> itemWatcher = new HashSet<>();
 
-	
-	
+
+
 	private static int hasPassengers = -1;
 
 	public fListener(IllegalStack plugin) {
@@ -241,7 +244,7 @@ public class fListener implements Listener {
 		if (Material.matchMaterial("CAVE_AIR") != null) {
 			getAirBlocks().add(Material.CAVE_AIR);
 			getAirBlocks().add(Material.VOID_AIR);
-			
+
 		}
 
 		endPortal = Material.matchMaterial("END_PORTAL");
@@ -520,10 +523,11 @@ public class fListener implements Listener {
 					}
 		}
 
-		if (Protections.BlockPlayersAboveNether.isEnabled() && !e.getPlayer().isOp()) {
+		
+		if ((Protections.BlockBuildingAboveNether.isEnabled() || Protections.BlockPlayersAboveNether.isEnabled()) && !e.getPlayer().isOp()) {
 			if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getPlayer().getWorld().getName()))
 				return;
-			Location l = e.getPlayer().getLocation();
+			Location l = e.getBlock().getLocation();
 			if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
 				if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
 					if (l.getBlockY() >= Protections.NetherYLevel.getIntValue() && (l.getWorld().getName().toLowerCase().contains("nether") || l.getWorld().getEnvironment() == Environment.NETHER)) //already on top of the nether..
@@ -611,13 +615,54 @@ public class fListener implements Listener {
 	 * End portal destruction with buckets of water/lava etc
 	 */
 
-
+	@EventHandler
+	public void onBucketPour(PlayerBucketEmptyEvent e) {
+		if (Protections.PreventEndPortalDestruction.isEnabled()) {
+			Boolean above112 = Material.matchMaterial("END_PORTAL") != null;
+			
+			for(BlockFace face : BlockFace.values())
+			{
+				Block adj = e.getBlockClicked().getRelative(face);
+				if((above112 && adj.getType() == Material.END_PORTAL) || !above112 && adj.getType() == endPortal)
+				{
+					e.setCancelled(true);
+					getLog().append(Msg.StaffEndPortalProtected.getValue(e.getBlockClicked().getLocation().toString()), Protections.PreventEndPortalDestruction);
+				}
+					
+			}
+		}
+		
+	}
 	@EventHandler
 	public void onDispenserDispense(BlockDispenseEvent e) {
 
 		if(IllegalStack.isDisablePaperShulkerCheck())
 			return;
 
+		if(Protections.PreventShulkerCrash.isEnabled()) {
+			if(e.getBlock().getLocation().getY() >= 255 && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
+				e.setCancelled(true);
+			}
+		}
+		
+		if(Protections.PreventShulkerCrash2.isEnabled() && e.getItem().getType() == Material.FLINT_AND_STEEL) {
+			if (e.getBlock().getState().getBlockData() instanceof Directional) {
+				Directional d = (Directional) e.getBlock().getState().getBlockData();
+				if(d.getFacing() == BlockFace.DOWN) {
+					e.setCancelled(true);
+					getLog().append(Msg.StaffMsgDispenerFlint.getValue(e.getItem().getType().name(), e.getBlock().getLocation()), Protections.PreventShulkerCrash2);
+					new BukkitRunnable() {
+
+						@Override
+						public void run() {
+							e.getBlock().breakNaturally();
+							return;
+						}
+
+					}.runTaskLater(this.plugin, 4);
+				}
+			}
+		}
 		if (!Protections.RemoveItemTypes.getTxtSet().isEmpty())
 		{
 			if(RemoveItemTypesCheck.shouldRemove(e.getItem(), e.getBlock().getState())&& IllegalStackAction.isCompleted(Protections.RemoveItemTypes, e.getItem(), e.getBlock())) {
@@ -740,12 +785,12 @@ public class fListener implements Listener {
 					if(e.getSource().getHolder() instanceof DoubleChest) {
 						e.getSource().getHolder().getInventory().remove(e.getItem());
 						return;
-						
+
 					} else if(e.getSource().getHolder().getInventory() instanceof BlockState){	
-							BlockState bs = (BlockState)e.getSource().getHolder(); 
-							bs.getBlock().breakNaturally();
-							return;
-						}
+						BlockState bs = (BlockState)e.getSource().getHolder(); 
+						bs.getBlock().breakNaturally();
+						return;
+					}
 				}
 
 			}.runTaskLater(this.plugin, 2);
@@ -1410,7 +1455,12 @@ public class fListener implements Listener {
 
 		if (Protections.DisableInWorlds.isWhitelisted(e.getTo().getWorld().getName()))
 			return;
+		
+		String whiteLiString = "";
+		for(String s:Protections.DisableInWorlds.getTxtSet())
+			whiteLiString = whiteLiString + s;
 
+		
 		boolean blockNether = Protections.BlockNonPlayersInNetherPortal.isEnabled();
 		boolean blockEnd = Protections.BlockNonPlayersInEndPortal.isEnabled();
 
@@ -1435,8 +1485,11 @@ public class fListener implements Listener {
 						e.setCancelled(true);
 						Vector v = e.getEntity().getVelocity().multiply(-2);
 						e.getEntity().setVelocity(v);
-						if (Protections.NotifyBlockedPortalAttempts.isEnabled())
-							getLog().append2(Msg.NetherPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()));
+						if (Protections.NotifyBlockedPortalAttempts.isEnabled()) {
+							getLog().append(Msg.NetherPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()), Protections.BlockNonPlayersInNetherPortal);
+							System.out.println("Nether Portal Blocked Item: " + e.getEntity().getType().name() + " leaving world: " + e.getFrom().getWorld().getName() + " entering: " + e.getTo().getWorld().getName() + " is world whitelisted? " +
+							Protections.DisableInWorlds.isWhitelisted(e.getTo().getWorld().getName()) + " whitelist = " + whiteLiString);
+						}
 					}
 				}
 			}
@@ -1989,6 +2042,23 @@ public class fListener implements Listener {
 			} 
 		}
 	}
+
+	@EventHandler()
+	public void onTntExplode(EntityExplodeEvent e) {
+		if (Protections.DisableInWorlds.isWhitelisted(e.getEntity().getWorld().getName()))
+			return;
+
+		if (Protections.PreventRecordDupe.isEnabled()) {
+			if(e.getEntity() instanceof TNTPrimed) {
+				TNTPrimed primed=(TNTPrimed) e.getEntity();
+				if(primed.getSource() instanceof Skeleton) 
+					e.setCancelled(true);
+
+
+			}
+		}
+	}
+
 	@EventHandler()
 	public void onPistonExplode(EntityExplodeEvent e) //stuff that still works even in 1.14
 	{
@@ -2061,17 +2131,17 @@ public class fListener implements Listener {
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void onCreativeSet(InventoryCreativeEvent e) {
-		
+
 		if(Protections.RemoveCustomAttributes.isEnabled() || Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
 			if(e.getCursor() != null && e.getCursor().getType() != Material.AIR) {
-				
+
 				if (Protections.RemoveOverstackedItems.isEnabled())//I think all checks probably need to be moved to their own classes
 					if(OverstackedItemCheck.CheckContainer(e.getCursor(), e.getInventory())) {
 						System.out.println("result = " + e.getResult().name() + " SLOT IS: " + e.getSlot());
-					
+
 						e.setResult(Result.DENY);
 					}
 
@@ -2082,7 +2152,7 @@ public class fListener implements Listener {
 				if (!Protections.RemoveItemTypes.getTxtSet().isEmpty()) 
 					if(RemoveItemTypesCheck.CheckForIllegalTypes(e.getCursor(),e.getInventory()))
 						e.setResult(Result.DENY);
-				
+
 				if(Protections.RemoveCustomAttributes.isEnabled())
 					if(BadAttributeCheck.hasBadAttributes(e.getCursor(), e.getInventory()))
 						e.setResult(Result.DENY);
@@ -2108,7 +2178,7 @@ public class fListener implements Listener {
 						break;
 
 				}
-				
+
 				boolean valid = false;
 				for (int i = 0; i < 5; i++) {
 					for (BlockFace face : fListener.getFaces()) {
@@ -2844,6 +2914,7 @@ public class fListener implements Listener {
 		}
 	}
 
+
 	@EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
 	public void onTNTPrime(EntitySpawnEvent e) {
 
@@ -3058,38 +3129,44 @@ public class fListener implements Listener {
 			if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
 				if (e.getFrom().getBlockY() >= Protections.NetherYLevel.getIntValue() && (l.getWorld().getName().toLowerCase().contains("nether") || l.getWorld().getEnvironment() == Environment.NETHER)) { //already on top of the nether..
 					e.setCancelled(true);
-					int x = e.getFrom().getBlockX();
-					int z = e.getFrom().getBlockZ();
-					BlockFace[] faces = new BlockFace[]{BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH};
-					for (int y = Protections.NetherYLevel.getIntValue(); y > (Protections.NetherYLevel.getIntValue() - 17); y--) {
-						Block b = e.getFrom().getWorld().getBlockAt(x, y, z);
-						if (b.getType() != Material.BEDROCK) {
-							b.setType(Material.AIR);
-							for (BlockFace face : faces)
-								if (b.getRelative(face).getType() != Material.BEDROCK)
-									b.getRelative(face).setType(Material.NETHERRACK);
-							b = b.getRelative(BlockFace.DOWN);
-							if (b.getType() == Material.BEDROCK)
-								continue;
-							b.setType(Material.AIR);
-							for (BlockFace face : faces)
-								if (b.getRelative(face).getType() != Material.BEDROCK)
-									b.getRelative(face).setType(Material.NETHERRACK);
-							if (b.getRelative(BlockFace.DOWN).getType() != Material.BEDROCK)
-								b.getRelative(BlockFace.DOWN).setType(Material.NETHERRACK);
-							Location loc = b.getLocation();
-							getLog().append2(Msg.StaffMsgNetherFix.getValue(e.getPlayer(), loc.toString()));
-							e.setCancelled(true);
-							new BukkitRunnable() {
+					if(Protections.EnsureSafeTeleportLocationIfAboveCeiling.isEnabled()) 
+					{
+						int x = e.getFrom().getBlockX();
+						int z = e.getFrom().getBlockZ();
+						BlockFace[] faces = new BlockFace[]{BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH};
+						for (int y = Protections.NetherYLevel.getIntValue(); y > (Protections.NetherYLevel.getIntValue() - 17); y--) {
+							Block b = e.getFrom().getWorld().getBlockAt(x, y, z);
+							if (b.getType() != Material.BEDROCK) {
+								b.setType(Material.AIR);
+								for (BlockFace face : faces)
+									if (b.getRelative(face).getType() != Material.BEDROCK)
+										b.getRelative(face).setType(Material.NETHERRACK);
+								b = b.getRelative(BlockFace.DOWN);
+								if (b.getType() == Material.BEDROCK)
+									continue;
+								b.setType(Material.AIR);
+								for (BlockFace face : faces)
+									if (b.getRelative(face).getType() != Material.BEDROCK)
+										b.getRelative(face).setType(Material.NETHERRACK);
+								if (b.getRelative(BlockFace.DOWN).getType() != Material.BEDROCK)
+									b.getRelative(BlockFace.DOWN).setType(Material.NETHERRACK);
+								Location loc = b.getLocation();
+								getLog().append2(Msg.StaffMsgNetherFix.getValue(e.getPlayer(), loc.toString()));
+								e.setCancelled(true);
 
-								@Override
-								public void run() {
-									e.getPlayer().teleport(loc);
-								}
+								new BukkitRunnable() {
 
-							}.runTaskLater(this.plugin, 12);
-							return;
-						}
+									@Override
+									public void run() {
+										e.getPlayer().teleport(loc);
+									}
+
+								}.runTaskLater(this.plugin, 12);
+								return;
+							} 
+						} 
+					} else {
+						e.getPlayer().teleport(e.getPlayer().getLocation().subtract(0, 3, 0));
 					}
 					e.setCancelled(true);
 					getLog().append2(Msg.StaffMsgNetherBlock.getValue(e.getPlayer(), l.toString()));
@@ -3111,6 +3188,20 @@ public class fListener implements Listener {
 					}
 			}
 		}
+		if ((Protections.BlockBuildingAboveNether.isEnabled() || Protections.BlockPlayersAboveNether.isEnabled()) && !e.getPlayer().isOp()) {
+			if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getPlayer().getWorld().getName()))
+				return;
+			Location l = e.getBlock().getLocation();
+			if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
+				if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
+					if (l.getBlockY() >= Protections.NetherYLevel.getIntValue() && (l.getWorld().getName().toLowerCase().contains("nether") || l.getWorld().getEnvironment() == Environment.NETHER)) //already on top of the nether..
+					{
+						e.setCancelled(IllegalStackAction.isCompleted(Protections.BlockPlayersAboveNether, e.getPlayer(),e.getBlock()));
+					}
+				}
+			}
+		}
+
 		if (Protections.ResetSpawnersOfType.getTxtSet().isEmpty())
 			return;
 		if (e.getBlock().getType() == Material.SPAWNER) {

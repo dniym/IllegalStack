@@ -64,6 +64,8 @@ public enum Protections {
 
     PreventIndirectTNTPowerDupe(21, true, "Prevent Tnt Dupers", "ALL", "Exploits.TNTDupe.PreventIndirectTNTPowerDupe", "Prevents tnt duping methods that exploit an indirect power bug that causes tnt to ignite and fall away / be launched but leave an unlit block of tnt behind.", "", 0, false),
     BlockPlayersAboveNether(29, true, "Block Players Above Nether", "ALL", "Exploits.Nether.BlockPlayersAboveNether", "Prevents players from teleporting / walking on top of the nether.", "", 0, false),
+    EnsureSafeTeleportLocationIfAboveCeiling(29,true,"Ensure Safe Teleport Below Ceiling", 29, "Exploits.Nether.EnsureSafeTeleportLocationIfAboveCeiling", "Makes sure the player wont be teleported back into solid netherrack or mid-air if teleport back down from above the nether ceiling.","",0,false),
+    BlockBuildingAboveNether(29, true, "Block Building Above Nether", 29, "Exploits.Nether.BlockBuildingAboveNether", "Prevents players from placing/breaking blocks when above the NehterYLevel setting.", "", 0,false),
     KillPlayersBelowNether(29, false, "Kill Players Under Nether", 29, "Exploits.Nether.KillPlayersBelowNether", "Kills players who fly under the nether floor.", "", 0, false),
     NetherYLevel(29, 128, "Nether Y Level Override", 29, "Exploits.Nether.NetherYLevel", "Adjust the Y Level of the nether, useful for custom world generators.", "", 0, false),
     ExcludeNetherWorldFromHeightCheck(29, new String[]{}, "Exclude These Worlds From Height Check", 29, "Exploits.Nether.ExcludeNetherWorldFromHeightCheck", "Adding a nether world here will exclude it from the height check..  This should only ever be used if you have a nether world that has a non vanilla nether ceiling height, eg maybe bSkyblockNether's.  This will ONLY affect a nether world, no effect if the world is not a nether!", "", 0, false),
@@ -97,6 +99,8 @@ public enum Protections {
     PreventRNGEnchant(34, true, "Prevent RNG Enchant", "> 1.9", "Exploits.RNGEnchant.PreventRNGEnchant", "Prevents an exploit that allowed players to crack the random enchantment seed, allowing them to pick exactly which enchantments they want on an item.", "", 0, false),
     PreventLootingExploit(50, true, "Prevent Looting Exploit", "ALL", "Exploits.Looting.PreventLootingExploit", "Prevents an exploit that allows players to use ranged weapons such as bows or crossbows to enable looting by holding a looting sword in their offhand.", "", 0, false),
     PreventLavaDupe(55, true, "Prevent Lava Dupe", "ALL", "Exploits.LavaDupe.PreventLavaDupe", "Prevents an exploit using lava and hoppers to dupe on multiple versions", "", 0, false),
+    PreventRecordDupe(61, true, "Prevent Record Dupe", "ALL", "Exploits.RecordDupe", "Prevents an exploit using tnt, a skeleton and a pit full of creepers, used to mass farm records all at once.", "", 0, false),
+    
     //PacketAttackWindowClick(33,false,"Prevent Packet Crasher 1", "ALL", "Exploits.PacketAttack.PacketCrasher1", "Prevents Oversized packets and packet spam that  ")
     //MULTI VERSION EXPLOITS
     PreventRailDupe(8, true, "Destroy Rail / Carpet Dupers", "1.12/1.13/1.14/1.15/1.16", "Exploits.Other.PreventRailDupe", "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.", "", 0, false),
@@ -125,6 +129,7 @@ public enum Protections {
     //1.12 ONLY
     PreventItemFramePistonDupe(13, true, "Prevent Item Frame / Piston Dupe", "1.12", "Exploits.1_12_Exploits.PreventItemFramePistonDupe", "Prevents item frames from duping items when broken with pistons.", "", 0, false),
     PreventRecipeDupe(9, true, "Prevent Recipe Book Dupe", "1.12", "Exploits.1_12_Exploits.PreventRecipeDupe", "This dupe was around when the recipe book was first introduced to minecraft, it involved dropping an item then spam crafting an item (like a crafting bench), would result in huge over stacks of items", "", 0, false),
+    PreventShulkerCrash(62, true, "Prevent 1.12 Shulker Crash", "1.12", "Exploits.ShulkerCrash", "Prevents players from using a dispenser to place a shulker above the max build height, crasing the server", "", 0, false),
     //1.13 ONLY
     PreventVillagerSwimExploit(18, true, "Prevent Villager Trade Swim Exploit", "1.13", "Exploits.1_13_Exploits.PreventVillagerSwimExploit", "Prevents players from exploiting a bug with the new villager trade mechanics that would cause them to constantly reduce their prices just by the player opening/closing the trade menu while the merchant was swimming.", "", 0, false),
     PreventExcessiveFireworkExploit(32, true, "Prevent Firework from having an excessive number of effects", "1.13", "Exploits.1_13_Exploits.PreventExcessiveFireworkExploit", "Detects fireworks which have an excessive number of effects.", "", 0, false),
@@ -134,7 +139,7 @@ public enum Protections {
     PreventVibratingBlocks(40, true, "Prevent Vibrating Block Exploit", "1.14", "Exploits.1_14_Exploits.Entities.VibratingBlockExploit", "Prevents Falling blocks from getting trapped in a state where they constantly update causing crops to grow like a zero tick farm.", "", 0, false),
     //1.16 ONLY
     PreventPiglinDupe(57, true, "Prevent Piglin Dupe", "1.16 / 1.16.1 / 1.16.2", "Exploits.1_16_Exploits.Dupes.PreventPiglinDupe", "Prevents piglins from being abused to duplicate items while bartering (does not affect paper)", "", 0, false),
-
+    PreventShulkerCrash2(62, true, "Prevent Shulker Crash w/ Flint and steel", "1.16", "Exploits.ShulkerCrash2", "Prevents players from using a downward facing dispenser with flint and steel to crash the server.", "", 0, false),
     //1.14 / 1.15 ONLY
 
     VillagerTradeCheesing(19, true, "Prevent Villager Trade Cheesing", "1.14 / 1.15 / 1.16", "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing", "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.", "", 0, false),

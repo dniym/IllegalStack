@@ -24,6 +24,10 @@ public class IllegalStackAction {
 		return isCompleted(protection,player,null,null,entity,null); 
 	}
 
+	public static boolean isCompleted(Protections protection, Player player, Block block) {
+		return isCompleted(protection,player,block,null,null,null);
+	}
+
 	public static boolean isCompleted(Protections protection, Player player, Block block, ItemStack itemInHand) {
 		return isCompleted(protection,player,block,itemInHand,null,null);
 	}

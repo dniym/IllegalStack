@@ -70,7 +70,7 @@ public class Logg {
 
                     if (IllegalStack.isSpigot() && message.contains("@")) {
                         TextComponent msg = new TextComponent(message);
-                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GOLD + "Click to teleport here").create()));
+                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Msg.PluginTeleportText.getValue()).create()));
                         msg.setClickEvent(new ClickEvent(Action.RUN_COMMAND, getTeleportLoc(message)));
                         p.spigot().sendMessage(msg);
                     } else {
@@ -202,7 +202,7 @@ public class Logg {
                     if (IllegalStack.isSpigot() && message.contains("@")) {
 
                         TextComponent msg = new TextComponent(ChatColor.GREEN + "(Notification Only) " + message);
-                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GOLD + "Click to teleport here").create()));
+                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Msg.PluginTeleportText.getValue()).create()));
                         msg.setClickEvent(new ClickEvent(Action.RUN_COMMAND, getTeleportLoc(message)));
                         p.spigot().sendMessage(msg);
                     } else {
