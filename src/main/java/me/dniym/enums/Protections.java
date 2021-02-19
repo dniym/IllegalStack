@@ -139,7 +139,7 @@ public enum Protections {
     PreventVibratingBlocks(40, true, "Prevent Vibrating Block Exploit", "1.14", "Exploits.1_14_Exploits.Entities.VibratingBlockExploit", "Prevents Falling blocks from getting trapped in a state where they constantly update causing crops to grow like a zero tick farm.", "", 0, false),
     //1.16 ONLY
     PreventPiglinDupe(57, true, "Prevent Piglin Dupe", "1.16 / 1.16.1 / 1.16.2", "Exploits.1_16_Exploits.Dupes.PreventPiglinDupe", "Prevents piglins from being abused to duplicate items while bartering (does not affect paper)", "", 0, false),
-    PreventShulkerCrash2(62, true, "Prevent Shulker Crash w/ Flint and steel", "1.16", "Exploits.ShulkerCrash2", "Prevents players from using a downward facing dispenser with flint and steel to crash the server.", "", 0, false),
+    PreventShulkerCrash2(63, true, "Prevent Shulker Crash w/ Flint and steel", "1.16", "Exploits.ShulkerCrash2", "Prevents players from using a downward facing dispenser with flint and steel to crash the server.", "", 0, false),
     //1.14 / 1.15 ONLY
 
     VillagerTradeCheesing(19, true, "Prevent Villager Trade Cheesing", "1.14 / 1.15 / 1.16", "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing", "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.", "", 0, false),
@@ -967,7 +967,7 @@ public enum Protections {
     			return true;
     		
     	}
-        if (this == Protections.RemoveItemTypes && is.getType() == Material.matchMaterial("GOLDEN_APPLE") && this.nukeApples && !is.getEnchantments().isEmpty())
+        if (this == Protections.RemoveItemTypes && this.nukeApples && !is.getEnchantments().isEmpty() && is.getType() == Material.matchMaterial("GOLDEN_APPLE") )
             return true;
 
         if (this != Protections.RemoveItemTypes && IllegalStack.isHasMagicPlugin() && MagicHook.isMagicItem(is))
