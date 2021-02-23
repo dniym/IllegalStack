@@ -640,7 +640,7 @@ public class fListener implements Listener {
 			return;
 
 		if(Protections.PreventShulkerCrash.isEnabled()) {
-			if(e.getBlock().getLocation().getY() >= 255 && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
+			if(e.getBlock().getLocation().getY() >= 255 || if(e.getBlock().getLocation().getY() == 0 && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
 				e.setCancelled(true);
 			}
 		}
