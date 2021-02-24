@@ -640,11 +640,11 @@ public class fListener implements Listener {
 			return;
 
 		if(Protections.PreventShulkerCrash.isEnabled()) {
-			if((e.getBlock().getLocation().getY() >= 255 || if(e.getBlock().getLocation().getY() == 0) && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
+			if((e.getBlock().getLocation().getY() >= 255 || (e.getBlock().getLocation().getY() == 0)) && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
 				e.setCancelled(true);
 			}
 		}
-		
+
 		if(Protections.PreventShulkerCrash2.isEnabled() && e.getItem().getType() == Material.FLINT_AND_STEEL) {
 			if (e.getBlock().getState().getBlockData() instanceof Directional) {
 				Directional d = (Directional) e.getBlock().getState().getBlockData();
