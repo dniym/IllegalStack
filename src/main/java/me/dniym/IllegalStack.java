@@ -476,7 +476,7 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void updateConfig() {
-        File conf = new File("plugins/IllegalStack/config.yml");
+        File conf = new File(getDataFolder(), "config.yml");
         FileConfiguration config = this.getConfig();
         HashMap<String, Object> added = new HashMap<>();
 
@@ -550,13 +550,12 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void loadMsgs() {
-
+    	File conf = new File(getDataFolder(), "messages.yml");
         YamlConfiguration fc = new YamlConfiguration();
         try {
-            fc.load("plugins/IllegalStack/messages.yml");
+            fc.load(conf);
         } catch (FileNotFoundException e) {
             System.out.println("Creating messages.yml");
-            File conf = new File("plugins/IllegalStack/messages.yml");
             for (Msg m : Msg.values()) {
                 if (fc.getString(m.name()) == null) {
                     System.out.println("Adding default message to messages.yml for: " + m.name());
@@ -589,7 +588,7 @@ public class IllegalStack extends JavaPlugin {
             if (update) {
 
                 try {
-                    fc.save("plugins/IllegalStack/messages.yml");
+                    fc.save(conf);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -600,11 +599,10 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void loadConfig() {
-
+    	File conf = new File(getDataFolder(), "config.yml");
         try {
-            plugin.getConfig().load("plugins/IllegalStack/config.yml");
+            plugin.getConfig().load(conf);
         } catch (FileNotFoundException e) {
-            File conf = new File("plugins/IllegalStack/config.yml");
             System.out.println("[IllegalStack]:  Warning Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
             FileConfiguration config = this.getConfig();
             try {
@@ -621,8 +619,7 @@ public class IllegalStack extends JavaPlugin {
         }
 
         if (getConfig().getString("ConfigVersion") == null) { //server is running an old config version, should probably save it.
-            File conf = new File("plugins/IllegalStack/config.yml");
-            File confOld = new File("plugins/IllegalStack/config.OLD");
+            File confOld = new File(getDataFolder(), "config.OLD");
             FileConfiguration config = this.getConfig();
 
             conf.renameTo(confOld);
@@ -769,7 +766,7 @@ public class IllegalStack extends JavaPlugin {
 
     private void writeConfig() {
 
-        File conf = new File("plugins/IllegalStack/config.yml");
+        File conf = new File(getDataFolder(), "config.yml");
         FileConfiguration config = this.getConfig();
 
         HashMap<Protections, Boolean> relevant = Protections.getRelevantTo(getVersion());
