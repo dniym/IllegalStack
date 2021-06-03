@@ -3080,11 +3080,9 @@ public class fListener implements Listener {
 
 	@EventHandler
 	public void NetherCeilingMovementCheck(PlayerMoveEvent e) {
-		if (e.getPlayer().isOp() || e.getPlayer().hasPermission("illegalstack.notify")) 
-			return;
-
-
-		if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ())
+		if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ()
+			|| e.getPlayer().isOp()
+			|| e.getPlayer().hasPermission("illegalstack.notify"))
 			return;
 
 		if (Protections.KillPlayersBelowNether.isEnabled() && 
