@@ -65,6 +65,7 @@ public enum Msg {
     IllegalStackItemScan("Illegal stack of items removed: ~item~ (~amount~) from player: ~name~ at item scan."),
     IllegalStackOnClick("Illegal stack of items removed: ~item~ (~amount~) from player: ~name~ on click in inventory."),
     IllegalStackShorten("Fixed an illegal stack of: ~item~ (~amount~) triggered by player: ~name~."),
+    IllegalStackDurability("Fixed durability on: ~item~ triggered by player: ~name~."),
     IllegalStackUnstack("Unstacked an illegal stack of: ~item~ (~amount~) triggered by player: ~name~.  ~lost~ items were unable to fit and lost."),
     InvalidPotionRemoved("Removed invalid potion from ~name~ had the following effects: ~effects~"),
     UnbreakableItemCleared("Removed Unbreakable flag from ~item~ found on player ~name~"),

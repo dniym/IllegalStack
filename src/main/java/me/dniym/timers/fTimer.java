@@ -213,6 +213,9 @@ public class fTimer implements Runnable {
                 	}
                 }
                 for (ItemStack is : p.getInventory().getContents()) {
+                    if (Protections.FixNegativeDurability.isEnabled()) 
+                    	NBTStuff.checkForNegativeDurability(is, p);
+
                     if (is != null && !p.isOp()) {
                         if (Protections.RemoveItemTypes.isWhitelisted(is)) {
                             if (Protections.RemoveItemTypes.notifyOnly())
@@ -260,6 +263,8 @@ public class fTimer implements Runnable {
                     if (Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName()))
                         continue;
                     ItemStack is = p.getInventory().getItemInOffHand();
+                    if (Protections.FixNegativeDurability.isEnabled()) 
+                    	NBTStuff.checkForNegativeDurability(is, p);
                     if (is.getAmount() > is.getMaxStackSize()) {
 
                         if (!Protections.IllegalStackMode.isEnabled())  //in blacklist mode and on the blacklist
@@ -425,7 +430,9 @@ public class fTimer implements Runnable {
 
                     if (is == null || Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName()))
                         continue;
-
+                    if (Protections.FixNegativeDurability.isEnabled()) {
+                    	NBTStuff.checkForNegativeDurability(is, p);
+                    }
                     if (is.hasItemMeta()) {
                         ItemMeta im = is.getItemMeta();
 
@@ -441,6 +448,7 @@ public class fTimer implements Runnable {
                             }
                         }
 
+                        
                         if (Protections.RemoveCustomAttributes.isEnabled()) {
 
                             if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))

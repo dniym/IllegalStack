@@ -109,6 +109,7 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -146,6 +147,7 @@ public class fListener implements Listener {
 	private final Set<Material> pistonCheck = new HashSet<>();
 	IllegalStack plugin;
 	HashMap<Block, Long> movedTNT = new HashMap<>();
+	private boolean is117 = false;
 	private Boolean is116 = false;
 	private Boolean is115 = false;
 	private Boolean is1152 = false;
@@ -162,7 +164,7 @@ public class fListener implements Listener {
 	private Set<Material> glassBlocks = new HashSet<>();
 	private HashMap<UUID, Location> teleGlitch = new HashMap<>();
 	private HashSet<Player> itemWatcher = new HashSet<>();
-
+	private HashSet<Material> unbreakable = new HashSet<>(); 
 
 
 	private static int hasPassengers = -1;
@@ -188,6 +190,9 @@ public class fListener implements Listener {
 			setIs112(true);
 
 
+		if(ver.startsWith("v1_17"))
+			setIs117(true);
+		
 		if (ver.startsWith("v1_16"))
 			setIs116(true);
 
@@ -255,8 +260,19 @@ public class fListener implements Listener {
 		if (getPortal() == null)
 			setPortal(Material.matchMaterial("NETHER_PORTAL"));
 
-
-		if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16")) {
+		unbreakable.add(endPortal);
+		unbreakable.add(portal);
+		unbreakable.add(Material.BEDROCK);
+		
+		String[] mats = new String[]{"ENDER_PORTAL_FRAME","END_PORTAL_FRAME", "COMMAND", "COMMAND_BLOCK", "COMMAND_CHAIN", "CHAIN_COMMAND_BLOCK",
+				"COMMAND_REPEATING", "REPEATING_COMMAND_BLOCK", "STRUCTURE_BLOCK", "BARRIER"};
+		for(int i=0; i<mats.length;i++) {
+			Material testMaterial = Material.matchMaterial(mats[i]);
+			if(testMaterial != null)
+				unbreakable.add(testMaterial);
+		}
+		
+		if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17")) {
 			if (ver.contains("v1_13")) {
 				System.out.println("[Illegal Stack] - MC Version 1.13 detected!");
 
@@ -640,7 +656,7 @@ public class fListener implements Listener {
 			return;
 
 		if(Protections.PreventShulkerCrash.isEnabled()) {
-			if(e.getBlock().getLocation().getY() >= 255 && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
+			if((e.getBlock().getLocation().getY() >= 255 || e.getBlock().getLocation().getY() <= 0) && e.getItem().getType().name().endsWith("SHULKER_BOX")) {
 				e.setCancelled(true);
 			}
 		}
@@ -2059,6 +2075,29 @@ public class fListener implements Listener {
 		}
 	}
 
+	
+	@EventHandler
+	public void onPortal(PortalCreateEvent event) {
+		if(Protections.DisableInWorlds.isWhitelisted(event.getWorld().getName()))
+			return;
+			
+		if(Protections.PreventBedrockDestruction.isEnabled()) {
+			for (BlockState b : event.getBlocks()) {
+				if (unbreakable.contains(b.getType())) {
+				//Blocking breaking of unbreakable blocks.
+				event.setCancelled(true);
+				break;
+				}
+				if (b.getY() > 255) {
+					//Blocking portals spawning at world height limit, preventing from https://i.imgur.com/mqAXdpU.png
+					event.setCancelled(true);
+					break;
+				}
+			}
+		}
+	}
+	
+	
 	@EventHandler()
 	public void onPistonExplode(EntityExplodeEvent e) //stuff that still works even in 1.14
 	{
@@ -3080,13 +3119,10 @@ public class fListener implements Listener {
 
 	@EventHandler
 	public void NetherCeilingMovementCheck(PlayerMoveEvent e) {
-		if (e.getPlayer().isOp() || e.getPlayer().hasPermission("illegalstack.notify")) 
-			return;
-
-
-		if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ())
-			return;
-
+		if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e.getFrom().getBlockZ() == e.getTo().getBlockZ()
+				|| e.getPlayer().isOp()
+				|| e.getPlayer().hasPermission("illegalstack.notify"))
+		
 		if (Protections.KillPlayersBelowNether.isEnabled() && 
 				(e.getPlayer().isFlying() || (IllegalStack.hasElytra() && e.getPlayer().isGliding()))) {
 
@@ -3371,6 +3407,14 @@ public class fListener implements Listener {
 	}
 	public boolean isAtLeast114() {
 		return Material.matchMaterial("COMPOSTER") != null;
+	}
+
+	public boolean isIs117() {
+		return is117;
+	}
+
+	public void setIs117(boolean is117) {
+		this.is117 = is117;
 	}
 
 }

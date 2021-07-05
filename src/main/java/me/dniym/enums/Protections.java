@@ -40,6 +40,7 @@ public enum Protections {
     BreakExploitMachines(22, true, "Break Exploit Machines", "ALL", "Misc.BreakMachinesInsteadOfDroppingItems", "If this setting is set to FALSE, instead of removing pistons etc that are detected in an exploit, IllegalStack will break the block and drop the item instead.", "", 0, false),
     ItemScanTimer(45, 10, "Item Scanner Timer Delay", "ALL", "Misc.ItemScanTimer", "Allows you to set the time (in ticks) between scans for bad items, this defaults to 10 ticks, (twice per second).  Increasing this value too much could result in items being missed adjust with caution.  NOTE:  If you adjust this value you MUST restart the server before the setting will be updated.", "", 0, false),
     //ALL VERSION EXPLOITS
+    FixNegativeDurability(64, true, "Fix negative durability", "ALL", "Exploits.NegativeDurability", "Fixes durability on items that is zero or less.", "", 0, false),
     PreventMinecartsInBoats(52, true, "Prevent Minecarts In Boats", "ALL", "Exploits.Other.PreventMinecartsInBoats", "Prevent players from putting minecarts into boats, creating the possibility for a dupe.", "", 0, false),
     PreventBedrockDestruction(7, true, "Prevent Bedrock Destruction", "ALL", "Exploits.Other.PreventBedrockDestruction", "Prevent bedrock destruction via players blowing the heads off pistons with TNT", "", 0, false),
     PreventEndPortalDestruction(51, true, "Prevent End Portal Destruction", "ALL", "Exploits.Other.PreventEndPortalDestruction", "Prevent players from using dispensers to break the end portal blocks.", "", 0, false),
@@ -107,7 +108,7 @@ public enum Protections {
 
     PreventNestedShulkers(10, true, "Prevent Nested Shulker Boxes", "> 1.11", "Exploits.Other.PreventNestedShulkers", "Prevent players from putting shulker boxes inside other shulker boxes, this exploit leads to pretty much infinte storage.", "", 0, false),
 
-    DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "ALL", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.", "", 0, false),
+    DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "< 1.17", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.", "", 0, false),
     DisableRidingExploitableMobs(27, true, "Disable Riding/Taming of Mobs with chests", 27, "Exploits.Other.DisableRidingExploitableMobs", "Prevents players from being able to ride or tame a creature that can be equipped with a chest.", "", 0, false),
     
     PunishForChestsOnMobs(27, false, "Violently Punish Repeat Offenders", 27, "Exploits.Other.PunishForChestsOnMobs", "Enabling this option will punish any player who attempts to place a chest on a chested animal, the animal will be destroyed, the player's inventory will be cleared and the player will be kicked from the server.", "", 0, false),
@@ -142,12 +143,13 @@ public enum Protections {
     PreventShulkerCrash2(63, true, "Prevent Shulker Crash w/ Flint and steel", "1.16", "Exploits.ShulkerCrash2", "Prevents players from using a downward facing dispenser with flint and steel to crash the server.", "", 0, false),
     //1.14 / 1.15 ONLY
 
-    VillagerTradeCheesing(19, true, "Prevent Villager Trade Cheesing", "1.14 / 1.15 / 1.16", "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing", "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.", "", 0, false),
+    VillagerTradeCheesing(19, true, "Prevent Villager Trade Cheesing", "1.14 / 1.15 / 1.16 / 1.17", "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing", "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.", "", 0, false),
     VillagerRestockTime(19, 10, "Minimum Restock Time (Minutes)", 19, "Exploits.1_14_Exploits.Traders.VillagerRestockTime", "Sets the minimum number of minutes that a villager is allowed to restock trades.. NOTE* This is in real life minutes, and any changes to the in game time will be ignored, meaning if players trade with a villager then go to sleep to advance the time, they will not normally restock the next morning.", "", 0, false),
-    PreventCactusDupe(12, true, "Prevent Zero Tick Exploits", "1.13 / 1.14 / 1.15", "Exploits.Other.PreventZeroTickExploit", "Breaks redstone machines that eploit a game mechanic that causes cacti and other growable blocks grow much faster than normal.", "", 0, false),
     ZombieVillagerTransformChance(19, 65, "Villager Zombification Chance", 19, "Exploits.1_14_Exploits.Traders.ZombieVillagerTransformChance", "Allows you to lower the chance a Villager will become a Zombie Villager if infected.   This is 100% on Difficulty Hard in vanilla..  This allows players to infect/cure villagers over and over to cheapen their trades.   Setting this to a value less than 100 will cause such players to risk loosing the villager instead of being able to cheese the trades easily. **(Only really matters if your server difficulty is set to HARD)** *If set to zero this setting will totally prevent conversion.", "", 0, false),
+    
+    PreventCactusDupe(12, true, "Prevent Zero Tick Exploits", "1.13 / 1.14 / 1.15", "Exploits.Other.PreventZeroTickExploit", "Breaks redstone machines that eploit a game mechanic that causes cacti and other growable blocks grow much faster than normal.", "", 0, false),
 
-    PreventTripwireDupe(46, true, "Prevent Tripwire Dupe", "1.15 / 1.16", "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe", "Prevents players from using trapdoors to dupe tripwire hooks.", "", 0, false),
+    PreventTripwireDupe(46, true, "Prevent Tripwire Dupe", "1.15 / 1.16 / 1.17", "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe", "Prevents players from using trapdoors to dupe tripwire hooks.", "", 0, false),
     //User Requested | Obscure Features
     PreventZombieItemPickup(14, false, "Prevent Item Pick By Zombies", "ALL", "UserRequested.Mobs.PreventZombieItemPickup", "Prevents zombies from picking up items normally, this was used to prevent the drowned dupe and is off by default, left in as it was requested by a user.", "", 2, false),
     PreventCobbleGenerators(45, false, "Prevent Cobblestone Generators", "ALL", "UserRequested.Cobble.PreventCobbleGenerators", "Prevents lava and water from creating cobblestone when they flow into each other.", "", 2, false),
@@ -475,9 +477,12 @@ public enum Protections {
         if (this.getVersion().isEmpty())
             return false; //must be a child node
 
+
+        if(this.getVersion().contains("< 1.17"))
+        	return !serverVersion.contains("1.17");
         
         if (this.getVersion().contains("< 1.15"))
-			return !serverVersion.contains("1.15") && !serverVersion.contains("1.16");
+			return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17");
 
         if (this.getVersion().equalsIgnoreCase("1.14.4") && !serverVersion.contains("1.14.R4"))
             return false;
@@ -486,6 +491,12 @@ public enum Protections {
             return false;
 
         if (this.getVersion().contains("ALL"))
+            return true;
+
+        if (this.getServerVersion().equalsIgnoreCase("1.16") && serverVersion.contains("1.16"))
+        	return true;
+
+        if (this.getVersion().equalsIgnoreCase("1.17") && serverVersion.contains("1.17"))
             return true;
 
         if (this.getVersion().equalsIgnoreCase("1.16") && serverVersion.contains("1.16"))
@@ -506,17 +517,20 @@ public enum Protections {
         if (this.getVersion().contains("1.16") && serverVersion.contains("1.16"))
             return true;
         
+        if (this.getVersion().contains("1.17") && serverVersion.contains("1.17"))
+            return true;
+        
         if (this.getVersion().contains("> 1.12"))
-            if (serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12"))
+            if (serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12"))
                 return true;
 
         if (this.getVersion().contains("> 1.9"))
-            if (serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11") ||
+            if (serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11") ||
                     this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9"))
                 return true;
 
         if (this.getVersion().contains("> 1.11"))
-            if (serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11"))
+            if (serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains("1.11"))
                 return true;
         if (this.getVersion().contains("1.12"))
             if (serverVersion.contains("1.12"))
@@ -539,6 +553,10 @@ public enum Protections {
         if (this.version.isEmpty())
             return false;
 
+        if (this.getVersion().equals("1.17")) 
+        	if(serverVersion.contains("v1_17"))
+        		return true;
+        
         if (this.getVersion().equals("1.16")) {
         	if (serverVersion.contains("v1_16"))
         		return true;
@@ -557,6 +575,8 @@ public enum Protections {
         if (this.getVersion().equals("1.14.3")) {
 			return serverVersion.contains("v1_14_R3");
         }
+        if(serverVersion.contains("v1_17") && this.getVersion().contains("1.17"))
+        	return true;
         if (serverVersion.contains("v1_16") && this.getVersion().contains("1.16"))
         	return true;
         if (serverVersion.contains("v1_15") && this.getVersion().contains("1.15"))

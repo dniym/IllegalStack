@@ -41,7 +41,8 @@ public class pLisbListener {
                                 ItemStack stack = event.getPacket().getItemModifier().readSafely(0);
                                 if (stack != null && stack.hasItemMeta()) {
                                     stack = new ItemStack(Material.AIR);
-                                    event.getPlayer().updateInventory();
+                                    final Player player = event.getPlayer();
+                                    plugin.getServer().getScheduler().runTaskLater(plugin, player::updateInventory, 5L);
                                     event.setCancelled(true);
                                     Msg.StaffMsgCreativeBlock.getValue(event.getPlayer().getName());
                                 }

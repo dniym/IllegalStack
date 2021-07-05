@@ -8,10 +8,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -154,6 +156,23 @@ public class NBTStuff {
         return false;
     }
 
+    public static void checkForNegativeDurability(ItemStack is, Player p) {
+    	if(is == null)
+    		return;
+    	
+        if (IllegalStack.isHasAttribAPI()) 
+        {
+        	if(is.getItemMeta() instanceof Damageable) {
+        		Damageable dmg = (Damageable)is.getItemMeta();
+        		if(dmg.getDamage() > is.getType().getMaxDurability()) {
+        			fListener.getLog().append(Msg.IllegalStackDurability.getValue(p, is), Protections.FixNegativeDurability);
+        			dmg.setDamage(is.getType().getMaxDurability());
+        			is.setItemMeta((ItemMeta)dmg);
+        			
+        		} 
+        	}
+        } 	
+    }
     public static void checkForBadCustomData(ItemStack is, Player p, boolean sendToPlayer) {
 
         ItemMeta im = is.getItemMeta();

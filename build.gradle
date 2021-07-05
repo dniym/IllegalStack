@@ -17,8 +17,8 @@ repositories {
 }
 
 dependencies {
-	compileOnly("org.spigotmc:spigot-1.16.4")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.6.0-SNAPSHOT")
+	compileOnly("org.spigotmc:spigot-1.17")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0-SNAPSHOT")
     implementation("com.elmakers.mine.bukkit:MagicAPI:7.9.5")
     implementation("de.tr7zw:item-nbt-api-plugin:2.4.1")
     implementation("com.github.TheBusyBiscuit:Slimefun4:v4.1.15") { transitive = false }
@@ -35,7 +35,7 @@ dependencies {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-version = "2.2.2a"
+version = "2.3.1"
 
 processResources {
     from('src/main/resources') {
