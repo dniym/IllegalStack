@@ -10,6 +10,7 @@ import me.dniym.listeners.mcMMOListener;
 import me.dniym.utils.NBTStuff;
 import me.dniym.utils.SlimefunCompat;
 import me.dniym.utils.SpigMethods;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -31,6 +32,7 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -330,8 +332,18 @@ public class fTimer implements Runnable {
 
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
+                                    p.updateInventory();
+                                    System.out.println("Debug 1");
                                     if (en.canEnchantItem(is))
-                                        is.addEnchantment(en, en.getMaxLevel());
+                                    	new BukkitRunnable() {
+                        				@Override
+                        				public void run() {
+                        					is.addEnchantment(en, en.getMaxLevel());
+                        				}
+
+                        			}.runTaskLater(this.plugin, 1);
+
+                                        
                                 }
                             }
 
@@ -410,8 +422,17 @@ public class fTimer implements Runnable {
 
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
+                                    System.out.println("Debug 3");
+                                    p.updateInventory();
                                     if (en.canEnchantItem(is))
-                                        is.addEnchantment(en, en.getMaxLevel());
+                                    	new BukkitRunnable() {
+                        				@Override
+                        				public void run() {
+                        					is.addEnchantment(en, en.getMaxLevel());
+                        				}
+
+                        			}.runTaskLater(this.plugin, 1);
+                                        
                                 }
                             }
                         }
@@ -493,6 +514,7 @@ public class fTimer implements Runnable {
                             if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
                                 continue;
 
+
                             HashSet<Enchantment> replace = new HashSet<>();
                             for (Enchantment en : is.getEnchantments().keySet())
                                 if (is.getEnchantmentLevel(en) > en.getMaxLevel()) {
@@ -523,9 +545,21 @@ public class fTimer implements Runnable {
 
                             for (Enchantment en : replace) {
                                 is.removeEnchantment(en);
-                                if (en.canEnchantItem(is))
-                                    is.addEnchantment(en, en.getMaxLevel());
                             }
+                            
+                            p.updateInventory();
+                            new BukkitRunnable() {
+                				@Override
+                				public void run() {
+                                    for(Enchantment en: replace) {
+                                        if (en.canEnchantItem(is))
+                        					is.addEnchantment(en, en.getMaxLevel());
+                                        
+                                    }
+                				}
+
+                			}.runTaskLater(this.plugin, 4);
+
                         }
                     }
 

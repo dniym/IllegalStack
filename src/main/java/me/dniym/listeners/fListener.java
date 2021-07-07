@@ -261,7 +261,7 @@ public class fListener implements Listener {
 			setPortal(Material.matchMaterial("NETHER_PORTAL"));
 
 		unbreakable.add(endPortal);
-		unbreakable.add(portal);
+		//unbreakable.add(portal);
 		unbreakable.add(Material.BEDROCK);
 		
 		String[] mats = new String[]{"ENDER_PORTAL_FRAME","END_PORTAL_FRAME", "COMMAND", "COMMAND_BLOCK", "COMMAND_CHAIN", "CHAIN_COMMAND_BLOCK",
@@ -2085,6 +2085,7 @@ public class fListener implements Listener {
 			for (BlockState b : event.getBlocks()) {
 				if (unbreakable.contains(b.getType())) {
 				//Blocking breaking of unbreakable blocks.
+					System.out.println("Portal tried to break an unbreakable block: " + b.getType().name());
 				event.setCancelled(true);
 				break;
 				}
@@ -2192,9 +2193,14 @@ public class fListener implements Listener {
 					if(RemoveItemTypesCheck.CheckForIllegalTypes(e.getCursor(),e.getInventory()))
 						e.setResult(Result.DENY);
 
-				if(Protections.RemoveCustomAttributes.isEnabled())
+				
+				if(Protections.RemoveCustomAttributes.isEnabled()) {
+					if(Protections.AllowBypass.isEnabled() && e.getWhoClicked() instanceof Player && ((Player)e.getWhoClicked()).hasPermission("illegalstack.enchantbypass"))
+							return;
+						
 					if(BadAttributeCheck.hasBadAttributes(e.getCursor(), e.getInventory()))
 						e.setResult(Result.DENY);
+				}
 			}
 		}
 	}

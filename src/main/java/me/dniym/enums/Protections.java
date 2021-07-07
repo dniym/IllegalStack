@@ -87,7 +87,7 @@ public enum Protections {
     AllowStackForGroup(6, new String[]{}, "Overstackable Items Per Group", 6, "Exploits.OverStack.GroupStack", "Items added to this list will be allowed for players with the IllegalStack.Overstack permission. (You can add a * here to allow players with this permission to overstack ANY item.", "", 0, false),
     RemoveItemTypes(6, new String[]{}, "Remove items of Type", 6, "Exploits.OverStack.RemoveItemsOfType", "Item types (eg STRUCTURE_BLOCK) added to this list will be removed if found in a players inventory, useful if players on your server have obtained blocks you do not wish for them to have such as Bedrock", "", 0, false),
 
-    FixIllegalEnchantmentLevels(25, false, "Fix Illegal Enchantment Levels", "ALL", "Exploits.Enchants.FixIllegalEnchants", "Will correct any enchantment level found that is larger than vanilla minecraft allows.", "", 0, false),
+    FixIllegalEnchantmentLevels(25, false, "Fix Illegal Enchantment Levels", "< 1.17", "Exploits.Enchants.FixIllegalEnchants", "Will correct any enchantment level found that is larger than vanilla minecraft allows.", "", 0, false),
     CustomEnchantOverride(25, new String[]{}, "Enchantment Override", 25, "Exploits.Enchants.CustomEnchantOverride", "Allows for adjusting of a given enchantments max level.  Meaning if you add Sharpness.10 to this list then only items with sharpness 11 and above will be removed.  *NOTE* this has no other affect on other enchants.", "", 0, false),
     EnchantedItemWhitelist(25, new String[]{}, "Item Whitelist", 25, "Exploits.Enchants.EnchantedItemWhitelist", "Will skip fixing any item exactly matching the type,name and lore.", "", 2, false),
     OnlyFunctionInWorlds(25, new String[]{}, "Worlds To Check", 25, "Exploits.Enchants.OnlyFunctionInWorlds", "Will ONLY check for IllegalEnchantments in the worlds listed, if this list is empty all worlds are checked by default.", "", 2, false),
@@ -104,14 +104,14 @@ public enum Protections {
     
     //PacketAttackWindowClick(33,false,"Prevent Packet Crasher 1", "ALL", "Exploits.PacketAttack.PacketCrasher1", "Prevents Oversized packets and packet spam that  ")
     //MULTI VERSION EXPLOITS
-    PreventRailDupe(8, true, "Destroy Rail / Carpet Dupers", "1.12/1.13/1.14/1.15/1.16", "Exploits.Other.PreventRailDupe", "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.", "", 0, false),
+    PreventRailDupe(8, true, "Destroy Rail / Carpet Dupers", "1.12/1.13/1.14/1.15/1.16/1.17", "Exploits.Other.PreventRailDupe", "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.", "", 0, false),
 
     PreventNestedShulkers(10, true, "Prevent Nested Shulker Boxes", "> 1.11", "Exploits.Other.PreventNestedShulkers", "Prevent players from putting shulker boxes inside other shulker boxes, this exploit leads to pretty much infinte storage.", "", 0, false),
 
-    DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "< 1.17", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.", "", 0, false),
+    DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "ALL", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.", "", 0, false),
     DisableRidingExploitableMobs(27, true, "Disable Riding/Taming of Mobs with chests", 27, "Exploits.Other.DisableRidingExploitableMobs", "Prevents players from being able to ride or tame a creature that can be equipped with a chest.", "", 0, false),
-    
     PunishForChestsOnMobs(27, false, "Violently Punish Repeat Offenders", 27, "Exploits.Other.PunishForChestsOnMobs", "Enabling this option will punish any player who attempts to place a chest on a chested animal, the animal will be destroyed, the player's inventory will be cleared and the player will be kicked from the server.", "", 0, false),
+
     PreventInvalidPotions(35, true, "Prevent Invalid Potions", "> 1.11", "Exploits.Other.PreventInvalidPotions", "Prevents non-opped players from possessing invalid / uncraftable potions.  Typically these are used for malicious purposes on creative servers such as potions of instant death", "", 0, false),
     PreventInfiniteElytraFlight(36, true, "Prevent Infinite Elytra Flight", "> 1.9", "Exploits.Other.PreventInvalidElytraFlight", "Prevents players from using a glitch that grants unlimited elytra flight time without rockets,  This exploit allows the player to ascend vertically starting at the max build height until they decide to start descending or their elytra breaks.", "", 0, false),
 

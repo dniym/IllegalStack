@@ -2,12 +2,16 @@ package me.dniym.listeners;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.FieldAccessException;
 import me.dniym.IllegalStack;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.timers.fTimer;
+
 import org.bukkit.Material;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Entity;
@@ -15,6 +19,7 @@ import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -60,8 +65,7 @@ public class pLisbListener {
                     	
                         @Override
                         public void onPacketReceiving(PacketEvent event) {
-                        	
-                        	
+                        		
                         	if(event.getPacket().getIntegers().read(0) <= 0) {
                         		System.out.println(event.getPlayer().getName() + " tried to interact with entity with an invalid id: " + event.getPacket().getIntegers().read(0) + " if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.");
                         		event.setCancelled(true);
@@ -69,8 +73,62 @@ public class pLisbListener {
                         	}
                         	
                             if (IllegalStack.hasChestedAnimals()) {
+                            	
+                            	if(event.isAsync()) {
+                            		//event.setCancelled(true);
+                        			new BukkitRunnable() {
+                        				
+                        				@Override
+                        				public void run() {
+                        					Entity entity=null;
+                        					try {
+                        					entity=event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
+                        					} catch (RuntimeException ex) {
+                        						System.out.println("[IllegalStack] - Async Packet - Couldn't get an entity from id: ");
+                        						return;
+                        					}
+                        					
+                                            if (entity instanceof Horse && ((Horse) entity).isTamed()) {
+                                                ItemStack is = event.getPlayer().getInventory().getItemInHand();
+                                            	if (!fListener.is18() && (is == null || is.getType() != Material.CHEST))
+                                                    is = event.getPlayer().getInventory().getItemInOffHand();
+                                                if (is == null || is.getType() != Material.CHEST)
+                                                    return;
+                                                exploitMessage(event.getPlayer(), entity);
+                                                event.setCancelled(true);
+                                                fTimer.getPunish().put(event.getPlayer(), entity);
+                                                return;
+                                            }
+                                            
+                                            if (entity instanceof ChestedHorse && ((ChestedHorse) entity).isTamed()) {
+                                                ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
+                                                if (is == null || is.getType() != Material.CHEST)
+                                                    is = event.getPlayer().getInventory().getItemInOffHand();
+                                                if (is == null || is.getType() != Material.CHEST)
+                                                    return;
+                                                exploitMessage(event.getPlayer(), entity);
+                                                event.setCancelled(true);
+
+                                                ((ChestedHorse) entity).setCarryingChest(true);
+                                                ((ChestedHorse) entity).setCarryingChest(false);
+                                                fTimer.getPunish().put(event.getPlayer(), entity);
+                                                return;
+                                            } 
+                        					
+                        				}
+
+                        			}.runTaskLater(this.plugin, 1);
+                            	}
+                            	else {
+                            	
                                 try {
-                                    Entity entity = event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
+                                    Entity entity = null;
+                                    try {
+                                    	event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
+                                    } catch (RuntimeException ex) {
+                                    	System.out.println("[IllegalStack] - no entity available from id..");
+                                    	return;
+                                    }
                                     if (entity instanceof ChestedHorse && ((ChestedHorse) entity).isTamed()) {
                                         ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
                                         if (is == null || is.getType() != Material.CHEST)
@@ -78,6 +136,7 @@ public class pLisbListener {
                                         if (is == null || is.getType() != Material.CHEST)
                                             return;
                                         exploitMessage(event.getPlayer(), entity);
+                                        
                                         event.setCancelled(true);
 //                                        event.setPacket(new PacketContainer(Packet));
                                         ((ChestedHorse) entity).setCarryingChest(true);
@@ -88,8 +147,10 @@ public class pLisbListener {
                                     System.out.println("[IllegalStack] - an error receiving a USE_ENTITY packet has occured, ");
                                     ex.printStackTrace();
                                 }
+                            	}
                             } else {
                                 try {
+                                	
                                     Entity entity = event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
                                     if (entity instanceof Horse && ((Horse) entity).isTamed()) {
                                         ItemStack is = event.getPlayer().getInventory().getItemInHand();
@@ -99,9 +160,7 @@ public class pLisbListener {
                                             return;
                                         exploitMessage(event.getPlayer(), entity);
                                         event.setCancelled(true);
-                                        //event.setPacket(new PacketContainer(0));
-                                        //	((Horse) entity).setCarryingChest(true);
-                                        //((Horse) entity).setCarryingChest(false);
+
                                         fTimer.getPunish().put(event.getPlayer(), entity);
                                     }
                                 } catch (IndexOutOfBoundsException ex) {
