@@ -2,7 +2,6 @@ package me.dniym.timers;
 
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
-import me.dniym.listeners.Listener113;
 import me.dniym.listeners.fListener;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.logging.log4j.LogManager;
@@ -19,18 +18,18 @@ import java.util.HashSet;
 
 public class sTimer implements Runnable {
 
-    private static long signCheck = 0L;
-    private static long chunkScan = 0L;
-    private static boolean scanChunks = false;
     private static final HashMap<Block, Player> signBlock = new HashMap<>();
     private static final HashSet<BlockState[]> entList = new HashSet<>();
     private static final HashSet<String> checkedChunks = new HashSet<>();
-
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + sTimer.class.getSimpleName());
+    private static long signCheck = 0L;
+    private static long chunkScan = 0L;
+    private static boolean scanChunks = false;
 
     public sTimer() {
-        if (Protections.DestroyBadSignsonChunkLoad.isEnabled())
+        if (Protections.DestroyBadSignsonChunkLoad.isEnabled()) {
             scanChunks = true;
+        }
     }
 
     public static long getSignCheck() {
@@ -44,8 +43,9 @@ public class sTimer implements Runnable {
     public static void checkSign(Block block, Player player) {
 
         signBlock.put(block, player);
-        if (signCheck == -1L)
+        if (signCheck == -1L) {
             signCheck = System.currentTimeMillis() + 4000L;
+        }
     }
 
     public static void checkChunk(String chunkID, BlockState[] tileEntities) {
@@ -59,24 +59,35 @@ public class sTimer implements Runnable {
     @Override
     public void run() {
 
-        if (!Protections.DestroyBadSignsonChunkLoad.isEnabled() || Protections.DestroyBadSignsonChunkLoad.notifyOnly())
+        if (!Protections.DestroyBadSignsonChunkLoad.isEnabled() || Protections.DestroyBadSignsonChunkLoad.notifyOnly()) {
             return;
+        }
         if (getSignCheck() != -1L && System.currentTimeMillis() >= getSignCheck()) {
             for (Block b : signBlock.keySet()) {
                 BlockState st = b.getState();
                 if (st instanceof Sign) {
                     Sign sign = (Sign) st;
                     boolean illegal = false;
-                    for (String line : sign.getLines())
-                        if (!Charset.forName(Protections.ValidCharset.getTxtValue()).newEncoder().canEncode(ChatColor.stripColor(line))) {
+                    for (String line : sign.getLines()) {
+                        if (!Charset.forName(Protections.ValidCharset.getTxtValue()).newEncoder().canEncode(ChatColor.stripColor(
+                                line))) {
                             illegal = true;
-                            LOGGER.info("[IllegalStack Debug]: - Found a sign with illegal chars: line with invalid text was: {} @ {}", line, sign.getLocation().toString());
+                            LOGGER.info(
+                                    "[IllegalStack Debug]: - Found a sign with illegal chars: line with invalid text was: {} @ {}",
+                                    line,
+                                    sign.getLocation().toString()
+                            );
                         }
+                    }
 
                     Player p = signBlock.get(sign.getBlock());
                     if (illegal) {
-                        if (p != null)
-                            fListener.getLog().append2(Msg.SignRemovedOnPlace.getValue(sign.getLocation(), signBlock.get(b).getName()));
+                        if (p != null) {
+                            fListener.getLog().append2(Msg.SignRemovedOnPlace.getValue(
+                                    sign.getLocation(),
+                                    signBlock.get(b).getName()
+                            ));
+                        }
                         sign.getBlock().setType(Material.AIR);
                         p.kickPlayer(Msg.SignKickPlayerMsg.getValue());
                     }
@@ -88,21 +99,30 @@ public class sTimer implements Runnable {
 
         if (System.currentTimeMillis() >= chunkScan && scanChunks) {
             HashSet<Block> found = new HashSet<>();
-            for (BlockState[] bs : entList)
-                for (BlockState st : bs)
+            for (BlockState[] bs : entList) {
+                for (BlockState st : bs) {
                     if (st instanceof Sign) {
                         Sign sign = (Sign) st;
-                        for (String line : sign.getLines())
-                            if (!Charset.forName(Protections.ValidCharset.getTxtValue()).newEncoder().canEncode(ChatColor.stripColor(line))) {
+                        for (String line : sign.getLines()) {
+                            if (!Charset
+                                    .forName(Protections.ValidCharset.getTxtValue())
+                                    .newEncoder()
+                                    .canEncode(ChatColor.stripColor(line))) {
                                 sign.getBlock().setType(Material.AIR);
                                 found.add(sign.getBlock());
                             }
+                        }
                     }
-            if (!found.isEmpty())
-                for (Block b : found)
+                }
+            }
+            if (!found.isEmpty()) {
+                for (Block b : found) {
                     fListener.getLog().append2(Msg.SignRemoved.getValue(b.getLocation(), ""));
+                }
+            }
             chunkScan = System.currentTimeMillis() + 5000L;
             entList.clear();
         }
     }
+
 }

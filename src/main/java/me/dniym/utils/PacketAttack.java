@@ -28,25 +28,30 @@ public class PacketAttack {
 
     public static PacketAttack findPlayer(UUID uniqueId) {
 
-        for (PacketAttack pa : attacks)
-            if (pa.playerid.equals(uniqueId))
+        for (PacketAttack pa : attacks) {
+            if (pa.playerid.equals(uniqueId)) {
                 return pa;
+            }
+        }
 
         return new PacketAttack(uniqueId);
     }
 
     public boolean addAttempt(Object packetEvent, String attackType) {
 
-        if (!this.pAttack.containsKey(attackType))
+        if (!this.pAttack.containsKey(attackType)) {
             this.pAttack.put(attackType, 0);
+        }
 
         this.pAttack.put(attackType, this.pAttack.get(attackType) + 1);
         int maxAttempts = 250;
 
-        if (attackType.equalsIgnoreCase("WINDOW_INVALID_CLICK"))
+        if (attackType.equalsIgnoreCase("WINDOW_INVALID_CLICK")) {
             maxAttempts = 5;
-        if (attackType.equalsIgnoreCase("WINDOW_CLICK_SPAM"))
+        }
+        if (attackType.equalsIgnoreCase("WINDOW_CLICK_SPAM")) {
             maxAttempts = 80;
+        }
 
         return shouldCancelPacket(packetEvent, maxAttempts, attackType);
 
@@ -60,7 +65,8 @@ public class PacketAttack {
                 int size = event.getPacket().getBytes().toString().length();
 
                 if (size > 2700) { //sending too large of a packet, cancel it regardless
-                    fListener.getLog().append2("Player sent a packet too large for the server to handle!  Probably a packet attack!");
+                    fListener.getLog().append2(
+                            "Player sent a packet too large for the server to handle!  Probably a packet attack!");
                     event.getPlayer().kickPlayer("Invalid Packet Detected (packet too large)");
                     return true;
                 } else if (maxAttempts > 0) {
@@ -76,4 +82,5 @@ public class PacketAttack {
         }
         return false;
     }
+
 }

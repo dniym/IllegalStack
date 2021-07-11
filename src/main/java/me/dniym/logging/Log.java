@@ -9,7 +9,6 @@ import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
@@ -24,35 +23,38 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 
-public class Logg {
+public class Log {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Log.class.getSimpleName());
     IllegalStack plugin;
     File file;
     Calendar date;
 
-    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Logg.class.getSimpleName());
-    
-    public Logg(IllegalStack plugin) {
+    public Log(IllegalStack plugin) {
         this.plugin = plugin;
-        if (Protections.LogOffensesInSeparateFile.isEnabled())
+        if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             file = new File(plugin.getDataFolder() + "/OffenseLog.txt");
+        }
         date = Calendar.getInstance();
     }
-    
+
     @Deprecated
     public void append2(String message) {
-    	this.append(message, null);
-    
-    }
-    public void append(String message,Protections prot) {
+        this.append(message, null);
 
-    	if(prot != null) {
-    		IllegalStackLogEvent event = new IllegalStackLogEvent(message,prot);
-    		Bukkit.getPluginManager().callEvent(event);
-    	 
-    		if (event.isCancelled()) 
-    			return;
-    	}
-        
+    }
+
+    public void append(String message, Protections prot) {
+
+        if (prot != null) {
+            IllegalStackLogEvent event = new IllegalStackLogEvent(message, prot);
+            Bukkit.getPluginManager().callEvent(event);
+
+            if (event.isCancelled()) {
+                return;
+            }
+        }
+
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
                 LOGGER.info(message);
@@ -67,22 +69,26 @@ public class Logg {
         }
 
         if (Protections.InGameNotifications.isEnabled()) {
-            for (Player p : IllegalStack.getPlugin().getServer().getOnlinePlayers())
+            for (Player p : IllegalStack.getPlugin().getServer().getOnlinePlayers()) {
                 if (p.hasPermission("illegalstack.notify")) {
                     message = cleanMessage(message);
 
                     if (IllegalStack.isSpigot() && message.contains("@")) {
                         TextComponent msg = new TextComponent(message);
-                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Msg.PluginTeleportText.getValue()).create()));
+                        msg.setHoverEvent(new HoverEvent(
+                                HoverEvent.Action.SHOW_TEXT,
+                                new ComponentBuilder(Msg.PluginTeleportText.getValue()).create()
+                        ));
                         msg.setClickEvent(new ClickEvent(Action.RUN_COMMAND, getTeleportLoc(message)));
                         p.spigot().sendMessage(msg);
                     } else {
                         p.sendMessage(Msg.PluginPrefix.getValue() + ChatColor.RESET + message);
                     }
                 }
+            }
         }
     }
-    
+
     private String getTeleportLoc(String message) {
         String[] words = message.split("@");
         String[] coords = words[1].split(" ");
@@ -95,8 +101,9 @@ public class Logg {
             position = "/istack teleport " + x + " " + y + " " + z + " " + ChatColor.stripColor(coords[1]);
         } catch (NumberFormatException ex) {
             LOGGER.error("Failed to get position");
-            for (int i = 0; i < coords.length; i++)
+            for (int i = 0; i < coords.length; i++) {
                 LOGGER.error("Coord: {} {}", i, coords[i]);
+            }
         }
         return position;
     }
@@ -122,13 +129,14 @@ public class Logg {
             if (Protections.PlayerOffenseNotifications.isEnabled()) {
                 World w = IllegalStack.getPlugin().getServer().getWorld(world);
                 Location offense = new Location(w, x, y, z);
-                for (Player p : w.getPlayers())
+                for (Player p : w.getPlayers()) {
                     if (p.getLocation().distance(offense) <= 10) {
                         //[IllegalStack] -Stopped Retraction Dupe Glitch & Removed Piston @ Location{world=CraftWorld{name=event},x=-266.0,y=81.0,z=-238.0,pitch=0.0,yaw=0.0}
                         String mNear = message.substring(0, message.indexOf('@'));
                         mNear = Msg.PluginPrefix.getValue() + " " + Msg.PlayerNearbyNotification.getValue(mNear);
                         p.sendMessage(mNear);
                     }
+                }
             }
 
             String coords = "@ " + ChatColor.AQUA + world + " " + x + " " + y + " " + z;
@@ -141,7 +149,8 @@ public class Logg {
     public String dateStamp() {
         String now;
 
-        now = monthFromNumber(date.get(Calendar.MONTH)) + " " + date.get(Calendar.DAY_OF_MONTH) + " " + date.get(Calendar.YEAR) + " (" + date.get(Calendar.HOUR) + ":" +
+        now = monthFromNumber(date.get(Calendar.MONTH)) + " " + date.get(Calendar.DAY_OF_MONTH) + " " + date.get(Calendar.YEAR) + " (" + date
+                .get(Calendar.HOUR) + ":" +
                 date.get(Calendar.MINUTE) + ":" + date.get(Calendar.SECOND) + ") - ";
         return now;
     }
@@ -181,7 +190,7 @@ public class Logg {
 
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
-                LOGGER.info("(Notification Only) {} {}",  prot.name(), message);
+                LOGGER.info("(Notification Only) {} {}", prot.name(), message);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
                 bw.append(dateStamp()).append(message).append("\r\n");
                 bw.close();
@@ -193,21 +202,25 @@ public class Logg {
         }
 
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
-            for (Player p : IllegalStack.getPlugin().getServer().getOnlinePlayers())
+            for (Player p : IllegalStack.getPlugin().getServer().getOnlinePlayers()) {
                 if (p.hasPermission("illegalstack.notify")) {
                     message = cleanMessage(message);
 
                     if (IllegalStack.isSpigot() && message.contains("@")) {
 
                         TextComponent msg = new TextComponent(ChatColor.GREEN + "(Notification Only) " + message);
-                        msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(Msg.PluginTeleportText.getValue()).create()));
+                        msg.setHoverEvent(new HoverEvent(
+                                HoverEvent.Action.SHOW_TEXT,
+                                new ComponentBuilder(Msg.PluginTeleportText.getValue()).create()
+                        ));
                         msg.setClickEvent(new ClickEvent(Action.RUN_COMMAND, getTeleportLoc(message)));
                         p.spigot().sendMessage(msg);
                     } else {
                         p.sendMessage(ChatColor.RED + "[IllegalStack] - (Notification Only)" + ChatColor.RESET + message);
                     }
                 }
+            }
         }
     }
-	
+
 }

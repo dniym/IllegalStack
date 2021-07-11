@@ -7,50 +7,61 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
-
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 
-public class SpigMethods {
+public class SpigotMethods {
 
-    public static BaseComponent makeParentText(Protections p, String status, boolean children, int catId) {
+    public static BaseComponent makeParentText(Protections protections, String status, boolean children, int catId) {
 
         String sTag = "     ";
-        if (!p.isList())
+        if (!protections.isList()) {
             sTag = ChatColor.DARK_AQUA + "[" + status + ChatColor.DARK_AQUA + "]";
+        }
 
         TextComponent cLink = new TextComponent(sTag);
-        if (!p.isList()) {
-            cLink.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack toggle " + p.name()));
-            cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Toggle This Protection On/Off").create()));
+        if (!protections.isList()) {
+            cLink.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack toggle " + protections.name()));
+            cLink.setHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder("Toggle This Protection On/Off").create()
+            ));
         } else {
             cLink = new TextComponent(ChatColor.GRAY + "[" + ChatColor.GREEN + "A");
-            String cmd = "/istack value add " + p.name();
+            String cmd = "/istack value add " + protections.name();
             cLink.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, cmd));
-            cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Add a value to this list").create()));
-            TextComponent opt = null;
+            cLink.setHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder("Add a value to this list").create()
+            ));
+            TextComponent opt;
 
-            if (!p.getTxtSet().isEmpty()) {
+            if (!protections.getTxtSet().isEmpty()) {
                 opt = new TextComponent(ChatColor.RED + "R");
-                cmd = "/istack value remove " + p.name();
+                cmd = "/istack value remove " + protections.name();
                 opt.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, cmd));
-                opt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Remove a value from this list").create()));
+                opt.setHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        new ComponentBuilder("Remove a value from this list").create()
+                ));
 
                 cLink.addExtra(opt);
             } else {
                 cLink.addExtra(" ");
             }
             opt = new TextComponent(ChatColor.AQUA + "L");
-            opt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.AQUA + p.findValue()).create()));
+            opt.setHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder(ChatColor.AQUA + protections.findValue()).create()
+            ));
 
             cLink.addExtra(opt);
             cLink.addExtra(ChatColor.GRAY + "] ");
         }
 
-        cLink.addExtra(ChatColor.GOLD + " " + p.getDisplayName());
+        cLink.addExtra(ChatColor.GOLD + " " + protections.getDisplayName());
         TextComponent info = new TextComponent(ChatColor.GREEN + " *");
-        if (!p.getDescription().equalsIgnoreCase("")) {
-            String desc = p.getDescription() + ChatColor.AQUA + " " + p.getVersion() + ChatColor.RESET;
+        if (!protections.getDescription().equalsIgnoreCase("")) {
+            String desc = protections.getDescription() + ChatColor.AQUA + " " + protections.getVersion() + ChatColor.RESET;
             info.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(desc).create()));
         }
         cLink.addExtra(info);
@@ -58,8 +69,14 @@ public class SpigMethods {
         //kids
         if (children) {
             TextComponent opt = new TextComponent(ChatColor.YELLOW + "(more options)");
-            opt.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack prot " + catId + " " + p.getProtId()));
-            opt.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to show/hide more options").create()));
+            opt.setClickEvent(new ClickEvent(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/istack prot " + catId + " " + protections.getProtId()
+            ));
+            opt.setHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder("Click to show/hide more options").create()
+            ));
             cLink.addExtra(opt);
         }
 
@@ -67,23 +84,29 @@ public class SpigMethods {
     }
 
 
-    public static BaseComponent makeCategoryText(Player plr, String category, Boolean show, int catID) {
+    public static BaseComponent makeCategoryText(String category, Boolean show, int catID) {
 
         TextComponent cLink = new TextComponent(ChatColor.AQUA + "-     " + category + "     -");
         String sText = ChatColor.GRAY + " (" + ChatColor.GREEN + "SHOW" + ChatColor.GRAY + ")";
 
-        if (show)
+        if (show) {
             sText = ChatColor.GRAY + " (" + ChatColor.RED + "HIDE" + ChatColor.GRAY + ")";
+        }
 
         TextComponent option = new TextComponent(sText);
-        option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GRAY + "Click to activate").create()));
+        option.setHoverEvent(new HoverEvent(
+                HoverEvent.Action.SHOW_TEXT,
+                new ComponentBuilder(ChatColor.GRAY + "Click to activate").create()
+        ));
 
         String command = "/istack prot ";
         if (!show) {
-            if (catID == 1)
+            if (catID == 1) {
                 command = command + 1;
-            if (catID == 2)
+            }
+            if (catID == 2) {
                 command = command + 2;
+            }
         }
 
         option.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command));
@@ -101,17 +124,26 @@ public class SpigMethods {
             TextComponent option = new TextComponent(ChatColor.GOLD + " [" + ChatColor.GREEN + "A");
             if (p == Protections.EnchantedItemWhitelist) {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack enchantwhitelistmode"));
-                option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to toggle adding EnchantedItemWhitelist add mode on/off").create()));
+                option.setHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        new ComponentBuilder("Click to toggle adding EnchantedItemWhitelist add mode on/off").create()
+                ));
             } else {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/istack value add " + p.name()));
-                option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to add a value to this list.").create()));
+                option.setHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        new ComponentBuilder("Click to add a value to this list.").create()
+                ));
             }
 
             cLink.addExtra(option);
             if (!p.getTxtSet().isEmpty()) {
                 option = new TextComponent(ChatColor.RED + "R");
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/istack value remove " + p.name()));
-                option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to remove a value from this list.").create()));
+                option.setHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT,
+                        new ComponentBuilder("Click to remove a value from this list.").create()
+                ));
                 cLink.addExtra(option);
             } else {
                 cLink.addExtra(" ");
@@ -124,19 +156,24 @@ public class SpigMethods {
         } else if (p.getIntValue() >= 0) {
 
             int val = 0;
-            if (p.getConfigValue() instanceof Integer)
+            if (p.getConfigValue() instanceof Integer) {
                 val = (Integer) p.getConfigValue();
+            }
 
             String pad = "";
-            if (val <= 9)
+            if (val <= 9) {
                 pad = "   ";
-            else if (val <= 99)
+            } else if (val <= 99) {
                 pad = " ";
+            }
 
 
             TextComponent option = new TextComponent(ChatColor.GRAY + " [" + p.findValue() + pad + "] ");
             option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(p.findValue()).create()));
-            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GREEN + "(Click to change)").create()));
+            option.setHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder(ChatColor.GREEN + "(Click to change)").create()
+            ));
             String command = "/istack value set " + p.name();
             option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
 
@@ -144,14 +181,18 @@ public class SpigMethods {
         } else if (!p.getTxtValue().isEmpty()) {
             TextComponent option = new TextComponent(ChatColor.GRAY + " [" + ChatColor.GREEN + "TXT" + ChatColor.GRAY + "] ");
             option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(p.findValue()).create()));
-            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(ChatColor.GRAY + p.findValue() + ChatColor.GREEN + " (Click to change)").create()));
+            option.setHoverEvent(new HoverEvent(
+                    HoverEvent.Action.SHOW_TEXT,
+                    new ComponentBuilder(ChatColor.GRAY + p.findValue() + ChatColor.GREEN + " (Click to change)").create()
+            ));
             String command = "/istack value set " + p.name() + " " + p.getConfigValue();
             option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
             cLink.addExtra(option);
         } else {
             String status = ChatColor.GREEN + " ON";
-            if (!p.isEnabled())
+            if (!p.isEnabled()) {
                 status = ChatColor.DARK_RED + "OFF";
+            }
 
             TextComponent option = new TextComponent(ChatColor.GOLD + " [" + status + ChatColor.GOLD + "] ");
             option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to toggle").create()));
@@ -191,10 +232,11 @@ public class SpigMethods {
                     newString.append("\n").append(temp1);
                     temp1 = word;
                 } else {
-                    if (!temp1.equalsIgnoreCase(""))
+                    if (!temp1.equalsIgnoreCase("")) {
                         temp1 = temp1 + " " + word;
-                    else
+                    } else {
                         temp1 = word;
+                    }
                 }
 
             }
@@ -209,26 +251,27 @@ public class SpigMethods {
     public static String longWord(String text, int length) {
         String[] words = text.split(" ");
         int counter = 0;
-        String newString = "";
+        StringBuilder newString = new StringBuilder();
         for (int i = 0; i < words[0].length(); i++) {
             if (counter == length - 2) {
-                newString = newString + words[0].charAt(i) + "-\n";
+                newString.append(words[0].charAt(i)).append("-\n");
                 counter = 0;
             } else {
-                newString = newString + words[0].charAt(i);
+                newString.append(words[0].charAt(i));
                 counter++;
             }
         }
-        return newString;
+        return newString.toString();
     }
 
     public static boolean isNPC(LivingEntity ent) {
 
 
-		return ent.hasMetadata("shopkeeper");
-	}
+        return ent.hasMetadata("shopkeeper");
+    }
 
     private static final class FlagFontInfo {
+
         static int getPxLength(char c) {
             switch (c) {
                 case 'i':
@@ -250,6 +293,7 @@ public class SpigMethods {
         static int getPxLength(String string) {
             return string.chars().reduce(0, (p, i) -> p + getPxLength((char) i) + 1);
         }
+
     }
 
 }

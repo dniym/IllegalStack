@@ -16,25 +16,28 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class protListener implements Listener {
+public class ProtectionListener implements Listener {
 
     IllegalStack plugin;
 
-    public protListener(IllegalStack illegalStack) {
+    public ProtectionListener(IllegalStack illegalStack) {
         this.plugin = illegalStack;
     }
 
-        @EventHandler
+    @EventHandler
     public void onPlayerSwapHandItemsEvent(PlayerSwapHandItemsEvent e) {
 
-        if (!Protections.PreventItemSwapLagExploit.isEnabled())
+        if (!Protections.PreventItemSwapLagExploit.isEnabled()) {
             return;
-        if (!fListener.getInstance().getSwapDelay().containsKey(e.getPlayer()))
-            fListener.getInstance().getSwapDelay().put(e.getPlayer(), 0l);
-        if (System.currentTimeMillis() < fListener.getInstance().getSwapDelay().get(e.getPlayer()))
+        }
+        if (!fListener.getInstance().getSwapDelay().containsKey(e.getPlayer())) {
+            fListener.getInstance().getSwapDelay().put(e.getPlayer(), 0L);
+        }
+        if (System.currentTimeMillis() < fListener.getInstance().getSwapDelay().get(e.getPlayer())) {
             e.setCancelled(true);
-        else
-            fListener.getInstance().getSwapDelay().put(e.getPlayer(), System.currentTimeMillis() + 750l);
+        } else {
+            fListener.getInstance().getSwapDelay().put(e.getPlayer(), System.currentTimeMillis() + 750L);
+        }
     }
 
 
@@ -49,6 +52,7 @@ public class protListener implements Listener {
             }
             new BukkitRunnable() {
                 final Player player = p;
+
                 @Override
                 public void run() {
                     if (player.getLocation().getBlockY() > 255 && player.isGliding()) {
@@ -63,8 +67,9 @@ public class protListener implements Listener {
 
     @EventHandler
     public void onBlockForm(BlockFormEvent e) {
-        if (!Protections.PreventCobbleGenerators.isEnabled())
+        if (!Protections.PreventCobbleGenerators.isEnabled()) {
             return;
+        }
 
         if (e.getNewState().getType() == Material.COBBLESTONE) {
             e.setCancelled(true);
@@ -92,4 +97,5 @@ public class protListener implements Listener {
             }
         }
     }
+
 }
