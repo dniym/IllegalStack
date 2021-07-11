@@ -108,14 +108,16 @@ public enum Protections {
 
     PreventNestedShulkers(10, true, "Prevent Nested Shulker Boxes", "> 1.11", "Exploits.Other.PreventNestedShulkers", "Prevent players from putting shulker boxes inside other shulker boxes, this exploit leads to pretty much infinte storage.", "", 0, false),
 
-    DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "ALL", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.", "", 0, false),
+    DisableChestsOnMobs(27, true, "Disable Chests on Mobs", "ALL", "Exploits.Other.DisableChestsOnMobs", "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping using these creatures.", "", 0, false),
     DisableRidingExploitableMobs(27, true, "Disable Riding/Taming of Mobs with chests", 27, "Exploits.Other.DisableRidingExploitableMobs", "Prevents players from being able to ride or tame a creature that can be equipped with a chest.", "", 0, false),
     PunishForChestsOnMobs(27, false, "Violently Punish Repeat Offenders", 27, "Exploits.Other.PunishForChestsOnMobs", "Enabling this option will punish any player who attempts to place a chest on a chested animal, the animal will be destroyed, the player's inventory will be cleared and the player will be kicked from the server.", "", 0, false),
 
     PreventInvalidPotions(35, true, "Prevent Invalid Potions", "> 1.11", "Exploits.Other.PreventInvalidPotions", "Prevents non-opped players from possessing invalid / uncraftable potions.  Typically these are used for malicious purposes on creative servers such as potions of instant death", "", 0, false),
     PreventInfiniteElytraFlight(36, true, "Prevent Infinite Elytra Flight", "> 1.9", "Exploits.Other.PreventInvalidElytraFlight", "Prevents players from using a glitch that grants unlimited elytra flight time without rockets,  This exploit allows the player to ascend vertically starting at the max build height until they decide to start descending or their elytra breaks.", "", 0, false),
 
-    PreventItemSwapLagExploit(37, true, "Prevent Item Swap Lag Exploit", "> 1.9", "Exploits.Other.PreventItemSwapLagExploit", "Prevents players from spamming the server with held item swaps creating lag on the server.", "", 0, false),
+    PreventItemSwapLagExploit(59, true, "Prevent Item Swap Lag Exploit", "> 1.9", "Exploits.ItemSwap.PreventItemSwapLagExploit", "Prevents players from spamming the server with held item swaps creating lag on the server.", "", 0, false),
+    ItemSwapCooldown(59, 500, "Cooldown Time (Miliseconds)", 59, "Exploits.ItemSwap.ItemSwapCooldown", "Time the player has to wait between item swaps in miliseconds. Don't set this lower than 50 or players might still be able to lag other players.", "", 0, false),
+    
     PreventPearlGlassPhasing(38, true, "Prevent Enderpearl Glass Phasing", "> 1.9", "Exploits.Teleport.PearlPhasing", "Prevents players from using enderpearls to phase through glass blocks.", "", 0, false),
     TeleportCorrectionNotify(38, false, "Notify of teleport corrections", 38, "Exploit.Teleport.CorrectionNotify", "If set to true the plugin will notify staff whenever a correction to a teleport is made due to ender pearl phasing detection, this is off by default as it can be spammy.", "", 0, false),
     PreventArmorStandLagMachine(39, true, "Prevent Armor Stand Lag Machine", "> 1.11", "Exploit.LagMachines.ArmorStand", "Prevents pistons from lifting armor stands straight up then dropping them down, typically used to construct lag machines.", "", 0, false),

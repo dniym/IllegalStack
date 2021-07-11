@@ -24,7 +24,7 @@ public class protListener implements Listener {
         this.plugin = illegalStack;
     }
 
-        @EventHandler
+    @EventHandler
     public void onPlayerSwapHandItemsEvent(PlayerSwapHandItemsEvent e) {
 
         if (!Protections.PreventItemSwapLagExploit.isEnabled())
@@ -32,9 +32,9 @@ public class protListener implements Listener {
         if (!fListener.getInstance().getSwapDelay().containsKey(e.getPlayer()))
             fListener.getInstance().getSwapDelay().put(e.getPlayer(), 0l);
         if (System.currentTimeMillis() < fListener.getInstance().getSwapDelay().get(e.getPlayer()))
-            e.setCancelled(true);
+        	e.setCancelled(true);
         else
-            fListener.getInstance().getSwapDelay().put(e.getPlayer(), System.currentTimeMillis() + 750l);
+            fListener.getInstance().getSwapDelay().put(e.getPlayer(), System.currentTimeMillis() + Protections.ItemSwapCooldown.getIntValue());
     }
 
 
