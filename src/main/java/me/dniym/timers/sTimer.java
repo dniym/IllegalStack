@@ -2,8 +2,11 @@ package me.dniym.timers;
 
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
+import me.dniym.listeners.Listener113;
 import me.dniym.listeners.fListener;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -22,6 +25,8 @@ public class sTimer implements Runnable {
     private static final HashMap<Block, Player> signBlock = new HashMap<>();
     private static final HashSet<BlockState[]> entList = new HashSet<>();
     private static final HashSet<String> checkedChunks = new HashSet<>();
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + sTimer.class.getSimpleName());
 
     public sTimer() {
         if (Protections.DestroyBadSignsonChunkLoad.isEnabled())
@@ -65,7 +70,7 @@ public class sTimer implements Runnable {
                     for (String line : sign.getLines())
                         if (!Charset.forName(Protections.ValidCharset.getTxtValue()).newEncoder().canEncode(ChatColor.stripColor(line))) {
                             illegal = true;
-                            System.out.println("[IllegalStack Debug]: - Found a sign with illegal chars: " + " line with invalid text was: " + line + " @" + sign.getLocation().toString());
+                            LOGGER.info("[IllegalStack Debug]: - Found a sign with illegal chars: line with invalid text was: {} @ {}", line, sign.getLocation().toString());
                         }
 
                     Player p = signBlock.get(sign.getBlock());

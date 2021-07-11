@@ -12,6 +12,8 @@ import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.timers.fTimer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
 import org.bukkit.entity.ChestedHorse;
 import org.bukkit.entity.Entity;
@@ -25,6 +27,8 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class pLisbListener {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + pLisbListener.class.getSimpleName());
 
     Plugin plugin;
     int debug = 0;
@@ -52,7 +56,7 @@ public class pLisbListener {
                                     Msg.StaffMsgCreativeBlock.getValue(event.getPlayer().getName());
                                 }
                             } catch (IndexOutOfBoundsException ex) {
-                                System.out.println("[IllegalStack] - an error receiving a SET_CREATIVE_SLOT packet has occured, you are probably using paper and have BlockBadItemsFromCreativeTab turned on.   This setting is needed very rarely, and ONLY if you have regular non-op players with access to /gmc.");
+                                LOGGER.error("An error receiving a SET_CREATIVE_SLOT packet has occurred, you are probably using paper and have BlockBadItemsFromCreativeTab turned on.   This setting is needed very rarely, and ONLY if you have regular non-op players with access to /gmc.");
                             }
                         }
                     });
@@ -67,7 +71,7 @@ public class pLisbListener {
                         public void onPacketReceiving(PacketEvent event) {
                         		
                         	if(event.getPacket().getIntegers().read(0) <= 0) {
-                        		System.out.println(event.getPlayer().getName() + " tried to interact with entity with an invalid id: " + event.getPacket().getIntegers().read(0) + " if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.");
+                                LOGGER.info("{} tried to interact with entity with an invalid id: {} if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.", event.getPlayer().getName(), event.getPacket().getIntegers().read(0));
                         		event.setCancelled(true);
                         		return;
                         	}
@@ -84,7 +88,7 @@ public class pLisbListener {
                         					try {
                         					entity=event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
                         					} catch (RuntimeException ex) {
-                        						System.out.println("[IllegalStack] - Async Packet - Couldn't get an entity from id: ");
+                        						LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
                         						return;
                         					}
                         					
@@ -126,7 +130,7 @@ public class pLisbListener {
                                     try {
                                     	event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
                                     } catch (RuntimeException ex) {
-                                    	System.out.println("[IllegalStack] - no entity available from id..");
+                                    	LOGGER.info("No entity available from id. ", ex);
                                     	return;
                                     }
                                     if (entity instanceof ChestedHorse && ((ChestedHorse) entity).isTamed()) {
@@ -144,8 +148,7 @@ public class pLisbListener {
                                         fTimer.getPunish().put(event.getPlayer(), entity);
                                     }
                                 } catch (IndexOutOfBoundsException ex) {
-                                    System.out.println("[IllegalStack] - an error receiving a USE_ENTITY packet has occured, ");
-                                    ex.printStackTrace();
+                                    LOGGER.error("An error receiving a USE_ENTITY packet has occurred.", ex);
                                 }
                             	}
                             } else {
@@ -164,8 +167,7 @@ public class pLisbListener {
                                         fTimer.getPunish().put(event.getPlayer(), entity);
                                     }
                                 } catch (IndexOutOfBoundsException ex) {
-                                    System.out.println("[IllegalStack] - an error receiving a USE_ENTITY packet has occurred, ");
-                                    ex.printStackTrace();
+                                    LOGGER.error("An error receiving a USE_ENTITY packet has occurred, ", ex);
                                 }
                             }
 

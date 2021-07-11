@@ -1,5 +1,8 @@
 package me.dniym.listeners;
 
+import me.dniym.logging.Logg;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -20,9 +23,11 @@ public class Listener113 implements Listener {
 	public Listener113(IllegalStack illegalStack) {
 		plugin = illegalStack;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-		System.out.println("[IllegalStack] - Enabling 1.13+ Checks");
+		LOGGER.info("Enabling 1.13+ Checks");
 
 	}
+
+	private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Listener113.class.getSimpleName());
 
 	@EventHandler 
 	public void spawnerChangeCheck(PlayerInteractEvent event) {

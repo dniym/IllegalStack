@@ -1,5 +1,6 @@
 plugins {
     java
+    `java-library`
 }
 
 repositories {
@@ -47,6 +48,7 @@ dependencies {
     implementation(":CraftingStore-2.6.8")
     compileOnly("com.github.SaberLLC:Saber-Factions:2.9.1-RC") { isTransitive = false }
     compileOnly(":JetsMinions")
+    compileOnlyApi("org.apache.logging.log4j:log4j-api:2.8.1")
 }
 
 the<JavaPluginExtension>().toolchain {

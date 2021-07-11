@@ -54,8 +54,7 @@ public class Listener114 implements Listener {
     
     public Listener114(IllegalStack illegalStack) {
     	plugin = illegalStack;
-    	//System.out.println("Registering 1.14 listener");
-        
+
         Material[] consume = new Material[]{Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
                 Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP, Material.COOKED_SALMON,
                 Material.COOKED_RABBIT, Material.COOKIE, Material.DRIED_KELP, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.GOLDEN_CARROT,
@@ -70,11 +69,9 @@ public class Listener114 implements Listener {
     
     @EventHandler
     public void onChestDispense(BlockDispenseArmorEvent e) {
-    	//System.out.println("Checking dispense??");
     	if (Protections.DisableChestsOnMobs.isEnabled()) {
     		
     		if(e.getItem().getType() == Material.CHEST) {
-    		//	System.out.println("Prevented a dispenser from spitting out a chest");
     			e.setCancelled(true);
     		}
     	}

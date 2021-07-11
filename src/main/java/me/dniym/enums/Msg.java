@@ -1,5 +1,8 @@
 package me.dniym.enums;
 
+import me.dniym.IllegalStack;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -133,6 +136,8 @@ public enum Msg {
     DestroyedEnchantedItem("Destroyed an Illegally Enchanted Item ~item~ ~enchant~.(~lvl) found on player: ~player~"),
     IllegalEnchantLevel("&aFixed Enchantment Level ~enchant~.(~lvl~) on ~item~ found on player: ~player~"),
     IllegalEnchantType("&aCould not fix Enchantment ~enchant~.(~lvl~) on ~item~ found on player: ~player~ this enchantment is not valid for this item type!");
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Msg.class.getSimpleName());
 
     private String value;
 
@@ -326,7 +331,7 @@ public enum Msg {
     			return getValue(((Inventory)obj).getLocation(), is);
     	} else if(obj instanceof Container)
     		return getValue(((Container)obj),is);
-    	System.out.println("An unknown object " + obj.toString() + " was passed to illegalstack during a logging operation please report this to dNiym at the spigot forums or on the IllegalStack Discord.");
+    	LOGGER.error("An unknown object {} was passed to IllegalStack during a logging operation please report this to dNiym at the spigot forums or on the IllegalStack Discord.", obj.toString());
     	return "???";
     }
     
@@ -367,7 +372,7 @@ public enum Msg {
     		else if(inv.getHolder() instanceof Player)
     			val = val.replace("~name~", ((Player)inv.getHolder()).getName() + " @" + inv.getLocation().toString());
         	else
-        		System.out.println("[IllegalStack] was supposed to send a message detailing an inventory but could not determine its type!  Please contact dNiym at the IllegalStack discord or on Spigot with this message -> " + obj.toString());
+        		LOGGER.error("IllegalStack was supposed to send a message detailing an inventory but could not determine its type!  Please contact dNiym at the IllegalStack discord or on Spigot with this message: {} ", obj.toString());
     	}
     		
     	

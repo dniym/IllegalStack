@@ -5,12 +5,15 @@ import me.dniym.IllegalStack;
 import me.dniym.checks.BadAttributeCheck;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
+import me.dniym.listeners.Listener113;
 import me.dniym.listeners.fListener;
 import me.dniym.listeners.mcMMOListener;
 import me.dniym.utils.NBTStuff;
 import me.dniym.utils.SlimefunCompat;
 import me.dniym.utils.SpigMethods;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -52,6 +55,8 @@ public class fTimer implements Runnable {
     private long endScan = 0L;
     private final boolean is1_8;
 
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + fTimer.class.getSimpleName());
+
     public fTimer(IllegalStack illegalStack) {
         this.plugin = illegalStack;
         this.nextScan = System.currentTimeMillis() + (scanDelay * 6000);
@@ -62,10 +67,9 @@ public class fTimer implements Runnable {
         is1_8 = version.equalsIgnoreCase("v1_8_R3") || version.contains("v1_8");
 
         if (is1_8)
-            System.out.println(
-                    "[IllegalStack] - Minecraft 1.8 detected not checking offhand slot for overstacked items.");
+            LOGGER.info("Minecraft 1.8 detected not checking offhand slot for overstacked items.");
         if (is1_8 || version.equalsIgnoreCase("v1_9_R4") || version.equalsIgnoreCase("v1_10_R2")) {
-            System.out.println("[IllegalStack] version < 1.11 found, not checking for shulker boxes");
+            LOGGER.info("Version < 1.11 found, not checking for shulker boxes");
         }
         this.longScan = System.currentTimeMillis() + 10000L;
     }
@@ -148,9 +152,7 @@ public class fTimer implements Runnable {
                 for (int i = 0; i < 5; i++) {
                     for (BlockFace face : fListener.getFaces()) {
                         Block next = exit.getRelative(face);
-                        //System.out.println("checking bottom block: " + next.getType().name() + " valid? " + passThrough.contains(next.getType()));
                         if (fListener.getPassThrough().contains(next.getType())) {
-                            //System.out.println("checking top block: " + next.getRelative(BlockFace.UP).getType().name() + " valid? " + passThrough.contains(next.getRelative(BlockFace.UP).getType()));
                             if (fListener.getPassThrough().contains(next.getRelative(BlockFace.UP).getType())) {
                                 valid = true;
                                 break;
@@ -161,7 +163,7 @@ public class fTimer implements Runnable {
                     if (!valid) {
                         p.getLocation().getBlock().breakNaturally();
                         fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
-                        System.out.println("invalid was: " + invalid);
+                        LOGGER.info("Invalid was: {}", invalid);
                         return;
 
                     }
@@ -333,7 +335,7 @@ public class fTimer implements Runnable {
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
                                     p.updateInventory();
-                                    System.out.println("Debug 1");
+                                    LOGGER.info("Debug 1");
                                     if (en.canEnchantItem(is))
                                     	new BukkitRunnable() {
                         				@Override
@@ -422,7 +424,7 @@ public class fTimer implements Runnable {
 
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
-                                    System.out.println("Debug 3");
+                                    LOGGER.info("Debug 3");
                                     p.updateInventory();
                                     if (en.canEnchantItem(is))
                                     	new BukkitRunnable() {

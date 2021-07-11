@@ -20,6 +20,8 @@ import me.dniym.utils.NBTStuff;
 import me.dniym.utils.SlimefunCompat;
 import me.dniym.utils.SpigMethods;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -169,6 +171,8 @@ public class fListener implements Listener {
 
 	private static int hasPassengers = -1;
 
+	private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + fListener.class.getSimpleName());
+
 	public fListener(IllegalStack plugin) {
 		this.plugin = plugin;
 		fListener.setInstance(this);
@@ -176,12 +180,12 @@ public class fListener implements Listener {
 		String ver = IllegalStack.getVersion().toLowerCase();
 
 		if (ver.equalsIgnoreCase("v1_13_R2"))  {
-			System.out.println("WARNING:  using 1.13.2 with IllegalStack creates a issue with placed shulkers..  Placed/Dispensed blocks will NOT be checked for Overstacked Items or Illegal Enchants!");
+			LOGGER.warn("Using 1.13.2 with IllegalStack creates a issue with placed shulkers..  Placed/Dispensed blocks will NOT be checked for Overstacked Items or Illegal Enchants!");
 			IllegalStack.setDisablePaperShulkerCheck(true);
 		}
 
 		if (ver.equalsIgnoreCase("v1_13_R1"))
-			System.out.println("[IllegalStack] - WARNING you are running a very unstable server version, if you wish to run 1.13, please use 1.13.2 otherwise protections can not be guaranteed!");
+			LOGGER.warn("You are running a very unstable server version, if you wish to run 1.13, please use 1.13.2 otherwise protections can not be guaranteed!");
 
 		if (ver.equalsIgnoreCase("v1_13_R2"))
 			setIs113(true);
@@ -274,7 +278,7 @@ public class fListener implements Listener {
 		
 		if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17")) {
 			if (ver.contains("v1_13")) {
-				System.out.println("[Illegal Stack] - MC Version 1.13 detected!");
+				LOGGER.info("MC Version 1.13 detected!");
 
 				blacklist.addAll(Tag.CARPETS.getValues());
 				blacklist.add(Material.matchMaterial("RAIL"));
@@ -284,7 +288,7 @@ public class fListener implements Listener {
 				pistonCheck.add(Material.matchMaterial("MOVING_PISTON"));
 				book = Material.WRITABLE_BOOK;
 			} else {
-				System.out.println("[Illegal Stack] - MC Version < 1.13 detected!");
+				LOGGER.info("MC Version < 1.13 detected!");
 				blacklist.add(Material.matchMaterial("POWERED_RAIL"));
 				blacklist.add(Material.matchMaterial("DETECTOR_RAIL"));
 				blacklist.add(Material.matchMaterial("ACTIVATOR_RAIL"));
@@ -301,7 +305,7 @@ public class fListener implements Listener {
 			}
 			blacklist.add(Material.DETECTOR_RAIL);
 		} else {
-			System.out.println("[Illegal Stack] - MC Version " + ver + " detected!");
+			LOGGER.info("MC Version {} detected!", ver);
 			pistonCheck.add(Material.PISTON);
 			pistonCheck.add(Material.MOVING_PISTON);
 			blacklist.add(Material.RAIL);
@@ -579,7 +583,7 @@ public class fListener implements Listener {
 			if(e.getMount().getLocation().getBlock().getRelative(BlockFace.UP).getType().isSolid() 
 					&& IllegalStackAction.isCompleted(Protections.PreventHeadInsideBlock, e.getMount(),driver,e.getMount().getLocation().getBlock().getRelative(BlockFace.UP))) {
 				fListener.getLog().append(Msg.HeadInsideSolidBlock.getValue(driver, e.getMount()),Protections.PreventHeadInsideBlock);
-				System.out.println("[IllegalStack] Debug: block above was: " + e.getMount().getLocation().getBlock().getRelative(BlockFace.UP).getType().name());
+				LOGGER.info("Debug: block above was: {}", e.getMount().getLocation().getBlock().getRelative(BlockFace.UP).getType().name());
 				e.getMount().eject();
 				e.getMount().remove();
 			} 
@@ -845,7 +849,7 @@ public class fListener implements Listener {
 		if (Protections.BlockLoopedDroppers.isEnabled() && e.getSource().getHolder() instanceof Hopper && e.getItem().getType().getMaxStackSize() <= 1) {
 			if (!NBTStuff.hasSpigotNBT() && !IllegalStack.isNbtAPI()) {
 				Protections.BlockLoopedDroppers.setEnabled(false);
-				System.out.println("[IllegalStack] - WARNING, Protection BlockLoopedDroppers was enabled, however NBT API 2.0+ was not detected on the server, this protection requires NBTApi (https://www.spigotmc.org/resources/nbt-api.7939/) if you are running spigot < 1.13 to function so it has been automatically disabled.");
+				LOGGER.warn("Protection BlockLoopedDroppers was enabled, however NBT API 2.0+ was not detected on the server, this protection requires NBTApi (https://www.spigotmc.org/resources/nbt-api.7939/) if you are running spigot < 1.13 to function so it has been automatically disabled.");
 				return;
 			}
 
@@ -1038,7 +1042,6 @@ public class fListener implements Listener {
 
 
 			if (Protections.FixIllegalEnchantmentLevels.isThirdPartyInventory(e.getView())) {
-				//	System.out.println("Third party inventory, skipping");
 				return;
 			} 
 
@@ -1503,8 +1506,7 @@ public class fListener implements Listener {
 						e.getEntity().setVelocity(v);
 						if (Protections.NotifyBlockedPortalAttempts.isEnabled()) {
 							getLog().append(Msg.NetherPortalBlock.getValue(e.getEntity().getLocation(), e.getEntity().getName()), Protections.BlockNonPlayersInNetherPortal);
-							System.out.println("Nether Portal Blocked Item: " + e.getEntity().getType().name() + " leaving world: " + e.getFrom().getWorld().getName() + " entering: " + e.getTo().getWorld().getName() + " is world whitelisted? " +
-							Protections.DisableInWorlds.isWhitelisted(e.getTo().getWorld().getName()) + " whitelist = " + whiteLiString);
+							LOGGER.warn("Nether Portal Blocked Item: {} leaving world: {} entering: {} is world {} whitelisted? whitelist = {}",e.getEntity().getType().name(), e.getFrom().getWorld().getName(), e.getTo().getWorld().getName(), Protections.DisableInWorlds.isWhitelisted(e.getTo().getWorld().getName()), whiteLiString);
 						}
 					}
 				}
@@ -2085,7 +2087,7 @@ public class fListener implements Listener {
 			for (BlockState b : event.getBlocks()) {
 				if (unbreakable.contains(b.getType())) {
 				//Blocking breaking of unbreakable blocks.
-					System.out.println("Portal tried to break an unbreakable block: " + b.getType().name());
+					LOGGER.info("Portal tried to break an unbreakable block: {}", b.getType().name());
 				event.setCancelled(true);
 				break;
 				}
@@ -2164,7 +2166,6 @@ public class fListener implements Listener {
 
 					if (System.currentTimeMillis() >= spamCheck.get(p)) {
 						spamCheck.put(p, System.currentTimeMillis() + 15000);
-						//System.out.println("[IllegalStack] - It appears " + p.getName() + " is attempting to spam click dupe @" + p.getLocation().toString());
 						p.closeInventory();
 					}
 				}
@@ -2180,7 +2181,7 @@ public class fListener implements Listener {
 
 				if (Protections.RemoveOverstackedItems.isEnabled())//I think all checks probably need to be moved to their own classes
 					if(OverstackedItemCheck.CheckContainer(e.getCursor(), e.getInventory())) {
-						System.out.println("result = " + e.getResult().name() + " SLOT IS: " + e.getSlot());
+						LOGGER.info("result = {} SLOT IS {}", e.getResult().name(), e.getSlot());
 
 						e.setResult(Result.DENY);
 					}
@@ -2228,9 +2229,7 @@ public class fListener implements Listener {
 				for (int i = 0; i < 5; i++) {
 					for (BlockFace face : fListener.getFaces()) {
 						Block next = exit.getRelative(face);
-						//System.out.println("checking bottom block: " + next.getType().name() + " valid? " + passThrough.contains(next.getType()));
 						if (getPassThrough().contains(next.getType())) {
-							//System.out.println("checking top block: " + next.getRelative(BlockFace.UP).getType().name() + " valid? " + passThrough.contains(next.getRelative(BlockFace.UP).getType()));
 							if (getPassThrough().contains(next.getRelative(BlockFace.UP).getType())) {
 								valid = true;
 								break;
@@ -2909,7 +2908,7 @@ public class fListener implements Listener {
 				if (kickMode)
 					if (fa.getSameSpotCount() >= threshold) {
 						message = Msg.PlayerKickMsgFishMod.getValue();
-						System.out.println(Msg.PluginPrefix.getValue() + " - Kicked " + e.getPlayer().getName() + " for suspected fishing mod, warning issued last attempt.");
+						LOGGER.info(" - Kicked {} for suspected fishing mod, warning issued last attempt.", e.getPlayer().getName());
 						shouldKick = true;
 						fa.reset();
 					} else {
@@ -2973,10 +2972,8 @@ public class fListener implements Listener {
 		if (Protections.DisableInWorlds.isWhitelisted(e.getEntity().getWorld().getName()))
 			return;
 		Block bLoc = e.getEntity().getLocation().getBlock();
-		//		System.out.println("bLoc " + e.getEntityType().name() + " " + bLoc.getLocation().toString() + " movedTNT: " + movedTNT.size());
 		HashSet<Block> expired = new HashSet<>();
 		for (Block b : movedTNT.keySet()) {
-			//		System.out.println("b " + b.getLocation().toString());
 			if (b.equals(bLoc)) {
 				if (b.isBlockIndirectlyPowered())
 					e.setCancelled(true);
@@ -3013,7 +3010,7 @@ public class fListener implements Listener {
 							horse.setCarryingChest(false);
 							e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
 							getLog().append2(Msg.ChestRemoved.getValue(e.getPlayer(), horse));
-							System.out.println(ChatColor.RED + "[IllegalStack] WARNING:  Protocollib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
+							LOGGER.warn("ProtocolLib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 							punishPlayer(e.getPlayer(), e.getRightClicked());
 						} else {
 							e.setCancelled(true);
@@ -3043,7 +3040,7 @@ public class fListener implements Listener {
 							e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
 							getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
 							horse.setCarryingChest(false);
-							System.out.println(ChatColor.RED + "[IllegalStack] WARNING:  Protocollib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
+							LOGGER.warn("ProtocolLib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 							punishPlayer(e.getPlayer(), e.getRightClicked());
 						}
 
@@ -3280,7 +3277,6 @@ public class fListener implements Listener {
 			eo.setCost(ThreadLocalRandom.current().nextInt(min, min + 5));
 			newOffers[i] = eo;
 			//debug = debug + " [" + i + "] new: " + eo.getCost() + " old: " + oldCost;
-			//System.out.println("Modified enchantment offer: " + i + " new cost: " + eo.getCost() + " / old cost " + oldCost);
 		}
 		//fListener.getLog().append2("DEBUG: Modified " + modified + " enchantment offers. " + debug);
 		for (int i = 0; i < newOffers.length; i++)

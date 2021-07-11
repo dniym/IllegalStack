@@ -4,8 +4,11 @@ import me.dniym.commands.iStackCommand;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.listeners.*;
+import me.dniym.logging.Logg;
 import me.dniym.timers.fTimer;
 import me.dniym.timers.sTimer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,6 +37,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class IllegalStack extends JavaPlugin {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + IllegalStack.class.getSimpleName());
 
     private static IllegalStack plugin;
     private static Plugin ProCosmetics = null;
@@ -105,15 +110,15 @@ public class IllegalStack extends JavaPlugin {
             Spigot = true;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("[IllegalStack] - Server is NOT spigot, disabling chat components.");
+            LOGGER.info("Server is NOT spigot, disabling chat components.");
         }
 
         if (plugin.getServer().getPluginManager().getPlugin("CMI") != null) {
             CMI = true;
             if (Protections.BlockCMIShulkerStacking.isEnabled())
-                System.out.println("[IllegalStack] - CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
+            LOGGER.info("CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
             else
-                System.out.println("[IllegalStack] - CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
+                LOGGER.info("CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
         }
 
 
@@ -143,7 +148,7 @@ public class IllegalStack extends JavaPlugin {
 		
 		if(fListener.getInstance().isAtLeast114()) {
 			new Listener114(IllegalStack.getPlugin());
-            System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
+            LOGGER.info("ZombieVillagerTransformChance is set to {} *** Only really matters if the difficulty is set to HARD ***", Protections.ZombieVillagerTransformChance.getIntValue() );
         }
 
         if ((fListener.getInstance().getIs116()) || fListener.getInstance().isIs117())
@@ -283,7 +288,7 @@ public class IllegalStack extends JavaPlugin {
         
         	try {
             	Class.forName("com.github.stefvanschie.inventoryframework.Gui");
-            	System.out.println("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
+            	LOGGER.info("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
             	setHasFactionGUI(true);
         	} catch (ClassNotFoundException ignored) {
         }
@@ -305,11 +310,11 @@ public class IllegalStack extends JavaPlugin {
         
         try {
             Class.forName("net.md_5.bungee.api.chat.ComponentBuilder");
-            System.out.println("[IllegalStack] Chat Components found! Enabling clickable commands in /istack");
+            LOGGER.info("Chat Components found! Enabling clickable commands in /istack");
             Spigot = true;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("[IllegalStack] - Spigot chat components NOT found! disabling chat components.");
+            LOGGER.info("Spigot chat components NOT found! disabling chat components.");
         }
         
         try {
@@ -333,26 +338,26 @@ public class IllegalStack extends JavaPlugin {
             blockMetaData = true;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("[IllegalStack] - Spigot chat components NOT found! disabling chat components.");
+            LOGGER.info("Spigot chat components NOT found! disabling chat components.");
         }
 
         if (this.getServer().getPluginManager().getPlugin("CMI") != null) {
             CMI = true;
             if (Protections.BlockCMIShulkerStacking.isEnabled())
-                System.out.println("[IllegalStack] - CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
+                LOGGER.info("CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
             else
-                System.out.println("[IllegalStack] - CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
+                LOGGER.info("CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
         }
 
         if (this.getServer().getPluginManager().getPlugin("ProtocolLib") != null && Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
-            System.out.println("ProtocolLib was detected, creative inventory exploit detection enabled.  NOTE*  This protection ONLY needs to be turned on if you have regular (non op) players with access to /gmc");
+            LOGGER.info("ProtocolLib was detected, creative inventory exploit detection enabled.  NOTE*  This protection ONLY needs to be turned on if you have regular (non op) players with access to /gmc");
             String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             new pLisbListener(this, version);
         }
 
         if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null && Protections.DisableChestsOnMobs.isEnabled()) {
 
-            System.out.println(ChatColor.RED + "WARNING ProtocolLib NOT FOUND!!!! and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
+            LOGGER.warn("ProtocolLib NOT FOUND!!!! and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 
         } else if (Protections.DisableChestsOnMobs.isEnabled()) {
             String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -376,7 +381,7 @@ public class IllegalStack extends JavaPlugin {
 		}
 		if (fListener.getInstance().isAtLeast114()) {
 			new Listener114(this);
-            System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
+            LOGGER.info("ZombieVillagerTransformChance is set to {} *** Only really matters if the difficulty is set to HARD ***", Protections.ZombieVillagerTransformChance.getIntValue());
         }
 
         if (this.getServer().getPluginManager().getPlugin("Magic") != null)
@@ -389,7 +394,7 @@ public class IllegalStack extends JavaPlugin {
 
         setNbtAPI((this.getServer().getPluginManager().getPlugin("NBTAPI") != null));
         if (!isNbtAPI() && Protections.DestroyInvalidShulkers.isEnabled()) {
-            System.out.println("[IllegalStack] - Warning:  DestroyInvalidShulkers protection is turned on but this protection REQUIRES the use of NBTApi 2.0+ please install this plugin if you wish to use this feature: https://www.spigotmc.org/resources/nbt-api.7939/");
+            LOGGER.info("Warning:  DestroyInvalidShulkers protection is turned on but this protection REQUIRES the use of NBTApi 2.0+ please install this plugin if you wish to use this feature: https://www.spigotmc.org/resources/nbt-api.7939/");
         }
         if (this.getServer().getPluginManager().getPlugin("Slimefun") != null) {
             SlimeFun = true;
@@ -520,10 +525,10 @@ public class IllegalStack extends JavaPlugin {
 
         for (String key : added.keySet()) {
             if (added.get(key) == null) {
-                System.out.println("[IllegalStack] - found an old configuration value that is no longer used or not relevant to your server version: " + key + " it has been removed from the config.");
+                LOGGER.info("Found an old configuration value that is no longer used or not relevant to your server version: {} it has been removed from the config.", key);
                 config.set(key, null);
             } else {
-                System.out.println("[IllegalStack] - Found a missing configuration value " + key + " it has been added to the config with the default value of: " + added.get(key));
+                LOGGER.info("Found a missing configuration value {} it has been added to the config with the default value of: {}", key, added.get(key));
                 config.set(key, added.get(key));
                 Protections p = Protections.findByConfig(key);
                 if (p != null && (added.get(key) instanceof Boolean))
@@ -542,8 +547,7 @@ public class IllegalStack extends JavaPlugin {
             } catch (IOException e1) {
 
                 // TODO Auto-generated catch block
-                System.out.println("failed to update config!");
-                e1.printStackTrace();
+                LOGGER.error("Failed to update config!", e1);
             }
         }
     }
@@ -554,10 +558,10 @@ public class IllegalStack extends JavaPlugin {
         try {
             fc.load(conf);
         } catch (FileNotFoundException e) {
-            System.out.println("Creating messages.yml");
+            LOGGER.info("Creating messages.yml");
             for (Msg m : Msg.values()) {
                 if (fc.getString(m.name()) == null) {
-                    System.out.println("Adding default message to messages.yml for: " + m.name());
+                    LOGGER.info("Adding default message to messages.yml for: {}", m.name());
                     fc.set(m.name(), m.getConfigVal());
                 }
             }
@@ -576,7 +580,7 @@ public class IllegalStack extends JavaPlugin {
                 if (m == Msg.PistonHeadRemoval && fc.getString(m.name()).contains("remoging"))
                     fc.set(m.name(), null);
                 if (fc.getString(m.name()) == null) {
-                    System.out.println(m.name() + " Was missing from messages.yml, adding it with the default value");
+                    LOGGER.info(" {} Was missing from messages.yml, adding it with the default value", m.name());
                     fc.set(m.name(), m.getConfigVal());
                     update = true;
 
@@ -602,14 +606,13 @@ public class IllegalStack extends JavaPlugin {
         try {
         	plugin.getConfig().load(conf);
         } catch (FileNotFoundException e) {
-            System.out.println("[IllegalStack]:  Warning Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
+            LOGGER.warn("Warning Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
             FileConfiguration config = this.getConfig();
             try {
                 config.save(conf);
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
-                System.out.println("failed to save config?");
-                e1.printStackTrace();
+                LOGGER.error("failed to save config?", e1);
             }
             writeConfig();
         } catch (IOException | InvalidConfigurationException e) {
@@ -630,7 +633,7 @@ public class IllegalStack extends JavaPlugin {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            System.out.println("[IllegalStack] - You are upgrading from an older version, I apologize but we need to regenerate your Config.yml file.  Your old settings have been saved in /plugins/IllegalStack/config.OLD");
+            LOGGER.info("You are upgrading from an older version, I apologize but we need to regenerate your Config.yml file.  Your old settings have been saved in /plugins/IllegalStack/config.OLD");
             try {
                 conf.createNewFile();
                 writeConfig();
@@ -652,7 +655,7 @@ public class IllegalStack extends JavaPlugin {
             if (!Protections.NetherWhiteListMode.isEnabled())
                 mode = "NOT allowed";
 
-            System.out.println("The following entity's (by name) are " + mode + " to travel through nether portals: " + whitelisted);
+            LOGGER.info("The following entity's (by name) are {} to travel through nether portals: {}", mode, whitelisted);
         }
 
         whitelisted = new StringBuilder();
@@ -663,7 +666,7 @@ public class IllegalStack extends JavaPlugin {
             String mode = "allowed";
             if (!Protections.EndWhiteListMode.isEnabled())
                 mode = "NOT allowed";
-            System.out.println("The following entity's (by name) are " + mode + " to travel through end portals: " + whitelisted);
+            LOGGER.info("The following entity's (by name) are {} to travel through end portals: {}", mode, whitelisted);
         }
 
         whitelisted = new StringBuilder();
@@ -671,19 +674,19 @@ public class IllegalStack extends JavaPlugin {
             whitelisted.append(" ").append(s);
 
         if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + " WARNING: IllegalStack will NOT block but will notify for the following exploits: " + whitelisted);
+            LOGGER.warn("WARNING: IllegalStack will NOT block but will notify for the following exploits: {}", whitelisted);
 
         whitelisted = new StringBuilder();
         for (String s : Protections.DisableInWorlds.getTxtSet()) {//this.getConfig().getStringList("Settings.DisableInWorlds")) {
             World w = this.getServer().getWorld(s);
             if (w == null)
-                System.out.println("[IllegalStack] was told to ignore all checks in the world " + s + " in the configuration but this does not appear to be a loaded world...  Please double check your config.yml!");
+                LOGGER.warn("IllegalStack was told to ignore all checks in the world {} in the configuration but this does not appear to be a loaded world...  Please double check your config.yml!", s);
 
             whitelisted.append(" ").append(s);
 
         }
         if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + " WARNING: IllegalStack will NOT do any exploit checks in the following worlds: " + whitelisted);
+            LOGGER.error("WARNING: IllegalStack will NOT do any exploit checks in the following worlds: {}", whitelisted);
 
         whitelisted = new StringBuilder();
         for (String s : Protections.RemoveItemTypes.getTxtSet()) {
@@ -691,7 +694,7 @@ public class IllegalStack extends JavaPlugin {
             if (s.equalsIgnoreCase("ENCHANTED_GOLDEN_APPLE")) {
                 m = Material.matchMaterial("GOLDEN_APPLE");
                 Protections.RemoveItemTypes.setNukeApples(true);
-                System.out.println("[IllegalStack] - Now removing enchanted golden apples.");
+                LOGGER.info("Now removing enchanted golden apples.");
                 continue;
             } else {
                 m = Material.matchMaterial(s);
@@ -713,14 +716,12 @@ public class IllegalStack extends JavaPlugin {
             	}
             	if(id != -1) 
         			whitelisted.append(s).append(" ");
-        		 else 
-        			System.out.println("[IllegalStack] warning unable to find a material matching: " + s + " make sure it is a valid minecraft material type!");	
-        		
-                
+        		 else
+                    LOGGER.warn("Unable to find a material matching: {} make sure it is a valid minecraft material type!", s);
             }
         }
         if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + "The following materials will be removed from player inventories when found: " + whitelisted);
+            LOGGER.error("The following materials will be removed from player inventories when found: {}", whitelisted);
 
         whitelisted = new StringBuilder();
 
@@ -730,29 +731,29 @@ public class IllegalStack extends JavaPlugin {
             if (m != null)
                 whitelisted.append(s).append(" ");
             else
-                System.out.println("[IllegalStack] warning unable to find a material matching: " + s + " make sure it is a valid minecraft material type!");
+                LOGGER.warn("Unable to find a material matching: {} make sure it is a valid minecraft material type!", s);
 
         }
         if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + "The following materials are allowed to have stacks larger than the vanilla size: " + whitelisted);
+            LOGGER.error("The following materials are allowed to have stacks larger than the vanilla size: {}", whitelisted);
 
         whitelisted = new StringBuilder();
         for (String s : Protections.BookAuthorWhitelist.getTxtSet())
             whitelisted.append(s).append(" ");
         if (whitelisted.length() > 0)
-            System.out.println("[IllegalStack] - The following players may create books that do NOT match the specified charset (change in config!): " + whitelisted);
+            LOGGER.info("The following players may create books that do NOT match the specified charset (change in config!): {}", whitelisted);
 
         whitelisted = new StringBuilder();
         for (String s : Protections.ItemNamesToRemove.getTxtSet())
             whitelisted.append(" ").append(s);
         if (whitelisted.length() > 0)
-            System.out.println("[IllegalStack] - Items matching the following names will be removed from players inventories: " + whitelisted);
+            LOGGER.info("Items matching the following names will be removed from players inventories: {}", whitelisted);
 
         whitelisted = new StringBuilder();
         for (String s : Protections.ItemLoresToRemove.getTxtSet())
             whitelisted.append(" ").append(s);
         if (whitelisted.length() > 0)
-            System.out.println("[IllegalStack] - Items matching the following lore will be removed from players inventories: " + whitelisted);
+            LOGGER.info("Items matching the following lore will be removed from players inventories: {}", whitelisted);
     }
 
     @Override
@@ -783,7 +784,7 @@ public class IllegalStack extends JavaPlugin {
                 {
                     if (config.getString(p.getConfigPath()) == null) {
                         config.set(p.getConfigPath(), p.getDefaultValue());
-                        System.out.println("[IllegalStack] - Found a missing protection from your configuration: " + p.name() + " it has been added with a default value of: " + p.getDefaultValue());
+                        LOGGER.warn("Found a missing protection from your configuration: {} it has been added with a default value of: {}", p.name(), p.getDefaultValue());
                     }
 
                     if (p.isList()) {
@@ -803,13 +804,13 @@ public class IllegalStack extends JavaPlugin {
 
                     if ((p == Protections.DestroyBadSignsonChunkLoad || p == Protections.RemoveExistingGlitchedMinecarts) && p.isEnabled()) {
                         p.setEnabled(false);
-                        System.out.println(ChatColor.RED + "[IllegalStack] - Automatically disabling " + p.getConfigPath() + " this setting should never be left on indefinitely.");
+                        LOGGER.error("Automatically disabling " + p.getConfigPath() + " this setting should never be left on indefinitely.");
                         config.set(p.getConfigPath(), false);
                     }
                 } else {                //not relevant check to see if it should be deleted.
                     if (config.getString(p.getConfigPath()) != null) {
                         config.set(p.getConfigPath(), null);
-                        System.out.println("[IllegalStack] - Found a protection in the config that was not relevant to your server version: " + p.name() + " (" + p.getVersion() + ") it has been removed.");
+                        LOGGER.info("Found a protection in the config that was not relevant to your server version: {} ( {} + ) it has been removed.", p.name(), p.getVersion());
                     }
                 }
             }
@@ -818,8 +819,7 @@ public class IllegalStack extends JavaPlugin {
             config.save(conf);
         } catch (IOException e1) {
 
-            System.out.println("failed to save config?");
-            e1.printStackTrace();
+            LOGGER.error("Failed to save config?", e1);
         }
     }
 

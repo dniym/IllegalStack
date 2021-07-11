@@ -3,6 +3,7 @@ package me.dniym.enums;
 
 
 import me.dniym.IllegalStack;
+import me.dniym.listeners.protListener;
 import me.dniym.utils.MagicHook;
 import me.dniym.utils.NBTStuff;
 import me.jet315.minions.MinionAPI;
@@ -10,6 +11,8 @@ import me.jet315.minions.minions.Minion;
 import me.sat7.dynamicshop.utilities.LangUtil;
 import net.brcdev.shopgui.gui.gui.OpenGui;
 import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -195,6 +198,8 @@ public enum Protections {
     private int catId = 0;
     private boolean relevant = false;
 
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Protections.class.getSimpleName());
+
     Protections(int id, String[] array, String dname, Object ver, String path, String desc, String cmd, int catId, boolean relevant) {
         this.defaultValue = new HashSet<String>();
         for (int i = 0; i < array.length; i++)
@@ -265,7 +270,7 @@ public enum Protections {
             if ((p == Protections.DestroyBadSignsonChunkLoad || p == Protections.RemoveExistingGlitchedMinecarts || p == Protections.CheckGroundForBadShulkerAtLogin)) //p == Protections.CheckGroundForBadHeadsAtLogin ||
                 if (p.enabled) {
 
-                    System.out.println(ChatColor.RED + "[IllegalStack] - WARNING you have the protection " + p.configPath + " set to TRUE in your configuration.  This protection is intended to be a temporary setting and should not be left enabled!  Doing so causes IllegalStack to check all chunks whenever they are loaded which can create un-needed server load, and potentially cause other server issues.");
+                    LOGGER.error("You have the protection {} set to TRUE in your configuration.  This protection is intended to be a temporary setting and should not be left enabled!  Doing so causes IllegalStack to check all chunks whenever they are loaded which can create un-needed server load, and potentially cause other server issues.", p.configPath);
                     IllegalStack.getPlugin().getConfig().set(p.getConfigPath(), false);
 
                 }
@@ -765,7 +770,7 @@ public enum Protections {
                 if (Charset.forName(value.trim()).newEncoder().canEncode(ChatColor.stripColor(value)))
                     return setTxtValue(value.trim(), sender);
                 else
-                    System.out.println("Could not encode? " + value);
+                    LOGGER.error("Could not encode? {}", value);
 
             } catch (IllegalCharsetNameException ex) {
                 sender.sendMessage(ChatColor.RED + "Sorry! " + value + " does not appear to be a valid charset!  For a list of valid character sets please see: https://docs.oracle.com/javase/7/docs/api/java/nio/charset/CharsetEncoder.html");
@@ -882,7 +887,7 @@ public enum Protections {
             }
 
         }
-        System.out.println("[IllegalStack] - Protection " + this.name() + " had no validation steps.. Unable to verify user input report to dNiym.");
+        LOGGER.error("Protection {} had no validation steps.. Unable to verify user input report to dNiym.", this.name());
         return false;
     }
 
@@ -1052,17 +1057,17 @@ public enum Protections {
         for (String s : this.getTxtSet()) {
             String[] val = s.split("\\.");
             if (val.length < 2) {
-                System.out.println("[IllegalStack] - unable to translate an enchantment/level from the " + this.getConfigPath() + " path please check the config.yml!");
+                LOGGER.error("Unable to translate an enchantment/level from the {} path please check the config.yml!", this.getConfigPath());
                 return false;
             }
             Enchantment ench = Enchantment.getByName(val[0]);
             int level = Integer.parseInt(val[1]);
             if (ench == null) {
-                System.out.println("Unable to locate enchantment: " + val[0] + " please check your config.yml at section: " + this.getConfigPath() + " and verify that you are using a valid enchantment.");
+                LOGGER.error("Unable to locate enchantment: {} please check your config.yml at section: {} and verify that you are using a valid enchantment.", val[0], this.getConfigPath());
                 return false;
             }
 
-            if (en != ench) //not a overriden enchantment
+            if (en != ench) //not a overridden enchantment
                 continue;
 
 			//level higher than override.

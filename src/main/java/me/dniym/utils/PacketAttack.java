@@ -6,12 +6,16 @@ package me.dniym.utils;
 
 import com.comphenix.protocol.events.PacketEvent;
 import me.dniym.listeners.fListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
 public class PacketAttack {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + PacketAttack.class.getSimpleName());
 
     private static final HashSet<PacketAttack> attacks = new HashSet<>();
     private final UUID playerid;
@@ -62,7 +66,7 @@ public class PacketAttack {
                 } else if (maxAttempts > 0) {
                     if (this.pAttack.get(attackType) >= maxAttempts) {
                         //player has sent too many invalid packets of a given type.
-                        System.out.println("Player sent too many bad packets of type: " + attackType + " kicking them.");
+                        LOGGER.info("Player sent too many bad packets of type: {} kicking them.", attackType);
                         event.getPlayer().kickPlayer("Too many bad packets detected! " + attackType);
                         return true;
                     }

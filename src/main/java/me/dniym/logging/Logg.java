@@ -10,6 +10,8 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,10 +28,11 @@ public class Logg {
     IllegalStack plugin;
     File file;
     Calendar date;
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Logg.class.getSimpleName());
     
     public Logg(IllegalStack plugin) {
         this.plugin = plugin;
-        //System.out.println(plugin.getDataFolder()+"");
         if (Protections.LogOffensesInSeparateFile.isEnabled())
             file = new File(plugin.getDataFolder() + "/OffenseLog.txt");
         date = Calendar.getInstance();
@@ -52,7 +55,7 @@ public class Logg {
         
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
-                System.out.println(Msg.PluginPrefix.getValue() + ChatColor.stripColor(message));
+                LOGGER.info(message);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
                 bw.append(dateStamp()).append(message).append("\r\n");
                 bw.close();
@@ -60,7 +63,7 @@ public class Logg {
                 e.printStackTrace();
             }
         } else {
-            System.out.println(Msg.PluginPrefix.getValue() + ChatColor.stripColor(message));
+            LOGGER.info(message);
         }
 
         if (Protections.InGameNotifications.isEnabled()) {
@@ -82,7 +85,6 @@ public class Logg {
     
     private String getTeleportLoc(String message) {
         String[] words = message.split("@");
-        //System.out.println("Msg is: " + message);
         String[] coords = words[1].split(" ");
         String position = "";
 
@@ -92,9 +94,9 @@ public class Logg {
             int z = Integer.parseInt(coords[4]);
             position = "/istack teleport " + x + " " + y + " " + z + " " + ChatColor.stripColor(coords[1]);
         } catch (NumberFormatException ex) {
-            System.out.println("Failed to get position");
+            LOGGER.error("Failed to get position");
             for (int i = 0; i < coords.length; i++)
-                System.out.println("Coord: " + i + " " + coords[i]);
+                LOGGER.error("Coord: {} {}", i, coords[i]);
         }
         return position;
     }
@@ -105,14 +107,11 @@ public class Logg {
             String[] words = msg.split(",");
             String[] wld = words[0].split("name=");
 
-            //System.out.println("Message: " + message);
             msg = wld[0].split("@")[0];
 			/*
 			for(int i = 0; i < words.length;i++)
-				System.out.println("words: " + i + " " + words[i]);
-				
+
 			for(int i = 0; i < wld.length;i++)
-				System.out.println("wld: " + i + " " + wld[i]); 
 			*/
 
             String world = wld[1].substring(0, wld[1].indexOf("}"));
@@ -135,7 +134,6 @@ public class Logg {
             String coords = "@ " + ChatColor.AQUA + world + " " + x + " " + y + " " + z;
             //message = message + " @ " + ChatColor.AQUA + world + " " + x + " " + y + " " + z;
             message = message.substring(0, message.indexOf('@')) + " " + coords;
-            //System.out.println("Final msg is:" + message);
         }
         return message;
     }
@@ -183,7 +181,7 @@ public class Logg {
 
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             try {
-                System.out.println(Msg.PluginPrefix.getValue() + " (Notification Only)" + ChatColor.RED + prot.name() + message);
+                LOGGER.info("(Notification Only) {} {}",  prot.name(), message);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
                 bw.append(dateStamp()).append(message).append("\r\n");
                 bw.close();
@@ -191,7 +189,7 @@ public class Logg {
                 e.printStackTrace();
             }
         } else {
-            System.out.println(Msg.PluginPrefix.getValue() + " (Notification Only)" + ChatColor.RESET + message);
+            LOGGER.info("(Notification Only) {}", message);
         }
 
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {

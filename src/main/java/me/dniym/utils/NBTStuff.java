@@ -1,9 +1,13 @@
 package me.dniym.utils;
 
+import com.massivecraft.factions.shade.me.lucko.helper.nbt.NBT;
 import me.dniym.IllegalStack;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.listeners.fListener;
+import me.dniym.timers.fTimer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -22,6 +26,8 @@ import org.bukkit.plugin.Plugin;
 import java.util.HashSet;
 
 public class NBTStuff {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + NBTStuff.class.getSimpleName());
 
     public static ItemStack addNBTTag(ItemStack item, String value, Protections prot) {
         if (hasSpigotNBT()) {
@@ -129,7 +135,7 @@ public class NBTStuff {
 
         if (!IllegalStack.isNbtAPI() && Protections.DestroyInvalidShulkers.isEnabled()) {
             Protections.DestroyInvalidShulkers.setEnabled(false);
-            System.out.println("[IllegalStack] - Warning, Protection DestroyInvalidShulkers was enabled, however NBTAPI 2.0+ was not loaded on this server, this protection will only work if NBTAPI is present and running.   This protection has automatically been disabled. ");
+            LOGGER.warn("Protection DestroyInvalidShulkers was enabled, however NBTAPI 2.0+ was not loaded on this server, this protection will only work if NBTAPI is present and running.   This protection has automatically been disabled. ");
             return 0;
         }
 
@@ -181,10 +187,8 @@ public class NBTStuff {
             StringBuilder attribs = new StringBuilder();
             HashSet<Attribute> toRemove = new HashSet<Attribute>();
             for (Attribute a : im.getAttributeModifiers().keySet()) {
-       //     	System.out.println("Attrib: " + a.name());
                 for (AttributeModifier st : im.getAttributeModifiers(a)) {
                     attribs.append(" ").append(st.getName()).append(" value: ").append(st.getAmount());
-         //           System.out.println(attribs);
                 }
 
                 toRemove.add(a);

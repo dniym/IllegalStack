@@ -8,6 +8,9 @@ import me.dniym.listeners.fListener;
 
 import java.util.ArrayList;
 
+import me.dniym.timers.sTimer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
@@ -23,6 +26,8 @@ import de.tr7zw.nbtapi.NBTListCompound;
 import java.util.List;
 
 public class NBTApiStuff {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + NBTApiStuff.class.getSimpleName());
 
     public static ItemStack checkTimestampLegacy(ItemStack item) {
         //Old backwards compatible version
@@ -67,23 +72,18 @@ public class NBTApiStuff {
 
 
         NBTCompound tag = nbtent.getCompound("Offers");
-        System.out.println("offers-> " + tag.asNBTString() + " - " + tag.getType("Recipes"));
+        LOGGER.info("offers-> {} - {}", tag.asNBTString(), tag.getType("Recipes"));
         for (NBTListCompound s : nbtent.getCompound("Offers").getCompoundList("Recipes")) {
 
             if (s.getInteger("specialPrice") < -8) {
-                System.out.println("Old Price: " + s.getInteger("specialPrice"));
+                LOGGER.info("Old Price: {}", s.getInteger("specialPrice"));
                 s.setInteger("specialPrice", -8);
-                System.out.println("Updated Price " + s.getInteger("specialPrice"));
+                LOGGER.info("Updated Price: {}", s.getInteger("specialPrice"));
             }
         }
 
-        //System.out.println("Tag: " + z);
         //for(NBTListCompound s:nbtent.getCompoundList("Gossips"))
-        //System.out.println("gval: " + s);
         //for(String s:nbtent.getKeys())
-        //System.out.println("Key: " + s);
-        //System.out.println("debug1: " + nbtent.getCompound("minor_positive").asNBTString());
-        //System.out.println("Debug2: " + nbtent.getCompound("minor_positive").getString("type"));
     }
 
     public static boolean hasNbtTagLegacy(ItemStack item, String tag) {
@@ -93,28 +93,19 @@ public class NBTApiStuff {
 
     public static int isBadShulkerLegacy(ItemStack is) {
 		/*	
-		System.out.println("Scanning " + is.getType().name() + " for bad nbt data.");
 		NBTItem nbti2 = new NBTItem(is);
 		for(String key:nbti2.getKeys())
 		{
 			
 			NBTCompoundList nbtList = nbti2.getCompoundList(key);
-			if(nbtList == null)
-				System.out.println("couldn't get a compound list from key: " + key);
-			else {
-				System.out.println("found tag list: " + nbtList.getName() + " " + nbtList.size());
-			}
 			
 			if(nbti2.getType(key) == NBTType.NBTTagList)
 			{
-				System.out.println("Key is: " + key + " Type is: " + nbti2.getType(key));
 				NBTTagList nestedList = nbti2.getObject(key,  NBTTagList.class);
 				if(nestedList != null) {
-					System.out.println("Found a nested tag list " + nestedList.size());
-				
+
 				} else {
 					nbti2.removeKey(key);
-					System.out.println("Removed invalid NBT Tag");
 				}
 			}
 		}
@@ -195,7 +186,7 @@ public class NBTApiStuff {
             if(obj instanceof Player)
             	((Player)obj).getInventory().remove(is);
             else
-            	System.out.println("The object type: " + obj.toString() + " is not accounted for in the legacy NBT Api check.. Please report this to dNiym at the IllegalStack discord or via spigot!");
+            	LOGGER.info("The object type: {} is not accounted for in the legacy NBT Api check.. Please report this to dNiym at the IllegalStack discord or via spigot!", obj.toString() );
             	
             return true;
            
