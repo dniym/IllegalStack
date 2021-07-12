@@ -19,10 +19,11 @@ public class mcMMOListener implements Listener {
         this.plugin = illegalStack;
     }
 
-    public static boolean ismcMMOActive(Player p) {
-        if (mcMMOactive == null)
+    public static boolean ismcMMOActive(Player player) {
+        if (mcMMOactive == null) {
             return false;
-        return mcMMOactive.contains(p.getUniqueId());
+        }
+        return mcMMOactive.contains(player.getUniqueId());
     }
 
     /*
@@ -65,4 +66,5 @@ public class mcMMOListener implements Listener {
     public void onAbilDeactivate(McMMOPlayerAbilityDeactivateEvent e) {
         mcMMOactive.remove(e.getPlayer().getUniqueId());
     }
+
 }

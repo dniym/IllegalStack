@@ -1,56 +1,56 @@
 package me.dniym.events;
+
+import me.dniym.enums.Protections;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import me.dniym.enums.Protections;
-
 public class IllegalStackLogEvent extends Event implements Cancellable {
 
-	private boolean cancelled = false;
-	private static final HandlerList handlers = new HandlerList();
-	private String message = "";
-	private Protections protection = null;
-	
-	public IllegalStackLogEvent(String message, Protections prot) {
-		this.setMessage(message);
-		this.setProtection(prot);
-		
-	}
+    private static final HandlerList handlers = new HandlerList();
+    private boolean cancelled = false;
+    private String message = "";
+    private Protections protection = null;
 
-	@Override
-	public boolean isCancelled() {
-		return cancelled;
-	}
+    public IllegalStackLogEvent(String message, Protections prot) {
+        this.setMessage(message);
+        this.setProtection(prot);
 
-	@Override
-	public void setCancelled(boolean cancel) {
-		cancelled = cancel;
-	}
+    }
 
-	@Override
-	public HandlerList getHandlers() {
-	    return handlers;
-	}
-	 
-	public static HandlerList getHandlerList() {
-	    return handlers;
-	}
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
 
-	public String getMessage() {
-		return message;
-	}
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
 
-	public void setMessage(String message) {
-		this.message = message;
-	}
+    @Override
+    public void setCancelled(boolean cancel) {
+        cancelled = cancel;
+    }
 
-	public Protections getProtection() {
-		return protection;
-	}
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
 
-	public void setProtection(Protections protection) {
-		this.protection = protection;
-	}
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Protections getProtection() {
+        return protection;
+    }
+
+    public void setProtection(Protections protection) {
+        this.protection = protection;
+    }
 
 }

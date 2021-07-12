@@ -9,8 +9,9 @@ import me.dniym.listeners.fListener;
 import me.dniym.listeners.mcMMOListener;
 import me.dniym.utils.NBTStuff;
 import me.dniym.utils.SlimefunCompat;
-import me.dniym.utils.SpigMethods;
-
+import me.dniym.utils.SpigotMethods;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -42,15 +43,16 @@ public class fTimer implements Runnable {
 
     private static final HashMap<FallingBlock, Long> fbTracker = new HashMap<>();
     private static final HashMap<Projectile, Long> projTracker = new HashMap<>();
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + fTimer.class.getSimpleName());
     private static long endScanFinish = 0L;
     private static World dragon = null;
     private static HashMap<Player, Entity> punish = new HashMap<>();
     private final long scanDelay = 1;
     private final IllegalStack plugin;
+    private final boolean is1_8;
     private long nextScan;
     private long longScan;
     private long endScan = 0L;
-    private final boolean is1_8;
 
     public fTimer(IllegalStack illegalStack) {
         this.plugin = illegalStack;
@@ -61,11 +63,11 @@ public class fTimer implements Runnable {
                 .split(",")[3];
         is1_8 = version.equalsIgnoreCase("v1_8_R3") || version.contains("v1_8");
 
-        if (is1_8)
-            System.out.println(
-                    "[IllegalStack] - Minecraft 1.8 detected not checking offhand slot for overstacked items.");
+        if (is1_8) {
+            LOGGER.info("Minecraft 1.8 detected not checking offhand slot for overstacked items.");
+        }
         if (is1_8 || version.equalsIgnoreCase("v1_9_R4") || version.equalsIgnoreCase("v1_10_R2")) {
-            System.out.println("[IllegalStack] version < 1.11 found, not checking for shulker boxes");
+            LOGGER.info("Version < 1.11 found, not checking for shulker boxes");
         }
         this.longScan = System.currentTimeMillis() + 10000L;
     }
@@ -97,11 +99,12 @@ public class fTimer implements Runnable {
     @Override
     public void run() {
 
-        for (Player p : punish.keySet())
+        for (Player p : punish.keySet()) {
             fListener.punishPlayer(p, punish.get(p));
+        }
         punish.clear();
 
-        
+
         if (Protections.BlockNonPlayersInEndPortal.isEnabled() && getDragon() != null && System.currentTimeMillis() > endScan) {
             endScan = System.currentTimeMillis() + 500L;
             if (getDragon().getEnvironment() == Environment.THE_END) {
@@ -111,8 +114,9 @@ public class fTimer implements Runnable {
                     if (l.getBlock().getType() == Material.BEDROCK) //found bottom of portal
                     {
                         for (Entity ent : l.getWorld().getNearbyEntities(l, 3, 2, 3)) {
-                            if (ent instanceof Player)
+                            if (ent instanceof Player) {
                                 continue;
+                            }
 
                             Vector v = ent.getVelocity();
                             v.setY(4);
@@ -126,21 +130,24 @@ public class fTimer implements Runnable {
             }
         }
 
-        if (System.currentTimeMillis() >= getEndScanFinish())
+        if (System.currentTimeMillis() >= getEndScanFinish()) {
             setDragon(null);
+        }
 
         if (Protections.PreventPortalTraps.isEnabled() && System.currentTimeMillis() >= this.longScan) {
             this.longScan = System.currentTimeMillis() + 10000L;
             for (Player p : Bukkit.getOnlinePlayers()) {
                 Block exit = p.getLocation().getBlock();
 
-                if (exit.getType() != fListener.getPortal())
+                if (exit.getType() != fListener.getPortal()) {
                     continue;
+                }
                 String invalid = "";
                 for (BlockFace face : fListener.getFaces()) {
                     exit = exit.getRelative(face);
-                    if (exit.getType() == fListener.getPortal())
+                    if (exit.getType() == fListener.getPortal()) {
                         break;
+                    }
                 }
 
                 boolean valid = false;
@@ -148,9 +155,7 @@ public class fTimer implements Runnable {
                 for (int i = 0; i < 5; i++) {
                     for (BlockFace face : fListener.getFaces()) {
                         Block next = exit.getRelative(face);
-                        //System.out.println("checking bottom block: " + next.getType().name() + " valid? " + passThrough.contains(next.getType()));
                         if (fListener.getPassThrough().contains(next.getType())) {
-                            //System.out.println("checking top block: " + next.getRelative(BlockFace.UP).getType().name() + " valid? " + passThrough.contains(next.getRelative(BlockFace.UP).getType()));
                             if (fListener.getPassThrough().contains(next.getRelative(BlockFace.UP).getType())) {
                                 valid = true;
                                 break;
@@ -161,7 +166,7 @@ public class fTimer implements Runnable {
                     if (!valid) {
                         p.getLocation().getBlock().breakNaturally();
                         fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
-                        System.out.println("invalid was: " + invalid);
+                        LOGGER.info("Invalid was: {}", invalid);
                         return;
 
                     }
@@ -173,16 +178,18 @@ public class fTimer implements Runnable {
             if (Protections.PreventProjectileExploit.isEnabled()) {
                 HashSet<Projectile> removed = new HashSet<>();
                 for (Projectile p : projTracker.keySet()) {
-                    if (p == null || projTracker.get(p) >= System.currentTimeMillis())
+                    if (p == null || projTracker.get(p) >= System.currentTimeMillis()) {
                         removed.add(p);
+                    }
 
                     if (p != null && p.getLocation().getBlock().getType() == Material.BUBBLE_COLUMN) {
                         removed.add(p);
                         p.remove();
                     }
                 }
-                for (Projectile p : removed)
+                for (Projectile p : removed) {
                     projTracker.remove(p);
+                }
             }
 
             if (Protections.PreventVibratingBlocks.isEnabled()) {
@@ -192,37 +199,48 @@ public class fTimer implements Runnable {
                         removed.add(fb);
                     }
 
-                    for (Entity ent : fb.getNearbyEntities(1, 1, 1))
+                    for (Entity ent : fb.getNearbyEntities(1, 1, 1)) {
                         if (ent instanceof Minecart || ent instanceof Boat) {
                             removed.add(fb);
                             fb.remove();
                             ent.remove();
                         }
+                    }
                 }
-                for (FallingBlock fb : removed)
+                for (FallingBlock fb : removed) {
                     fbTracker.remove(fb);
+                }
             }
 
             for (Player p : plugin.getServer().getOnlinePlayers()) {
-                if (SpigMethods.isNPC(p)) continue;
+                if (SpigotMethods.isNPC(p)) {
+                    continue;
+                }
 
                 if (Protections.PreventHeadInsideBlock.isEnabled() && p.getGameMode() == GameMode.SURVIVAL) {
-                	Material type = p.getEyeLocation().getBlock().getType();
-                	if(Protections.AlsoPreventHeadInside.isWhitelisted(type)) {
-                		fListener.getLog().append(Msg.HeadInsideSolidBlock2.getValue(p,p.getEyeLocation().getBlock().getType().name()), Protections.PreventHeadInsideBlock);
-                		p.getEyeLocation().getBlock().breakNaturally();
-                		
-                	}
+                    Material type = p.getEyeLocation().getBlock().getType();
+                    if (Protections.AlsoPreventHeadInside.isWhitelisted(type)) {
+                        fListener.getLog().append(Msg.HeadInsideSolidBlock2.getValue(
+                                p,
+                                p.getEyeLocation().getBlock().getType().name()
+                        ), Protections.PreventHeadInsideBlock);
+                        p.getEyeLocation().getBlock().breakNaturally();
+
+                    }
                 }
                 for (ItemStack is : p.getInventory().getContents()) {
-                    if (Protections.FixNegativeDurability.isEnabled()) 
-                    	NBTStuff.checkForNegativeDurability(is, p);
+                    if (Protections.FixNegativeDurability.isEnabled()) {
+                        NBTStuff.checkForNegativeDurability(is, p);
+                    }
 
                     if (is != null && !p.isOp()) {
                         if (Protections.RemoveItemTypes.isWhitelisted(is)) {
-                            if (Protections.RemoveItemTypes.notifyOnly())
-                                fListener.getLog().notify(Protections.RemoveItemTypes, " Triggered by: " + p.getName() + " with item: " + is.getType().name());
-                            else {
+                            if (Protections.RemoveItemTypes.notifyOnly()) {
+                                fListener.getLog().notify(
+                                        Protections.RemoveItemTypes,
+                                        " Triggered by: " + p.getName() + " with item: " + is.getType().name()
+                                );
+                            } else {
                                 fListener.getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
                                 p.getInventory().remove(is);
                             }
@@ -238,7 +256,8 @@ public class fTimer implements Runnable {
                         }
                     }
 
-                    if (Protections.RemoveItemsMatchingName.isEnabled() && (!Protections.BlockEnchantingInstead.isEnabled() && !Protections.BlockRepairsInstead.isEnabled())) {
+                    if (Protections.RemoveItemsMatchingName.isEnabled() && (!Protections.BlockEnchantingInstead.isEnabled() && !Protections.BlockRepairsInstead
+                            .isEnabled())) {
                         if (is != null && is.hasItemMeta()) {
                             ItemMeta im = is.getItemMeta();
                             for (String ignored : Protections.ItemNamesToRemove.getTxtSet()) {
@@ -262,17 +281,20 @@ public class fTimer implements Runnable {
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 if (!is1_8) {
                     p.getInventory().getItemInOffHand();
-                    if (Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName()))
+                    if (Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName())) {
                         continue;
+                    }
                     ItemStack is = p.getInventory().getItemInOffHand();
-                    if (Protections.FixNegativeDurability.isEnabled()) 
-                    	NBTStuff.checkForNegativeDurability(is, p);
+                    if (Protections.FixNegativeDurability.isEnabled()) {
+                        NBTStuff.checkForNegativeDurability(is, p);
+                    }
                     if (is.getAmount() > is.getMaxStackSize()) {
 
                         if (!Protections.IllegalStackMode.isEnabled())  //in blacklist mode and on the blacklist
                         {
-                            if (!Protections.AllowStack.isWhitelisted(is.getType().name(), p))
+                            if (!Protections.AllowStack.isWhitelisted(is.getType().name(), p)) {
                                 continue;
+                            }
 
                             if (Protections.FixOverstackedItemInstead.isEnabled()) {
                                 is.setAmount(is.getType().getMaxStackSize());
@@ -284,66 +306,87 @@ public class fTimer implements Runnable {
                             continue;
                         }
 
-                        if (Protections.AllowStack.isWhitelisted(is.getType().name(), p))
+                        if (Protections.AllowStack.isWhitelisted(is.getType().name(), p)) {
                             continue;
+                        }
 
-                        if (Protections.AllowStackForGroup.isWhitelisted(is.getType().name()) && p.hasPermission("illegalstack.overstack"))
+                        if (Protections.AllowStackForGroup.isWhitelisted(is.getType().name()) && p.hasPermission(
+                                "illegalstack.overstack")) {
                             continue;
+                        }
 
-                        if (Protections.RemoveOverstackedItems.notifyOnly())
+                        if (Protections.RemoveOverstackedItems.notifyOnly()) {
                             continue;
+                        }
 
                         if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !mcMMOListener.ismcMMOActive(p)) {
                             if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
-                                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p.getWorld().getName())) //isn't in a checked world
+                            {
+                                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p
+                                        .getWorld()
+                                        .getName())) //isn't in a checked world
+                                {
                                     continue;
-                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
+                                }
+                            }
+                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
                                 continue;
+                            }
                             if (is != null && is.getEnchantments().isEmpty()) {
 
                                 HashSet<Enchantment> replace = new HashSet<>();
-                                for (Enchantment en : is.getEnchantments().keySet())
+                                for (Enchantment en : is.getEnchantments().keySet()) {
                                     if (is.getEnchantmentLevel(en) > en.getMaxLevel()) {
 
-                                        if (SlimefunCompat.isValid(is, en))
+                                        if (SlimefunCompat.isValid(is, en)) {
                                             continue;
-                                        if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER)
+                                        }
+                                        if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER) {
                                             continue;
-                                        if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is.getEnchantmentLevel(en) == 4341))
+                                        }
+                                        if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is
+                                                .getEnchantmentLevel(en) == 4341)) {
                                             continue;
-                                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is))
+                                        }
+                                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                             break;
-                                        if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
+                                        }
+                                        if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en))) {
                                             continue;
+                                        }
                                         fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
                                         replace.add(en);
 
                                     } else {
                                         if (!en.canEnchantItem(is)) {
-                                            if (Protections.EnchantedItemWhitelist.isWhitelisted(is))
+                                            if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                                 continue;
-                                            if (SlimefunCompat.isValid(is, en))
+                                            }
+                                            if (SlimefunCompat.isValid(is, en)) {
                                                 continue;
+                                            }
 
                                             replace.add(en);
                                             fListener.getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
                                         }
                                     }
+                                }
 
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
                                     p.updateInventory();
-                                    System.out.println("Debug 1");
-                                    if (en.canEnchantItem(is))
-                                    	new BukkitRunnable() {
-                        				@Override
-                        				public void run() {
-                        					is.addEnchantment(en, en.getMaxLevel());
-                        				}
+                                    LOGGER.info("Debug 1");
+                                    if (en.canEnchantItem(is)) {
+                                        new BukkitRunnable() {
+                                            @Override
+                                            public void run() {
+                                                is.addEnchantment(en, en.getMaxLevel());
+                                            }
 
-                        			}.runTaskLater(this.plugin, 1);
+                                        }.runTaskLater(this.plugin, 1);
+                                    }
 
-                                        
+
                                 }
                             }
 
@@ -359,14 +402,16 @@ public class fTimer implements Runnable {
                     }
                 }
 
-                for (ItemStack is : p.getInventory().getArmorContents())
+                for (ItemStack is : p.getInventory().getArmorContents()) {
                     if (is != null && is.getAmount() > is.getMaxStackSize()) {
-                        if (Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName()))
+                        if (Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName())) {
                             continue;
+                        }
                         if (!Protections.IllegalStackMode.isEnabled())  //in blacklist mode and on the blacklist
                         {
-                            if (!Protections.AllowStack.isWhitelisted(is.getType().name(), p))
+                            if (!Protections.AllowStack.isWhitelisted(is.getType().name(), p)) {
                                 continue;
+                            }
                             if (Protections.FixOverstackedItemInstead.isEnabled()) {
                                 is.setAmount(is.getType().getMaxStackSize());
                                 fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
@@ -377,62 +422,81 @@ public class fTimer implements Runnable {
                             continue;
                         }
 
-                        if (Protections.AllowStack.isWhitelisted(is.getType().name(), p))
+                        if (Protections.AllowStack.isWhitelisted(is.getType().name(), p)) {
                             continue;
+                        }
 
-                        if (Protections.RemoveOverstackedItems.notifyOnly())
+                        if (Protections.RemoveOverstackedItems.notifyOnly()) {
                             continue;
+                        }
 
                         if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !mcMMOListener.ismcMMOActive(p)) {
                             if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
-                                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p.getWorld().getName())) //isn't in a checked world
+                            {
+                                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p
+                                        .getWorld()
+                                        .getName())) //isn't in a checked world
+                                {
                                     continue;
+                                }
+                            }
 
-                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
+                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
                                 continue;
+                            }
 
                             if (is != null && is.getEnchantments().isEmpty()) {
                                 HashSet<Enchantment> replace = new HashSet<>();
-                                for (Enchantment en : is.getEnchantments().keySet())
+                                for (Enchantment en : is.getEnchantments().keySet()) {
                                     if (is.getEnchantmentLevel(en) > en.getMaxLevel()) {
 
-                                        if (SlimefunCompat.isValid(is, en))
+                                        if (SlimefunCompat.isValid(is, en)) {
                                             continue;
-                                        if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER)
+                                        }
+                                        if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER) {
                                             continue;
-                                        if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is.getEnchantmentLevel(en) == 4341))
+                                        }
+                                        if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is
+                                                .getEnchantmentLevel(en) == 4341)) {
                                             continue;
-                                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is))
+                                        }
+                                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                             break;
-                                        if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
+                                        }
+                                        if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en))) {
                                             continue;
+                                        }
                                         fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
                                         replace.add(en);
                                     } else {
                                         if (!en.canEnchantItem(is)) {
-                                            if (Protections.EnchantedItemWhitelist.isWhitelisted(is))
+                                            if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                                 continue;
-                                            if (SlimefunCompat.isValid(is, en))
+                                            }
+                                            if (SlimefunCompat.isValid(is, en)) {
                                                 continue;
+                                            }
 
                                             replace.add(en);
                                             fListener.getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
                                         }
                                     }
+                                }
 
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
-                                    System.out.println("Debug 3");
+                                    LOGGER.info("Debug 3");
                                     p.updateInventory();
-                                    if (en.canEnchantItem(is))
-                                    	new BukkitRunnable() {
-                        				@Override
-                        				public void run() {
-                        					is.addEnchantment(en, en.getMaxLevel());
-                        				}
+                                    if (en.canEnchantItem(is)) {
+                                        new BukkitRunnable() {
+                                            @Override
+                                            public void run() {
+                                                is.addEnchantment(en, en.getMaxLevel());
+                                            }
 
-                        			}.runTaskLater(this.plugin, 1);
-                                        
+                                        }.runTaskLater(this.plugin, 1);
+                                    }
+
                                 }
                             }
                         }
@@ -446,13 +510,15 @@ public class fTimer implements Runnable {
                             p.getInventory().remove(is);
                         }
                     }
+                }
 
                 for (ItemStack is : p.getInventory().getContents()) {
 
-                    if (is == null || Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName()))
+                    if (is == null || Protections.DisableInWorlds.getTxtSet().contains(p.getWorld().getName())) {
                         continue;
+                    }
                     if (Protections.FixNegativeDurability.isEnabled()) {
-                    	NBTStuff.checkForNegativeDurability(is, p);
+                        NBTStuff.checkForNegativeDurability(is, p);
                     }
                     if (is.hasItemMeta()) {
                         ItemMeta im = is.getItemMeta();
@@ -460,8 +526,9 @@ public class fTimer implements Runnable {
                         if (Protections.RemoveUnbreakableFlag.isEnabled() && IllegalStack.hasUnbreakable()) {
 
                             if (im.isUnbreakable()) {
-                                if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
+                                if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
                                     continue;
+                                }
                                 fListener.getLog().append2(Msg.UnbreakableItemCleared.getValue(p, is));
                                 im.setUnbreakable(false);
                                 is.setItemMeta(im);
@@ -469,18 +536,20 @@ public class fTimer implements Runnable {
                             }
                         }
 
-                        
+
                         if (Protections.RemoveCustomAttributes.isEnabled()) {
 
-                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
+                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
                                 continue;
+                            }
                             //NBTStuff.checkForBadCustomData(is, p, false);
                             BadAttributeCheck.checkForBadCustomData(is, p);
                         }
 
                         if (Protections.PreventInvalidPotions.isEnabled() && im instanceof PotionMeta) {
-                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
+                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
                                 continue;
+                            }
 
                             if (IllegalStack.isHasMCMMO()) {
                                 if (NBTStuff.hasNbtTag("IllegalStack", is, "mcmmoitem", Protections.PreventInvalidPotions)) {
@@ -489,15 +558,20 @@ public class fTimer implements Runnable {
                             }
                             PotionMeta potion = (PotionMeta) is.getItemMeta();
                             PotionData pd = potion.getBasePotionData();
-                            if (pd.getType() == PotionType.UNCRAFTABLE || (potion.hasCustomEffects() && !potion.getCustomEffects().isEmpty())) {
+                            if (pd.getType() == PotionType.UNCRAFTABLE || (potion.hasCustomEffects() && !potion
+                                    .getCustomEffects()
+                                    .isEmpty())) {
 
-                                if (pd.getType() == PotionType.UNCRAFTABLE && potion.getCustomEffects().isEmpty())
+                                if (pd.getType() == PotionType.UNCRAFTABLE && potion.getCustomEffects().isEmpty()) {
                                     continue;
+                                }
 
                                 p.getInventory().remove(is);
                                 StringBuilder efx = new StringBuilder();
-                                for (PotionEffect ce : potion.getCustomEffects())
-                                    efx.append(ce.getType().getName()).append(" amplifier: ").append(ce.getAmplifier()).append(" duration: ").append(ce.getDuration()).append(",");
+                                for (PotionEffect ce : potion.getCustomEffects()) {
+                                    efx.append(ce.getType().getName()).append(" amplifier: ").append(ce.getAmplifier()).append(
+                                            " duration: ").append(ce.getDuration()).append(",");
+                                }
 
                                 fListener.getLog().append2(Msg.InvalidPotionRemoved.getValue(p, efx.toString()));
                             }
@@ -507,58 +581,75 @@ public class fTimer implements Runnable {
 
                     if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !mcMMOListener.ismcMMOActive(p)) {
                         if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
-                            if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p.getWorld().getName())) //isn't in a checked world
+                        {
+                            if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p
+                                    .getWorld()
+                                    .getName())) //isn't in a checked world
+                            {
                                 continue;
-                        
+                            }
+                        }
+
                         if (is != null && is.getEnchantments() != null && !is.getEnchantments().isEmpty()) {
-                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass"))
+                            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
                                 continue;
+                            }
 
 
                             HashSet<Enchantment> replace = new HashSet<>();
-                            for (Enchantment en : is.getEnchantments().keySet())
+                            for (Enchantment en : is.getEnchantments().keySet()) {
                                 if (is.getEnchantmentLevel(en) > en.getMaxLevel()) {
 
-                                    if (SlimefunCompat.isValid(is, en))
+                                    if (SlimefunCompat.isValid(is, en)) {
                                         continue;
-                                    if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER)
+                                    }
+                                    if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER) {
                                         continue;
-                                    if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is.getEnchantmentLevel(en) == 4341))
+                                    }
+                                    if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is
+                                            .getEnchantmentLevel(en) == 4341)) {
                                         continue;
-                                    if (Protections.EnchantedItemWhitelist.isWhitelisted(is))
+                                    }
+                                    if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                         break;
-                                    if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en)))
+                                    }
+                                    if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en))) {
                                         continue;
+                                    }
                                     fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
                                     replace.add(en);
 
                                 } else {
                                     if (!en.canEnchantItem(is)) {
-                                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is))
+                                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                             continue;
-                                        if (SlimefunCompat.isValid(is, en))
+                                        }
+                                        if (SlimefunCompat.isValid(is, en)) {
                                             continue;
+                                        }
                                         replace.add(en);
                                         fListener.getLog().append2(Msg.IllegalEnchantType.getValue(p, is, en));
                                     }
                                 }
+                            }
 
                             for (Enchantment en : replace) {
                                 is.removeEnchantment(en);
                             }
-                            
+
                             p.updateInventory();
                             new BukkitRunnable() {
-                				@Override
-                				public void run() {
-                                    for(Enchantment en: replace) {
-                                        if (en.canEnchantItem(is))
-                        					is.addEnchantment(en, en.getMaxLevel());
-                                        
-                                    }
-                				}
+                                @Override
+                                public void run() {
+                                    for (Enchantment en : replace) {
+                                        if (en.canEnchantItem(is)) {
+                                            is.addEnchantment(en, en.getMaxLevel());
+                                        }
 
-                			}.runTaskLater(this.plugin, 4);
+                                    }
+                                }
+
+                            }.runTaskLater(this.plugin, 4);
 
                         }
                     }
@@ -566,8 +657,9 @@ public class fTimer implements Runnable {
                     if (is != null && is.getAmount() > is.getMaxStackSize()) {
                         if (!Protections.IllegalStackMode.isEnabled())  //in blacklist mode and on the blacklist
                         {
-                            if (!Protections.AllowStack.isWhitelisted(is.getType().name(), p))
+                            if (!Protections.AllowStack.isWhitelisted(is.getType().name(), p)) {
                                 continue;
+                            }
 
                             if (Protections.FixOverstackedItemInstead.isEnabled()) {
                                 is.setAmount(is.getType().getMaxStackSize());
@@ -580,14 +672,18 @@ public class fTimer implements Runnable {
                             }
 
                         }
-                        if (Protections.AllowStack.isWhitelisted(is.getType().name(), p))
+                        if (Protections.AllowStack.isWhitelisted(is.getType().name(), p)) {
                             continue;
+                        }
 
-                        if (Protections.AllowStackForGroup.isWhitelisted(is.getType().name()) && p.hasPermission("illegalstack.overstack"))
+                        if (Protections.AllowStackForGroup.isWhitelisted(is.getType().name()) && p.hasPermission(
+                                "illegalstack.overstack")) {
                             continue;
+                        }
 
-                        if (Protections.RemoveOverstackedItems.notifyOnly())
+                        if (Protections.RemoveOverstackedItems.notifyOnly()) {
                             continue;
+                        }
 
                         if (Protections.FixOverstackedItemInstead.isEnabled()) {
                             fListener.getLog().append2(Msg.IllegalStackShorten.getValue(p, is));
@@ -601,12 +697,13 @@ public class fTimer implements Runnable {
             }
         }
     }
-    
-	public World getDragon() {
+
+    public World getDragon() {
         return dragon;
     }
 
     public static void setDragon(World world) {
         fTimer.dragon = world;
     }
+
 }

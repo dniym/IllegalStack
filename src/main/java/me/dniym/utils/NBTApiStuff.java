@@ -1,13 +1,16 @@
 package me.dniym.utils;
 
 
+import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTCompoundList;
+import de.tr7zw.nbtapi.NBTEntity;
+import de.tr7zw.nbtapi.NBTItem;
+import de.tr7zw.nbtapi.NBTListCompound;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
 import me.dniym.listeners.fListener;
-
-
-import java.util.ArrayList;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
@@ -15,14 +18,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 
-import de.tr7zw.nbtapi.NBTCompound;
-import de.tr7zw.nbtapi.NBTCompoundList;
-import de.tr7zw.nbtapi.NBTEntity;
-import de.tr7zw.nbtapi.NBTItem;
-import de.tr7zw.nbtapi.NBTListCompound;
-import java.util.List;
-
 public class NBTApiStuff {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + NBTApiStuff.class.getSimpleName());
 
     public static ItemStack checkTimestampLegacy(ItemStack item) {
         //Old backwards compatible version
@@ -60,30 +58,23 @@ public class NBTApiStuff {
     public static void getEntityTags(Entity ent) {
 
         NBTEntity nbtent = new NBTEntity(ent);
-        
 
         NamespacedKey key = new NamespacedKey(NamespacedKey.MINECRAFT, "gossips");
         PersistentDataContainer data = ent.getPersistentDataContainer();
 
-
         NBTCompound tag = nbtent.getCompound("Offers");
-        System.out.println("offers-> " + tag.asNBTString() + " - " + tag.getType("Recipes"));
+        LOGGER.info("offers-> {} - {}", tag.asNBTString(), tag.getType("Recipes"));
         for (NBTListCompound s : nbtent.getCompound("Offers").getCompoundList("Recipes")) {
 
             if (s.getInteger("specialPrice") < -8) {
-                System.out.println("Old Price: " + s.getInteger("specialPrice"));
+                LOGGER.info("Old Price: {}", s.getInteger("specialPrice"));
                 s.setInteger("specialPrice", -8);
-                System.out.println("Updated Price " + s.getInteger("specialPrice"));
+                LOGGER.info("Updated Price: {}", s.getInteger("specialPrice"));
             }
         }
 
-        //System.out.println("Tag: " + z);
         //for(NBTListCompound s:nbtent.getCompoundList("Gossips"))
-        //System.out.println("gval: " + s);
         //for(String s:nbtent.getKeys())
-        //System.out.println("Key: " + s);
-        //System.out.println("debug1: " + nbtent.getCompound("minor_positive").asNBTString());
-        //System.out.println("Debug2: " + nbtent.getCompound("minor_positive").getString("type"));
     }
 
     public static boolean hasNbtTagLegacy(ItemStack item, String tag) {
@@ -93,28 +84,19 @@ public class NBTApiStuff {
 
     public static int isBadShulkerLegacy(ItemStack is) {
 		/*	
-		System.out.println("Scanning " + is.getType().name() + " for bad nbt data.");
 		NBTItem nbti2 = new NBTItem(is);
 		for(String key:nbti2.getKeys())
 		{
 			
 			NBTCompoundList nbtList = nbti2.getCompoundList(key);
-			if(nbtList == null)
-				System.out.println("couldn't get a compound list from key: " + key);
-			else {
-				System.out.println("found tag list: " + nbtList.getName() + " " + nbtList.size());
-			}
 			
 			if(nbti2.getType(key) == NBTType.NBTTagList)
 			{
-				System.out.println("Key is: " + key + " Type is: " + nbti2.getType(key));
 				NBTTagList nestedList = nbti2.getObject(key,  NBTTagList.class);
 				if(nestedList != null) {
-					System.out.println("Found a nested tag list " + nestedList.size());
-				
+
 				} else {
 					nbti2.removeKey(key);
-					System.out.println("Removed invalid NBT Tag");
 				}
 			}
 		}
@@ -123,105 +105,110 @@ public class NBTApiStuff {
         if (is.getType().name().contains("SHULKER_BOX")) {
             NBTItem nbti = new NBTItem(is);
             NBTCompound tag = nbti.getCompound("BlockEntityTag");
-            if (tag == null)
+            if (tag == null) {
                 return 0;
+            }
             NBTCompoundList itemTag = tag.getCompoundList("Items");
-            if (itemTag == null)
+            if (itemTag == null) {
                 return 0;
+            }
 
-            if (itemTag.size() > 27)
+            if (itemTag.size() > 27) {
                 return itemTag.size();
+            }
         }
         return 0;
     }
 
     public static void hasBadCustomDataOnArmorLegacy(Player p) {
-    	ItemStack is = p.getInventory().getHelmet();
-    	String slot = "";
-    	if(hasBadCustomDataLegacy(p.getInventory().getBoots())) {
-    		slot = "boots";
-    		p.getInventory().setBoots(new ItemStack(Material.AIR));
-    	} else if(hasBadCustomDataLegacy(p.getInventory().getChestplate())) {
-    		slot = "chestplate";
-    		p.getInventory().setChestplate(new ItemStack(Material.AIR));
-    	} else if(hasBadCustomDataLegacy(p.getInventory().getHelmet())) {
-    		p.getInventory().setHelmet(new ItemStack(Material.AIR));
-    		slot = "helmet";
-    	} else if(hasBadCustomDataLegacy(p.getInventory().getLeggings())) {
-    		p.getInventory().setLeggings(new ItemStack(Material.AIR));
-    		slot = "leggings";
-    	}
-    	
-    	
-    	if(!slot.isEmpty())
-    	{
-    		fListener.getLog().append2(Msg.CustomAttribsRemoved2.getValue(p,is, slot));	
-    	}
-    	
-    	
-    			
-    			
-    		
-    				
+        ItemStack is = p.getInventory().getHelmet();
+        String slot = "";
+        if (hasBadCustomDataLegacy(p.getInventory().getBoots())) {
+            slot = "boots";
+            p.getInventory().setBoots(new ItemStack(Material.AIR));
+        } else if (hasBadCustomDataLegacy(p.getInventory().getChestplate())) {
+            slot = "chestplate";
+            p.getInventory().setChestplate(new ItemStack(Material.AIR));
+        } else if (hasBadCustomDataLegacy(p.getInventory().getHelmet())) {
+            p.getInventory().setHelmet(new ItemStack(Material.AIR));
+            slot = "helmet";
+        } else if (hasBadCustomDataLegacy(p.getInventory().getLeggings())) {
+            p.getInventory().setLeggings(new ItemStack(Material.AIR));
+            slot = "leggings";
+        }
+
+
+        if (!slot.isEmpty()) {
+            fListener.getLog().append2(Msg.CustomAttribsRemoved2.getValue(p, is, slot));
+        }
+
+
     }
-    
+
     public static boolean hasBadCustomDataLegacy(ItemStack is) {
-    	if(is == null)
-    		return false;
-    	
+        if (is == null) {
+            return false;
+        }
+
         NBTItem nbti = new NBTItem(is);
         NBTCompoundList itemTag = nbti.getCompoundList("AttributeModifiers");
-        
+
         return (itemTag != null && itemTag.size() > 0);
-    	
+
     }
+
     public static boolean checkForBadCustomDataLegacy(ItemStack is, Object obj) {
-    	boolean helmet = false;
         NBTItem nbti = new NBTItem(is);
         NBTCompoundList itemTag = nbti.getCompoundList("AttributeModifiers");
         if (itemTag == null) {
             return false;
         }
-        
+
         if (itemTag.size() > 0) {
             itemTag.clear();
             nbti.setObject("AttributeModifiers", itemTag);
-            
-            
+
+
             StringBuilder attribs = new StringBuilder();
             attribs.append("Custom Attribute Data");
-            fListener.getLog().append(Msg.CustomAttribsRemoved3.getValue(is,obj,attribs),Protections.RemoveCustomAttributes);
-            
-            if(obj instanceof Player)
-            	((Player)obj).getInventory().remove(is);
-            else
-            	System.out.println("The object type: " + obj.toString() + " is not accounted for in the legacy NBT Api check.. Please report this to dNiym at the IllegalStack discord or via spigot!");
-            	
+            fListener.getLog().append(Msg.CustomAttribsRemoved3.getValue(is, obj, attribs), Protections.RemoveCustomAttributes);
+
+            if (obj instanceof Player) {
+                ((Player) obj).getInventory().remove(is);
+            } else {
+                LOGGER.info(
+                        "The object type: {} is not accounted for in the legacy NBT Api check.. Please report this to dNiym at the IllegalStack discord or via spigot!",
+                        obj.toString()
+                );
+            }
+
             return true;
-           
+
         }
         return false;
     }
+
     public static void checkForBadCustomDataLegacy(ItemStack is, Player p, boolean sendToPlayer) {
-    	boolean helmet = false;
+        boolean helmet = false;
         NBTItem nbti = new NBTItem(is);
         NBTCompoundList itemTag = nbti.getCompoundList("AttributeModifiers");
         if (itemTag == null) {
             return;
         }
-        
+
         if (itemTag.size() > 0) {
             itemTag.clear();
             nbti.setObject("AttributeModifiers", itemTag);
-            
-            if (sendToPlayer)
+
+            if (sendToPlayer) {
                 p.sendMessage(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
-            else
+            } else {
                 fListener.getLog().append2(Msg.CustomAttribsRemoved.getValue(p, is, "Custom Attribute Data"));
-            
+            }
+
             p.getInventory().remove(is);
-            
-           // p.getInventory().addItem(nbti.getItem());
+
+            // p.getInventory().addItem(nbti.getItem());
         }
     }
 
