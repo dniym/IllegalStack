@@ -222,6 +222,9 @@ public class SpigMethods {
         return newString;
     }
 
+    public static boolean isCitizensNPC (LivingEntity ent) {
+    	return ent.hasMetadata("NPC");
+    }
     public static boolean isNPC(LivingEntity ent) {
 
 

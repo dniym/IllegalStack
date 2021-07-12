@@ -67,7 +67,7 @@ public class pLisbListener {
                         public void onPacketReceiving(PacketEvent event) {
                         		
                         	if(event.getPacket().getIntegers().read(0) <= 0) {
-                        		System.out.println(event.getPlayer().getName() + " tried to interact with entity with an invalid id: " + event.getPacket().getIntegers().read(0) + " if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.");
+//                        		System.out.println(event.getPlayer().getName() + " tried to interact with entity with an invalid id: " + event.getPacket().getIntegers().read(0) + " if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.");
                         		event.setCancelled(true);
                         		return;
                         	}
@@ -84,7 +84,6 @@ public class pLisbListener {
                         					try {
                         					entity=event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
                         					} catch (RuntimeException ex) {
-                        						System.out.println("[IllegalStack] - Async Packet - Couldn't get an entity from id: ");
                         						return;
                         					}
                         					

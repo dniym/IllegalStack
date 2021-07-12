@@ -10,6 +10,7 @@ import me.jet315.minions.minions.Minion;
 import me.sat7.dynamicshop.utilities.LangUtil;
 import net.brcdev.shopgui.gui.gui.OpenGui;
 import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -87,7 +88,7 @@ public enum Protections {
     AllowStackForGroup(6, new String[]{}, "Overstackable Items Per Group", 6, "Exploits.OverStack.GroupStack", "Items added to this list will be allowed for players with the IllegalStack.Overstack permission. (You can add a * here to allow players with this permission to overstack ANY item.", "", 0, false),
     RemoveItemTypes(6, new String[]{}, "Remove items of Type", 6, "Exploits.OverStack.RemoveItemsOfType", "Item types (eg STRUCTURE_BLOCK) added to this list will be removed if found in a players inventory, useful if players on your server have obtained blocks you do not wish for them to have such as Bedrock", "", 0, false),
 
-    FixIllegalEnchantmentLevels(25, false, "Fix Illegal Enchantment Levels", "< 1.17", "Exploits.Enchants.FixIllegalEnchants", "Will correct any enchantment level found that is larger than vanilla minecraft allows.", "", 0, false),
+    FixIllegalEnchantmentLevels(25, false, "Fix Illegal Enchantment Levels", "ALL", "Exploits.Enchants.FixIllegalEnchants", "Will correct any enchantment level found that is larger than vanilla minecraft allows.", "", 0, false),
     CustomEnchantOverride(25, new String[]{}, "Enchantment Override", 25, "Exploits.Enchants.CustomEnchantOverride", "Allows for adjusting of a given enchantments max level.  Meaning if you add Sharpness.10 to this list then only items with sharpness 11 and above will be removed.  *NOTE* this has no other affect on other enchants.", "", 0, false),
     EnchantedItemWhitelist(25, new String[]{}, "Item Whitelist", 25, "Exploits.Enchants.EnchantedItemWhitelist", "Will skip fixing any item exactly matching the type,name and lore.", "", 2, false),
     OnlyFunctionInWorlds(25, new String[]{}, "Worlds To Check", 25, "Exploits.Enchants.OnlyFunctionInWorlds", "Will ONLY check for IllegalEnchantments in the worlds listed, if this list is empty all worlds are checked by default.", "", 2, false),
