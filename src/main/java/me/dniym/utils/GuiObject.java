@@ -6,8 +6,6 @@
  * The great thing about this is you can easily identify YOUR gui and handle events for YOUR gui rather than trying to identify it in a regular listener
  * class by name.
  */
-
-
 package me.dniym.utils;
 
 import org.bukkit.Bukkit;
@@ -25,6 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 
 public class GuiObject implements InventoryHolder, Listener {
+
     private final Inventory inv;
 
     public GuiObject() {
@@ -42,8 +41,18 @@ public class GuiObject implements InventoryHolder, Listener {
 
     // You can call this whenever you want to put the items in or use your existing gui code
     public void initializeItems() {
-        inv.addItem(createGuiItem(Material.DIAMOND_SWORD, "Example Sword", "�aFirst line of the lore", "�bSecond line of the lore"));
-        inv.addItem(createGuiItem(Material.IRON_HELMET, "�bExample Helmet", "�aFirst line of the lore", "�bSecond line of the lore"));
+        inv.addItem(createGuiItem(
+                Material.DIAMOND_SWORD,
+                "Example Sword",
+                "�aFirst line of the lore",
+                "�bSecond line of the lore"
+        ));
+        inv.addItem(createGuiItem(
+                Material.IRON_HELMET,
+                "�bExample Helmet",
+                "�aFirst line of the lore",
+                "�bSecond line of the lore"
+        ));
     }
 
     // Nice little method to create a gui item with a custom name, and description
@@ -71,13 +80,18 @@ public class GuiObject implements InventoryHolder, Listener {
 
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e) {
-        if (e.getInventory().getHolder() != this) return;
+        if (e.getInventory().getHolder() != this) {
+            return;
+        }
         e.setCancelled(true);
         final ItemStack clickedItem = e.getCurrentItem();
         // verify current item is not null
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+            return;
+        }
         final Player p = (Player) e.getWhoClicked();
         // Using slots click is a best option for your inventory click's
         p.sendMessage("You clicked at slot " + e.getRawSlot());
     }
+
 }

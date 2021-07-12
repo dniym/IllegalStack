@@ -11,8 +11,9 @@ public class MagicHook {
 
     public static boolean isMagicItem(ItemStack is) {
 
-        if (magicApi == null)
+        if (magicApi == null) {
             getApi();
+        }
 
         return magicApi.isBrush(is) || magicApi.isSpell(is) || magicApi.isUpgrade(is) || magicApi.isWand(is);
     }
@@ -26,4 +27,5 @@ public class MagicHook {
         magicApi = ((MagicAPI) magicPlugin);
 
     }
+
 }

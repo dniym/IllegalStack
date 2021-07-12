@@ -1,24 +1,25 @@
 package me.dniym;
 
-import me.dniym.commands.iStackCommand;
+import me.dniym.commands.IllegalStackCommand;
 import me.dniym.enums.Msg;
 import me.dniym.enums.Protections;
-import me.dniym.listeners.*;
+import me.dniym.listeners.Listener113;
+import me.dniym.listeners.Listener114;
+import me.dniym.listeners.Listener116;
+import me.dniym.listeners.ProtectionListener;
+import me.dniym.listeners.fListener;
+import me.dniym.listeners.mcMMOListener;
+import me.dniym.listeners.pLisbListener;
 import me.dniym.timers.fTimer;
 import me.dniym.timers.sTimer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -34,6 +35,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class IllegalStack extends JavaPlugin {
+
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + IllegalStack.class.getSimpleName());
 
     private static IllegalStack plugin;
     private static Plugin ProCosmetics = null;
@@ -56,13 +59,12 @@ public class IllegalStack extends JavaPlugin {
     private static boolean hasShulkers = false;
     private static boolean hasElytra = false;
     private static boolean hasMagicPlugin = false;
-    private static boolean isPaper = false;
     private static boolean disablePaperShulkerCheck = false;
     private static boolean hasUnbreakable = false;
     private static boolean hasStorage = false;
     private static boolean hasIds = false;
-    
-    
+
+
     private static String version = "";
     private int ScanTimer = 0;
     private int SignTimer = 0;
@@ -89,8 +91,9 @@ public class IllegalStack extends JavaPlugin {
     }
 
     public static void ReloadConfig(Boolean wasCommand) {
-        if (!wasCommand)
+        if (!wasCommand) {
             IllegalStack.getPlugin().writeConfig();
+        }
 
         IllegalStack.getPlugin().updateConfig();
         IllegalStack.getPlugin().loadConfig();
@@ -105,52 +108,62 @@ public class IllegalStack extends JavaPlugin {
             Spigot = true;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("[IllegalStack] - Server is NOT spigot, disabling chat components.");
+            LOGGER.info("Server is NOT spigot, disabling chat components.");
         }
 
         if (plugin.getServer().getPluginManager().getPlugin("CMI") != null) {
             CMI = true;
-            if (Protections.BlockCMIShulkerStacking.isEnabled())
-                System.out.println("[IllegalStack] - CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
-            else
-                System.out.println("[IllegalStack] - CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
+            if (Protections.BlockCMIShulkerStacking.isEnabled()) {
+                LOGGER.info(
+                        "CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
+            } else {
+                LOGGER.info(
+                        "CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
+            }
         }
 
 
-        if (fListener.getInstance() == null)
+        if (fListener.getInstance() == null) {
             plugin.getServer().getPluginManager().registerEvents(new fListener(plugin), plugin);
+        }
         if (Protections.RemoveOverstackedItems.isEnabled()) {
-            if (plugin.ScanTimer == 0)
+            if (plugin.ScanTimer == 0) {
                 plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new fTimer(plugin), 10, 10);
+            }
 
         } else {
-            if (plugin.ScanTimer != 0)
+            if (plugin.ScanTimer != 0) {
                 plugin.getServer().getScheduler().cancelTask(plugin.ScanTimer);
+            }
         }
 
 
-        
-		if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
-            if (plugin.SignTimer == 0)
+        if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
+            if (plugin.SignTimer == 0) {
                 plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new sTimer(), 10, 10);
+            }
         } else {
-            if (plugin.SignTimer != 0)
+            if (plugin.SignTimer != 0) {
                 plugin.getServer().getScheduler().cancelTask(plugin.SignTimer);
+            }
         }
 
-		if(fListener.getInstance().isAtLeast113()) 
-			new Listener113(IllegalStack.getPlugin());
-		
-		if(fListener.getInstance().isAtLeast114()) {
-			new Listener114(IllegalStack.getPlugin());
-            System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
+        if (fListener.getInstance().isAtLeast113()) {
+            new Listener113(IllegalStack.getPlugin());
         }
 
-        if ((fListener.getInstance().getIs116()) || fListener.getInstance().isIs117())
-        	new Listener116(IllegalStack.getPlugin());
+        if (fListener.getInstance().isAtLeast114()) {
+            new Listener114(IllegalStack.getPlugin());
+            LOGGER.info(
+                    "ZombieVillagerTransformChance is set to {} *** Only really matters if the difficulty is set to HARD ***",
+                    Protections.ZombieVillagerTransformChance.getIntValue()
+            );
+        }
 
+        if ((fListener.getInstance().getIs116()) || fListener.getInstance().isIs117()) {
+            new Listener116(IllegalStack.getPlugin());
+        }
 
-         
 
     }
 
@@ -223,8 +236,9 @@ public class IllegalStack extends JavaPlugin {
     }
 
     public static boolean hasContainers() {
-    	return hasContainers;
+        return hasContainers;
     }
+
     public static boolean hasChestedAnimals() {
         return hasChestedAnimals;
     }
@@ -253,6 +267,68 @@ public class IllegalStack extends JavaPlugin {
         IllegalStack.blockMetaData = blockMetaData;
     }
 
+    public static boolean hasTraders() {
+        return hasTraders;
+    }
+
+    @NotNull
+    public static String getString(String version) {
+        if (version.equalsIgnoreCase("v1_14_R1")) {
+
+            version = IllegalStack.getPlugin().getServer().getVersion().split(" ")[2];
+
+            version = version.replace(")", "");
+            version = version.replace(".", "_");
+            String[] ver = version.split("_");
+            version = "v" + ver[0] + "_" + ver[1] + "_R" + ver[2];
+        }
+        return version;
+    }
+
+    public static boolean hasSmartInv() {
+        return SmartInv;
+    }
+
+    public static void setSmartInv(boolean smartInv) {
+        SmartInv = smartInv;
+    }
+
+    public static boolean hasSavageFac() {
+        return SavageFac;
+    }
+
+    public static void setSavageFac(boolean savageFac) {
+        SavageFac = savageFac;
+    }
+
+    public static boolean hasIds() {
+        return hasIds;
+    }
+
+    public static boolean hasShulkers() {
+        return hasShulkers;
+    }
+
+    public static boolean hasElytra() {
+        return hasElytra;
+    }
+
+    public static boolean hasUnbreakable() {
+        return hasUnbreakable;
+    }
+
+    public static boolean isDisablePaperShulkerCheck() {
+        return disablePaperShulkerCheck;
+    }
+
+    public static void setDisablePaperShulkerCheck(boolean disablePaperShulkerCheck) {
+        IllegalStack.disablePaperShulkerCheck = disablePaperShulkerCheck;
+    }
+
+    public static boolean hasStorage() {
+        return hasStorage;
+    }
+
     @Override
     public void onEnable() {
 
@@ -262,70 +338,70 @@ public class IllegalStack extends JavaPlugin {
         loadConfig();
         updateConfig();
         loadMsgs();
-        this.getCommand("istack").setExecutor(new iStackCommand());
+        this.getCommand("istack").setExecutor(new IllegalStackCommand());
 
         ProCosmetics = this.getServer().getPluginManager().getPlugin("ProCosmetics");
 
-        if (this.getServer().getPluginManager().getPlugin("EpicRename") != null)
+        if (this.getServer().getPluginManager().getPlugin("EpicRename") != null) {
             EpicRename = true;
+        }
 
-        if (this.getServer().getPluginManager().getPlugin("ClueScrolls") != null)
+        if (this.getServer().getPluginManager().getPlugin("ClueScrolls") != null) {
             setClueScrolls(true);
+        }
 
         setHasChestedAnimals();
         setHasContainers();
         setHasTraders();
         setHasShulkers();
         setHasElytra();
-        setIsPaper();
         setHasUnbreakable();
         setHasStorage();
-        
-        	try {
-            	Class.forName("com.github.stefvanschie.inventoryframework.Gui");
-            	System.out.println("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
-            	setHasFactionGUI(true);
-        	} catch (ClassNotFoundException ignored) {
+
+        try {
+            Class.forName("com.github.stefvanschie.inventoryframework.Gui");
+            LOGGER.info("Found a plugin using InventoryFramework, these items will be whitelisted while inside their GUI.");
+            setHasFactionGUI(true);
+        } catch (ClassNotFoundException ignored) {
         }
 
-        
-           ItemStack test = new ItemStack(Material.DIAMOND_AXE, 1);
-           ItemMeta im = test.getItemMeta();
-            
-            try {
-            	im.getAttributeModifiers();
-                setHasAttribAPI(true);
-            
 
-            } catch (NoSuchMethodError e) {
-                setHasAttribAPI(false);
-            
-            }
-        
-        
+        ItemStack test = new ItemStack(Material.DIAMOND_AXE, 1);
+        ItemMeta im = test.getItemMeta();
+
+        try {
+            im.getAttributeModifiers();
+            setHasAttribAPI(true);
+
+
+        } catch (NoSuchMethodError e) {
+            setHasAttribAPI(false);
+
+        }
+
+
         try {
             Class.forName("net.md_5.bungee.api.chat.ComponentBuilder");
-            System.out.println("[IllegalStack] Chat Components found! Enabling clickable commands in /istack");
+            LOGGER.info("Chat Components found! Enabling clickable commands in /istack");
             Spigot = true;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("[IllegalStack] - Spigot chat components NOT found! disabling chat components.");
+            LOGGER.info("Spigot chat components NOT found! disabling chat components.");
         }
-        
+
         try {
-        	if (Class.forName("fr.minuskube.inv.content.InventoryProvider") != null) 
-        		setSavageFac(true);
-        		
-        } catch (ClassNotFoundException e) {
-        	
-        }
-        try {
-        	if (Class.forName("fr.minuskube.inv.SmartInventory") != null) 
-        		setSmartInv(true);
-        
-        	
+            Class.forName("fr.minuskube.inv.content.InventoryProvider");
+            setSavageFac(true);
+
         } catch (ClassNotFoundException ignored) {
-        	
+
+        }
+        try {
+            Class.forName("fr.minuskube.inv.SmartInventory");
+            setSmartInv(true);
+
+        } catch (ClassNotFoundException ignored) {
+
         }
 
         try {
@@ -333,54 +409,73 @@ public class IllegalStack extends JavaPlugin {
             blockMetaData = true;
 
         } catch (ClassNotFoundException e) {
-            System.out.println("[IllegalStack] - Spigot chat components NOT found! disabling chat components.");
+            LOGGER.info("Spigot chat components NOT found! disabling chat components.");
         }
 
         if (this.getServer().getPluginManager().getPlugin("CMI") != null) {
             CMI = true;
-            if (Protections.BlockCMIShulkerStacking.isEnabled())
-                System.out.println("[IllegalStack] - CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
-            else
-                System.out.println("[IllegalStack] - CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
+            if (Protections.BlockCMIShulkerStacking.isEnabled()) {
+                LOGGER.info(
+                        "CMI was detected on your server, IllegalStack will block the ability to nest shulkers while shift+right clicking a shulker in your inventory!");
+            } else {
+                LOGGER.info(
+                        "CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
+            }
         }
 
-        if (this.getServer().getPluginManager().getPlugin("ProtocolLib") != null && Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
-            System.out.println("ProtocolLib was detected, creative inventory exploit detection enabled.  NOTE*  This protection ONLY needs to be turned on if you have regular (non op) players with access to /gmc");
+        if (this
+                .getServer()
+                .getPluginManager()
+                .getPlugin("ProtocolLib") != null && Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
+            LOGGER.info(
+                    "ProtocolLib was detected, creative inventory exploit detection enabled.  NOTE*  This protection ONLY needs to be turned on if you have regular (non op) players with access to /gmc");
             String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-            new pLisbListener(this, version);
+            new pLisbListener(this);
         }
 
         if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null && Protections.DisableChestsOnMobs.isEnabled()) {
 
-            System.out.println(ChatColor.RED + "WARNING ProtocolLib NOT FOUND!!!! and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
+            LOGGER.warn(
+                    "ProtocolLib NOT FOUND!!!! and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 
         } else if (Protections.DisableChestsOnMobs.isEnabled()) {
             String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-            new pLisbListener(this, version);
+            new pLisbListener(this);
             setHasProtocolLib(true);
         }
 
         this.getServer().getPluginManager().registerEvents(new fListener(this), this);
 
-		if (!fListener.is18())
-            this.getServer().getPluginManager().registerEvents(new protListener(this), this);
-
-        if (Protections.RemoveOverstackedItems.isEnabled() || Protections.PreventVibratingBlocks.isEnabled())
-            ScanTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new fTimer(this), Protections.ItemScanTimer.getIntValue(), Protections.ItemScanTimer.getIntValue());
-
-		if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18())
-            SignTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new sTimer(), 10, 10);
-		if ((fListener.getInstance().isAtLeast113()))
-		{
-			new Listener113(this);
-		}
-		if (fListener.getInstance().isAtLeast114()) {
-			new Listener114(this);
-            System.out.println("ZombieVillagerTransformChance is set to " + Protections.ZombieVillagerTransformChance.getIntValue() + " *** Only really matters if the difficulty is set to HARD ***");
+        if (!fListener.is18()) {
+            this.getServer().getPluginManager().registerEvents(new ProtectionListener(this), this);
         }
 
-        if (this.getServer().getPluginManager().getPlugin("Magic") != null)
+        if (Protections.RemoveOverstackedItems.isEnabled() || Protections.PreventVibratingBlocks.isEnabled()) {
+            ScanTimer = getServer().getScheduler().scheduleSyncRepeatingTask(
+                    this,
+                    new fTimer(this),
+                    Protections.ItemScanTimer.getIntValue(),
+                    Protections.ItemScanTimer.getIntValue()
+            );
+        }
+
+        if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
+            SignTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new sTimer(), 10, 10);
+        }
+        if ((fListener.getInstance().isAtLeast113())) {
+            new Listener113(this);
+        }
+        if (fListener.getInstance().isAtLeast114()) {
+            new Listener114(this);
+            LOGGER.info(
+                    "ZombieVillagerTransformChance is set to {} *** Only really matters if the difficulty is set to HARD ***",
+                    Protections.ZombieVillagerTransformChance.getIntValue()
+            );
+        }
+
+        if (this.getServer().getPluginManager().getPlugin("Magic") != null) {
             setHasMagicPlugin(true);
+        }
 
         if (this.getServer().getPluginManager().getPlugin("mcMMO") != null) {
             this.getServer().getPluginManager().registerEvents(new mcMMOListener(this), this);
@@ -389,82 +484,86 @@ public class IllegalStack extends JavaPlugin {
 
         setNbtAPI((this.getServer().getPluginManager().getPlugin("NBTAPI") != null));
         if (!isNbtAPI() && Protections.DestroyInvalidShulkers.isEnabled()) {
-            System.out.println("[IllegalStack] - Warning:  DestroyInvalidShulkers protection is turned on but this protection REQUIRES the use of NBTApi 2.0+ please install this plugin if you wish to use this feature: https://www.spigotmc.org/resources/nbt-api.7939/");
+            LOGGER.info(
+                    "Warning:  DestroyInvalidShulkers protection is turned on but this protection REQUIRES the use of NBTApi 2.0+ please install this plugin if you wish to use this feature: https://www.spigotmc.org/resources/nbt-api.7939/");
         }
         if (this.getServer().getPluginManager().getPlugin("Slimefun") != null) {
             SlimeFun = true;
         }
-        
-        if ((fListener.getInstance().getIs116()))
-        	new Listener116(IllegalStack.getPlugin());
+
+        if ((fListener.getInstance().getIs116())) {
+            new Listener116(IllegalStack.getPlugin());
+        }
     }
 
-    public static boolean hasTraders() {
-    	return hasTraders;
-    }
     private void setHasTraders() {
-    	try {
-    		Class.forName("import org.bukkit.entity.TraderLlama");
-    		hasTraders = true;
-    	} catch (ClassNotFoundException ignored) {
-    		
-    	}
+        try {
+            Class.forName("import org.bukkit.entity.TraderLlama");
+            hasTraders = true;
+        } catch (ClassNotFoundException ignored) {
+
+        }
     }
 
     private void setHasStorage() {
-    	Inventory inv = Bukkit.getServer().createInventory(null, 9);
-    	try {
-    	inv.getStorageContents();
-    	hasStorage = true;
-    	} catch (NoSuchMethodError ignored) { }
+        Inventory inv = Bukkit.getServer().createInventory(null, 9);
+        try {
+            inv.getStorageContents();
+            hasStorage = true;
+        } catch (NoSuchMethodError ignored) {
+        }
     }
+
     private void setHasUnbreakable() {
-    	ItemStack is = new ItemStack(Material.DIRT);
-    	ItemMeta im = is.getItemMeta();
-    	try {
-    		im.setUnbreakable(false);
-    		hasUnbreakable = true;
-    		
-    	} catch (NoSuchMethodError ignored) { }
-    	
-    }
-    private void setHasElytra() {
-    	
-    	Material m = Material.matchMaterial("Elytra");
-    	if(m != null)
-    		hasElytra = true;
+        ItemStack is = new ItemStack(Material.DIRT);
+        ItemMeta im = is.getItemMeta();
+        try {
+            im.setUnbreakable(false);
+            hasUnbreakable = true;
+
+        } catch (NoSuchMethodError ignored) {
+        }
 
     }
-    private void setIsPaper() {
-    	try {
-    		isPaper = Class.forName("com.destroystokyo.paper.VersionHistoryManager$VersionData") != null;
-    	} catch (ClassNotFoundException ignored) { }
+
+    private void setHasElytra() {
+
+        Material m = Material.matchMaterial("Elytra");
+        if (m != null) {
+            hasElytra = true;
+        }
+
     }
+
     private void setHasIds() {
-    	ItemStack is = new ItemStack(Material.BEDROCK);
-    	try {
-    		is.getType().getId();
-    		hasIds = true;
-    	} catch (IllegalArgumentException ignored) { }
+        ItemStack is = new ItemStack(Material.BEDROCK);
+        try {
+            is.getType().getId();
+            hasIds = true;
+        } catch (IllegalArgumentException ignored) {
+        }
     }
+
     private void setHasShulkers() {
-    	try {
-    		
-    		Class.forName("org.bukkit.block.ShulkerBox");
-    		hasShulkers=true;
-    	} catch (ClassNotFoundException ignored) {
-    		
-    	}
+        try {
+
+            Class.forName("org.bukkit.block.ShulkerBox");
+            hasShulkers = true;
+        } catch (ClassNotFoundException ignored) {
+
+        }
     }
+
     private void setHasContainers() {
-    	try {
-    		Class.forName("org.bukkit.block.Container");
-    		hasContainers = true;
-    		
-    	} catch (ClassNotFoundException ignored) {
-    		
-    	}
+        try {
+            Class.forName("org.bukkit.block.Container");
+            hasContainers = true;
+
+        } catch (ClassNotFoundException ignored) {
+
+        }
     }
+
     private void setHasChestedAnimals() {
 
         try {
@@ -475,13 +574,14 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void updateConfig() {
-    	File conf = new File(getDataFolder(), "config.yml");
+        File conf = new File(getDataFolder(), "config.yml");
         FileConfiguration config = this.getConfig();
         HashMap<String, Object> added = new HashMap<>();
 
         for (Protections p : Protections.values()) {
-            if (!p.getCommand().isEmpty())
+            if (!p.getCommand().isEmpty()) {
                 continue;
+            }
             if (p.isRelevantToVersion(getVersion())) {
                 if (config.getString(p.getConfigPath()) == null) {
                     if (p.getConfigValue() instanceof Boolean) {
@@ -489,7 +589,7 @@ public class IllegalStack extends JavaPlugin {
                     }
                     added.put(p.getConfigPath(), p.getDefaultValue());
                 }
-                for (Protections child : p.getChildren())
+                for (Protections child : p.getChildren()) {
                     if (config.getString(child.getConfigPath()) == null) {
 
                         if (child.getConfigValue() instanceof Boolean) {
@@ -497,6 +597,7 @@ public class IllegalStack extends JavaPlugin {
                         }
                         added.put(child.getConfigPath(), child.getDefaultValue());
                     }
+                }
             } else if (config.getString(p.getConfigPath()) != null) {
                 if (p.getVersion().isEmpty()) //handling a child node
                 {
@@ -506,30 +607,42 @@ public class IllegalStack extends JavaPlugin {
                     }
                 } else {
                     added.put(p.getConfigPath(), null);
-                    for (Protections child : p.getChildren())
+                    for (Protections child : p.getChildren()) {
                         added.put(child.getConfigPath(), null);
+                    }
                 }
             }
         }
 
         boolean updated = false;
-        if (config.getString("UserRequested.Obscure.HackedShulker.RemoveOnChunkLoad") != null)
+        if (config.getString("UserRequested.Obscure.HackedShulker.RemoveOnChunkLoad") != null) {
             config.set("UserRequested.Obscure.HackedShulker.RemoveOnChunkLoad", null);
-        if (config.getString("Exploits.Enchants.AllowOpBypass") != null)
+        }
+        if (config.getString("Exploits.Enchants.AllowOpBypass") != null) {
             config.set("Exploits.Enchants.AllowOpBypass", null);
+        }
 
         for (String key : added.keySet()) {
             if (added.get(key) == null) {
-                System.out.println("[IllegalStack] - found an old configuration value that is no longer used or not relevant to your server version: " + key + " it has been removed from the config.");
+                LOGGER.info(
+                        "Found an old configuration value that is no longer used or not relevant to your server version: {} it has been removed from the config.",
+                        key
+                );
                 config.set(key, null);
             } else {
-                System.out.println("[IllegalStack] - Found a missing configuration value " + key + " it has been added to the config with the default value of: " + added.get(key));
+                LOGGER.info(
+                        "Found a missing configuration value {} it has been added to the config with the default value of: {}",
+                        key,
+                        added.get(key)
+                );
                 config.set(key, added.get(key));
                 Protections p = Protections.findByConfig(key);
-                if (p != null && (added.get(key) instanceof Boolean))
+                if (p != null && (added.get(key) instanceof Boolean)) {
                     p.setEnabled((Boolean) added.get(key));
-                if (p == Protections.AlsoPreventHeadInside && Material.matchMaterial("COMPOSTER") != null)
-                	Protections.AlsoPreventHeadInside.addTxtSet("COMPOSTER", null);
+                }
+                if (p == Protections.AlsoPreventHeadInside && Material.matchMaterial("COMPOSTER") != null) {
+                    Protections.AlsoPreventHeadInside.addTxtSet("COMPOSTER", null);
+                }
 
 
             }
@@ -542,22 +655,21 @@ public class IllegalStack extends JavaPlugin {
             } catch (IOException e1) {
 
                 // TODO Auto-generated catch block
-                System.out.println("failed to update config!");
-                e1.printStackTrace();
+                LOGGER.error("Failed to update config!", e1);
             }
         }
     }
 
     private void loadMsgs() {
-    	File conf = new File(getDataFolder(), "messages.yml");
+        File conf = new File(getDataFolder(), "messages.yml");
         YamlConfiguration fc = new YamlConfiguration();
         try {
             fc.load(conf);
         } catch (FileNotFoundException e) {
-            System.out.println("Creating messages.yml");
+            LOGGER.info("Creating messages.yml");
             for (Msg m : Msg.values()) {
                 if (fc.getString(m.name()) == null) {
-                    System.out.println("Adding default message to messages.yml for: " + m.name());
+                    LOGGER.info("Adding default message to messages.yml for: {}", m.name());
                     fc.set(m.name(), m.getConfigVal());
                 }
             }
@@ -573,10 +685,11 @@ public class IllegalStack extends JavaPlugin {
         if (fc != null) {
             boolean update = false;
             for (Msg m : Msg.values()) {
-                if (m == Msg.PistonHeadRemoval && fc.getString(m.name()).contains("remoging"))
+                if (m == Msg.PistonHeadRemoval && fc.getString(m.name()).contains("remoging")) {
                     fc.set(m.name(), null);
+                }
                 if (fc.getString(m.name()) == null) {
-                    System.out.println(m.name() + " Was missing from messages.yml, adding it with the default value");
+                    LOGGER.info(" {} Was missing from messages.yml, adding it with the default value", m.name());
                     fc.set(m.name(), m.getConfigVal());
                     update = true;
 
@@ -598,18 +711,18 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void loadConfig() {
-    	File conf = new File(getDataFolder(), "config.yml");
+        File conf = new File(getDataFolder(), "config.yml");
         try {
-        	plugin.getConfig().load(conf);
+            plugin.getConfig().load(conf);
         } catch (FileNotFoundException e) {
-            System.out.println("[IllegalStack]:  Warning Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
+            LOGGER.warn(
+                    "Warning Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
             FileConfiguration config = this.getConfig();
             try {
                 config.save(conf);
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
-                System.out.println("failed to save config?");
-                e1.printStackTrace();
+                LOGGER.error("failed to save config?", e1);
             }
             writeConfig();
         } catch (IOException | InvalidConfigurationException e) {
@@ -618,7 +731,7 @@ public class IllegalStack extends JavaPlugin {
         }
 
         if (getConfig().getString("ConfigVersion") == null) { //server is running an old config version, should probably save it.
-        	File confOld = new File(getDataFolder(), "config.OLD");
+            File confOld = new File(getDataFolder(), "config.OLD");
             FileConfiguration config = this.getConfig();
 
             conf.renameTo(confOld);
@@ -630,7 +743,8 @@ public class IllegalStack extends JavaPlugin {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            System.out.println("[IllegalStack] - You are upgrading from an older version, I apologize but we need to regenerate your Config.yml file.  Your old settings have been saved in /plugins/IllegalStack/config.OLD");
+            LOGGER.info(
+                    "You are upgrading from an older version, I apologize but we need to regenerate your Config.yml file.  Your old settings have been saved in /plugins/IllegalStack/config.OLD");
             try {
                 conf.createNewFile();
                 writeConfig();
@@ -644,46 +758,58 @@ public class IllegalStack extends JavaPlugin {
         StringBuilder whitelisted = new StringBuilder();
 
 
-        for (String s : Protections.NetherWhiteList.getTxtSet())
+        for (String s : Protections.NetherWhiteList.getTxtSet()) {
             whitelisted.append(" ").append(s);
+        }
 
         if (whitelisted.length() > 0) {
             String mode = "allowed";
-            if (!Protections.NetherWhiteListMode.isEnabled())
+            if (!Protections.NetherWhiteListMode.isEnabled()) {
                 mode = "NOT allowed";
+            }
 
-            System.out.println("The following entity's (by name) are " + mode + " to travel through nether portals: " + whitelisted);
+            LOGGER.info("The following entity's (by name) are {} to travel through nether portals: {}", mode, whitelisted);
         }
 
         whitelisted = new StringBuilder();
         for (String s : Protections.EndWhiteList.getTxtSet())//this.getConfig().getStringList("Settings.EndWhiteList"))
+        {
             whitelisted.append(" ").append(s);
+        }
 
         if (whitelisted.length() > 0) {
             String mode = "allowed";
-            if (!Protections.EndWhiteListMode.isEnabled())
+            if (!Protections.EndWhiteListMode.isEnabled()) {
                 mode = "NOT allowed";
-            System.out.println("The following entity's (by name) are " + mode + " to travel through end portals: " + whitelisted);
+            }
+            LOGGER.info("The following entity's (by name) are {} to travel through end portals: {}", mode, whitelisted);
         }
 
         whitelisted = new StringBuilder();
-        for (String s : Protections.NotifyInsteadOfBlockExploits.getTxtSet())
+        for (String s : Protections.NotifyInsteadOfBlockExploits.getTxtSet()) {
             whitelisted.append(" ").append(s);
+        }
 
-        if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + " WARNING: IllegalStack will NOT block but will notify for the following exploits: " + whitelisted);
+        if (whitelisted.length() > 0) {
+            LOGGER.warn("WARNING: IllegalStack will NOT block but will notify for the following exploits: {}", whitelisted);
+        }
 
         whitelisted = new StringBuilder();
         for (String s : Protections.DisableInWorlds.getTxtSet()) {//this.getConfig().getStringList("Settings.DisableInWorlds")) {
             World w = this.getServer().getWorld(s);
-            if (w == null)
-                System.out.println("[IllegalStack] was told to ignore all checks in the world " + s + " in the configuration but this does not appear to be a loaded world...  Please double check your config.yml!");
+            if (w == null) {
+                LOGGER.warn(
+                        "IllegalStack was told to ignore all checks in the world {} in the configuration but this does not appear to be a loaded world...  Please double check your config.yml!",
+                        s
+                );
+            }
 
             whitelisted.append(" ").append(s);
 
         }
-        if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + " WARNING: IllegalStack will NOT do any exploit checks in the following worlds: " + whitelisted);
+        if (whitelisted.length() > 0) {
+            LOGGER.error("WARNING: IllegalStack will NOT do any exploit checks in the following worlds: {}", whitelisted);
+        }
 
         whitelisted = new StringBuilder();
         for (String s : Protections.RemoveItemTypes.getTxtSet()) {
@@ -691,68 +817,80 @@ public class IllegalStack extends JavaPlugin {
             if (s.equalsIgnoreCase("ENCHANTED_GOLDEN_APPLE")) {
                 m = Material.matchMaterial("GOLDEN_APPLE");
                 Protections.RemoveItemTypes.setNukeApples(true);
-                System.out.println("[IllegalStack] - Now removing enchanted golden apples.");
+                LOGGER.info("Now removing enchanted golden apples.");
                 continue;
             } else {
                 m = Material.matchMaterial(s);
             }
             int id = -1;
-    		int data = 0;
-    		
-            if (m != null)
+            int data = 0;
+
+            if (m != null) {
                 whitelisted.append(s).append(" ");
-            else {
-            	if(s.contains(":")) {
-            		String splStr[] = s.split(":");
-            		
-            		try {
-            			id = Integer.parseInt(splStr[0]);
-            			data = Integer.parseInt(splStr[1]);
-            		} catch (NumberFormatException ignored) {}
-            		
-            	}
-            	if(id != -1) 
-        			whitelisted.append(s).append(" ");
-        		 else 
-        			System.out.println("[IllegalStack] warning unable to find a material matching: " + s + " make sure it is a valid minecraft material type!");	
-        		
-                
+            } else {
+                if (s.contains(":")) {
+                    String[] splStr = s.split(":");
+
+                    try {
+                        id = Integer.parseInt(splStr[0]);
+                        data = Integer.parseInt(splStr[1]);
+                    } catch (NumberFormatException ignored) {
+                    }
+
+                }
+                if (id != -1) {
+                    whitelisted.append(s).append(" ");
+                } else {
+                    LOGGER.warn("Unable to find a material matching: {} make sure it is a valid minecraft material type!", s);
+                }
             }
         }
-        if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + "The following materials will be removed from player inventories when found: " + whitelisted);
+        if (whitelisted.length() > 0) {
+            LOGGER.error("The following materials will be removed from player inventories when found: {}", whitelisted);
+        }
 
         whitelisted = new StringBuilder();
 
         for (String s : Protections.AllowStack.getTxtSet())//this.getConfig().getStringList("Settings.AllowStack"))
         {
             Material m = Material.matchMaterial(s);
-            if (m != null)
+            if (m != null) {
                 whitelisted.append(s).append(" ");
-            else
-                System.out.println("[IllegalStack] warning unable to find a material matching: " + s + " make sure it is a valid minecraft material type!");
+            } else {
+                LOGGER.warn("Unable to find a material matching: {} make sure it is a valid minecraft material type!", s);
+            }
 
         }
-        if (whitelisted.length() > 0)
-            System.out.println(ChatColor.RED + "The following materials are allowed to have stacks larger than the vanilla size: " + whitelisted);
+        if (whitelisted.length() > 0) {
+            LOGGER.error("The following materials are allowed to have stacks larger than the vanilla size: {}", whitelisted);
+        }
 
         whitelisted = new StringBuilder();
-        for (String s : Protections.BookAuthorWhitelist.getTxtSet())
+        for (String s : Protections.BookAuthorWhitelist.getTxtSet()) {
             whitelisted.append(s).append(" ");
-        if (whitelisted.length() > 0)
-            System.out.println("[IllegalStack] - The following players may create books that do NOT match the specified charset (change in config!): " + whitelisted);
+        }
+        if (whitelisted.length() > 0) {
+            LOGGER.info(
+                    "The following players may create books that do NOT match the specified charset (change in config!): {}",
+                    whitelisted
+            );
+        }
 
         whitelisted = new StringBuilder();
-        for (String s : Protections.ItemNamesToRemove.getTxtSet())
+        for (String s : Protections.ItemNamesToRemove.getTxtSet()) {
             whitelisted.append(" ").append(s);
-        if (whitelisted.length() > 0)
-            System.out.println("[IllegalStack] - Items matching the following names will be removed from players inventories: " + whitelisted);
+        }
+        if (whitelisted.length() > 0) {
+            LOGGER.info("Items matching the following names will be removed from players inventories: {}", whitelisted);
+        }
 
         whitelisted = new StringBuilder();
-        for (String s : Protections.ItemLoresToRemove.getTxtSet())
+        for (String s : Protections.ItemLoresToRemove.getTxtSet()) {
             whitelisted.append(" ").append(s);
-        if (whitelisted.length() > 0)
-            System.out.println("[IllegalStack] - Items matching the following lore will be removed from players inventories: " + whitelisted);
+        }
+        if (whitelisted.length() > 0) {
+            LOGGER.info("Items matching the following lore will be removed from players inventories: {}", whitelisted);
+        }
     }
 
     @Override
@@ -765,7 +903,7 @@ public class IllegalStack extends JavaPlugin {
 
     private void writeConfig() {
 
-    	File conf = new File(getDataFolder(), "config.yml");
+        File conf = new File(getDataFolder(), "config.yml");
         FileConfiguration config = this.getConfig();
 
         HashMap<Protections, Boolean> relevant = Protections.getRelevantTo(getVersion());
@@ -783,33 +921,43 @@ public class IllegalStack extends JavaPlugin {
                 {
                     if (config.getString(p.getConfigPath()) == null) {
                         config.set(p.getConfigPath(), p.getDefaultValue());
-                        System.out.println("[IllegalStack] - Found a missing protection from your configuration: " + p.name() + " it has been added with a default value of: " + p.getDefaultValue());
+                        LOGGER.warn(
+                                "Found a missing protection from your configuration: {} it has been added with a default value of: {}",
+                                p.name(),
+                                p.getDefaultValue()
+                        );
                     }
 
                     if (p.isList()) {
                         ArrayList<String> list = new ArrayList<>();
-                        for (String s : (HashSet<String>) p.getConfigValue())
+                        for (String s : (HashSet<String>) p.getConfigValue()) {
                             list.add(s);
+                        }
                         config.set(p.getConfigPath(), list);
                         continue;
                     }
 
-                    if (p.getConfigValue() instanceof String)
+                    if (p.getConfigValue() instanceof String) {
                         config.set(p.getConfigPath(), p.getConfigValue());
-                    else if (p.getConfigValue() instanceof Integer)
+                    } else if (p.getConfigValue() instanceof Integer) {
                         config.set(p.getConfigPath(), p.getConfigValue());
-                    else
+                    } else {
                         config.set(p.getConfigPath(), p.isEnabled());
+                    }
 
                     if ((p == Protections.DestroyBadSignsonChunkLoad || p == Protections.RemoveExistingGlitchedMinecarts) && p.isEnabled()) {
                         p.setEnabled(false);
-                        System.out.println(ChatColor.RED + "[IllegalStack] - Automatically disabling " + p.getConfigPath() + " this setting should never be left on indefinitely.");
+                        LOGGER.error("Automatically disabling " + p.getConfigPath() + " this setting should never be left on indefinitely.");
                         config.set(p.getConfigPath(), false);
                     }
                 } else {                //not relevant check to see if it should be deleted.
                     if (config.getString(p.getConfigPath()) != null) {
                         config.set(p.getConfigPath(), null);
-                        System.out.println("[IllegalStack] - Found a protection in the config that was not relevant to your server version: " + p.name() + " (" + p.getVersion() + ") it has been removed.");
+                        LOGGER.info(
+                                "Found a protection in the config that was not relevant to your server version: {} ( {} + ) it has been removed.",
+                                p.name(),
+                                p.getVersion()
+                        );
                     }
                 }
             }
@@ -818,8 +966,7 @@ public class IllegalStack extends JavaPlugin {
             config.save(conf);
         } catch (IOException e1) {
 
-            System.out.println("failed to save config?");
-            e1.printStackTrace();
+            LOGGER.error("Failed to save config?", e1);
         }
     }
 
@@ -831,65 +978,4 @@ public class IllegalStack extends JavaPlugin {
         IllegalStack.version = version;
     }
 
-    @NotNull
-    public static String getString(String version) {
-        if (version.equalsIgnoreCase("v1_14_R1")) {
-
-            version = IllegalStack.getPlugin().getServer().getVersion().split(" ")[2];
-
-            version = version.replace(")", "");
-            version = version.replace(".", "_");
-            String[] ver = version.split("_");
-            version = "v" + ver[0] + "_" + ver[1] + "_R" + ver[2];
-        }
-        return version;
-    }
-
-	public static boolean hasSmartInv() {
-		return SmartInv;
-	}
-
-	public static void setSmartInv(boolean smartInv) {
-		SmartInv = smartInv;
-	}
-
-	public static boolean hasSavageFac() {
-		return SavageFac;
-	}
-
-	public static void setSavageFac(boolean savageFac) {
-		SavageFac = savageFac;
-	}
-
-	public static boolean hasIds() {
-		return hasIds;
-	}
-	
-	public static boolean hasShulkers() {
-		return hasShulkers;
-	}
-
-	public static boolean hasElytra() {
-		return hasElytra;
-	}
-
-	public static boolean isPaper() {
-		return isPaper;
-	}
-
-	public static boolean hasUnbreakable() {
-		return hasUnbreakable;
-	}
-	public static boolean isDisablePaperShulkerCheck() {
-		return disablePaperShulkerCheck;
-	}
-
-	public static void setDisablePaperShulkerCheck(boolean disablePaperShulkerCheck) {
-		IllegalStack.disablePaperShulkerCheck = disablePaperShulkerCheck;
-	}
-	
-	public static boolean hasStorage() {
-		return hasStorage;
-	}
-	
 }
