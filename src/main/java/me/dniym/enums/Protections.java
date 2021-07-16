@@ -1364,7 +1364,7 @@ public enum Protections {
             {
                 if (p.enabled) {
 
-                    LOGGER.error(
+                    LOGGER.warn(
                             "You have the protection {} set to TRUE in your configuration.  This protection is intended to be a temporary setting and should not be left enabled!  Doing so causes IllegalStack to check all chunks whenever they are loaded which can create un-needed server load, and potentially cause other server issues.",
                             p.configPath
                     );
@@ -2077,7 +2077,7 @@ public enum Protections {
             }
 
         }
-        LOGGER.error("Protection {} had no validation steps.. Unable to verify user input report to dNiym.", this.name());
+        LOGGER.error("Protection {} had no validation steps.. Unable to verify user input: please report to dNiym.", this.name());
         return false;
     }
 

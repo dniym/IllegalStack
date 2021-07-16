@@ -176,7 +176,7 @@ public class NBTApiStuff {
             if (obj instanceof Player) {
                 ((Player) obj).getInventory().remove(is);
             } else {
-                LOGGER.info(
+                LOGGER.error(
                         "The object type: {} is not accounted for in the legacy NBT Api check.. Please report this to dNiym at the IllegalStack discord or via spigot!",
                         obj.toString()
                 );

@@ -429,7 +429,6 @@ public class IllegalStack extends JavaPlugin {
                 .getPlugin("ProtocolLib") != null && Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
             LOGGER.info(
                     "ProtocolLib was detected, creative inventory exploit detection enabled.  NOTE*  This protection ONLY needs to be turned on if you have regular (non op) players with access to /gmc");
-            String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             new pLisbListener(this);
         }
 
@@ -439,7 +438,6 @@ public class IllegalStack extends JavaPlugin {
                     "ProtocolLib NOT FOUND!!!! and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
 
         } else if (Protections.DisableChestsOnMobs.isEnabled()) {
-            String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
             new pLisbListener(this);
             setHasProtocolLib(true);
         }
@@ -484,8 +482,8 @@ public class IllegalStack extends JavaPlugin {
 
         setNbtAPI((this.getServer().getPluginManager().getPlugin("NBTAPI") != null));
         if (!isNbtAPI() && Protections.DestroyInvalidShulkers.isEnabled()) {
-            LOGGER.info(
-                    "Warning:  DestroyInvalidShulkers protection is turned on but this protection REQUIRES the use of NBTApi 2.0+ please install this plugin if you wish to use this feature: https://www.spigotmc.org/resources/nbt-api.7939/");
+            LOGGER.warn(
+                    "DestroyInvalidShulkers protection is turned on but this protection REQUIRES the use of NBTApi 2.0+ please install this plugin if you wish to use this feature: https://www.spigotmc.org/resources/nbt-api.7939/");
         }
         if (this.getServer().getPluginManager().getPlugin("Slimefun") != null) {
             SlimeFun = true;
@@ -685,11 +683,8 @@ public class IllegalStack extends JavaPlugin {
         if (fc != null) {
             boolean update = false;
             for (Msg m : Msg.values()) {
-                if (m == Msg.PistonHeadRemoval && fc.getString(m.name()).contains("remoging")) {
-                    fc.set(m.name(), null);
-                }
                 if (fc.getString(m.name()) == null) {
-                    LOGGER.info(" {} Was missing from messages.yml, adding it with the default value", m.name());
+                    LOGGER.info(" {} Was missing from messages.yml, adding it with the default value {}", m.name(), m.getConfigVal());
                     fc.set(m.name(), m.getConfigVal());
                     update = true;
 
@@ -715,8 +710,8 @@ public class IllegalStack extends JavaPlugin {
         try {
             plugin.getConfig().load(conf);
         } catch (FileNotFoundException e) {
-            LOGGER.warn(
-                    "Warning Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
+            LOGGER.error(
+                    "Configuration File Not Found! /plugins/IllegalStack/config.yml - Creating a new one with default values.");
             FileConfiguration config = this.getConfig();
             try {
                 config.save(conf);
@@ -743,7 +738,7 @@ public class IllegalStack extends JavaPlugin {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            LOGGER.info(
+            LOGGER.warn(
                     "You are upgrading from an older version, I apologize but we need to regenerate your Config.yml file.  Your old settings have been saved in /plugins/IllegalStack/config.OLD");
             try {
                 conf.createNewFile();
@@ -791,7 +786,7 @@ public class IllegalStack extends JavaPlugin {
         }
 
         if (whitelisted.length() > 0) {
-            LOGGER.warn("WARNING: IllegalStack will NOT block but will notify for the following exploits: {}", whitelisted);
+            LOGGER.warn("WARNING: IllegalStack will NOT block but instead, will notify for the following exploits: {}", whitelisted);
         }
 
         whitelisted = new StringBuilder();
@@ -808,7 +803,7 @@ public class IllegalStack extends JavaPlugin {
 
         }
         if (whitelisted.length() > 0) {
-            LOGGER.error("WARNING: IllegalStack will NOT do any exploit checks in the following worlds: {}", whitelisted);
+            LOGGER.warn("IllegalStack will NOT do any exploit checks in the following worlds: {}", whitelisted);
         }
 
         whitelisted = new StringBuilder();
@@ -846,7 +841,7 @@ public class IllegalStack extends JavaPlugin {
             }
         }
         if (whitelisted.length() > 0) {
-            LOGGER.error("The following materials will be removed from player inventories when found: {}", whitelisted);
+            LOGGER.info("The following materials will be removed from player inventories when found: {}", whitelisted);
         }
 
         whitelisted = new StringBuilder();
@@ -862,7 +857,7 @@ public class IllegalStack extends JavaPlugin {
 
         }
         if (whitelisted.length() > 0) {
-            LOGGER.error("The following materials are allowed to have stacks larger than the vanilla size: {}", whitelisted);
+            LOGGER.info("The following materials are allowed to have stacks larger than the vanilla size: {}", whitelisted);
         }
 
         whitelisted = new StringBuilder();
@@ -947,7 +942,7 @@ public class IllegalStack extends JavaPlugin {
 
                     if ((p == Protections.DestroyBadSignsonChunkLoad || p == Protections.RemoveExistingGlitchedMinecarts) && p.isEnabled()) {
                         p.setEnabled(false);
-                        LOGGER.error("Automatically disabling " + p.getConfigPath() + " this setting should never be left on indefinitely.");
+                        LOGGER.warn("Automatically disabling " + p.getConfigPath() + " this setting should never be left on indefinitely.");
                         config.set(p.getConfigPath(), false);
                     }
                 } else {                //not relevant check to see if it should be deleted.

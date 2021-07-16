@@ -655,10 +655,6 @@ public class fListener implements Listener {
                         Msg.HeadInsideSolidBlock.getValue(driver, e.getMount()),
                         Protections.PreventHeadInsideBlock
                 );
-                LOGGER.info(
-                        "Debug: block above was: {}",
-                        e.getMount().getLocation().getBlock().getRelative(BlockFace.UP).getType().name()
-                );
                 e.getMount().eject();
                 e.getMount().remove();
             }
@@ -962,7 +958,7 @@ public class fListener implements Listener {
                 .getMaxStackSize() <= 1) {
             if (!NBTStuff.hasSpigotNBT() && !IllegalStack.isNbtAPI()) {
                 Protections.BlockLoopedDroppers.setEnabled(false);
-                LOGGER.warn(
+                LOGGER.error(
                         "Protection BlockLoopedDroppers was enabled, however NBT API 2.0+ was not detected on the server, this protection requires NBTApi (https://www.spigotmc.org/resources/nbt-api.7939/) if you are running spigot < 1.13 to function so it has been automatically disabled.");
                 return;
             }
@@ -2596,8 +2592,6 @@ public class fListener implements Listener {
                 if (Protections.RemoveOverstackedItems.isEnabled())//I think all checks probably need to be moved to their own classes
                 {
                     if (OverstackedItemCheck.CheckContainer(e.getCursor(), e.getInventory())) {
-                        LOGGER.info("result = {} SLOT IS {}", e.getResult().name(), e.getSlot());
-
                         e.setResult(Result.DENY);
                     }
                 }

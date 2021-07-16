@@ -71,12 +71,6 @@ public class pLisbListener {
                         public void onPacketReceiving(PacketEvent event) {
 
                             if (event.getPacket().getIntegers().read(0) <= 0) {
-                                LOGGER.info(
-                                        "{} tried to interact with entity with an invalid id: {} if this happens often please investigate what the player is doing and message dNiym on spigot or the IllegalStack discord.",
-                                        event.getPlayer().getName(),
-                                        event.getPacket().getIntegers().read(0)
-                                );
-                                event.setCancelled(true);
                                 return;
                             }
 

@@ -73,7 +73,7 @@ public class sTimer implements Runnable {
                                 line))) {
                             illegal = true;
                             LOGGER.info(
-                                    "[IllegalStack Debug]: - Found a sign with illegal chars: line with invalid text was: {} @ {}",
+                                    "Found a sign with illegal chars: line with invalid text was: {} @ {}",
                                     line,
                                     sign.getLocation().toString()
                             );

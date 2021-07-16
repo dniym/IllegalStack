@@ -143,7 +143,7 @@ public class NBTStuff {
 
         if (!IllegalStack.isNbtAPI() && Protections.DestroyInvalidShulkers.isEnabled()) {
             Protections.DestroyInvalidShulkers.setEnabled(false);
-            LOGGER.warn(
+            LOGGER.error(
                     "Protection DestroyInvalidShulkers was enabled, however NBTAPI 2.0+ was not loaded on this server, this protection will only work if NBTAPI is present and running.   This protection has automatically been disabled. ");
             return 0;
         }

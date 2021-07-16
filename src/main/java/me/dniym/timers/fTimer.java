@@ -187,7 +187,7 @@ public class fTimer implements Runnable {
                     if (!valid) {
                         p.getLocation().getBlock().breakNaturally();
                         fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
-                        LOGGER.info("Invalid was: {}", invalid);
+                      //  LOGGER.info("Invalid was: {}", invalid);
                         return;
 
                     }
@@ -396,7 +396,6 @@ public class fTimer implements Runnable {
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
                                     p.updateInventory();
-                                    LOGGER.info("Debug 1");
                                     if (en.canEnchantItem(is)) {
                                         new BukkitRunnable() {
                                             @Override
@@ -506,7 +505,6 @@ public class fTimer implements Runnable {
 
                                 for (Enchantment en : replace) {
                                     is.removeEnchantment(en);
-                                    LOGGER.info("Debug 3");
                                     p.updateInventory();
                                     if (en.canEnchantItem(is)) {
                                         new BukkitRunnable() {
