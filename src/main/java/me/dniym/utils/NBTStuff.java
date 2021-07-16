@@ -1,9 +1,9 @@
-package me.dniym.utils;
+package main.java.me.dniym.utils;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;

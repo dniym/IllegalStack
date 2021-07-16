@@ -1,9 +1,9 @@
-package me.dniym.logging;
+package main.java.me.dniym.logging;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.events.IllegalStackLogEvent;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.events.IllegalStackLogEvent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ClickEvent.Action;
 import net.md_5.bungee.api.chat.ComponentBuilder;

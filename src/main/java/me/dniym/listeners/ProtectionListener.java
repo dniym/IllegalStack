@@ -1,9 +1,9 @@
-package me.dniym.listeners;
+package main.java.me.dniym.listeners;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.utils.NBTStuff;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.utils.NBTStuff;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

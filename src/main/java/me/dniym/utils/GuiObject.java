@@ -6,7 +6,7 @@
  * The great thing about this is you can easily identify YOUR gui and handle events for YOUR gui rather than trying to identify it in a regular listener
  * class by name.
  */
-package me.dniym.utils;
+package main.java.me.dniym.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

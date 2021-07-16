@@ -1,9 +1,9 @@
-package me.dniym.enums;
+package main.java.me.dniym.enums;
 
 
-import me.dniym.IllegalStack;
-import me.dniym.utils.MagicHook;
-import me.dniym.utils.NBTStuff;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.utils.MagicHook;
+import main.java.me.dniym.utils.NBTStuff;
 import me.jet315.minions.MinionAPI;
 import me.jet315.minions.minions.Minion;
 import net.brcdev.shopgui.gui.gui.OpenGui;
@@ -284,7 +284,7 @@ public enum Protections {
             "Prevent Auto Fish Mods",
             "ALL",
             "Exploits.FishMod.WatchForAutoFishMod",
-            "Detects automatic fishing mods that cast and reel in fish that mimic regular player fishing, this is not an instantaneous detection and does not detect auto me.dniym.fishing on the first attempt..",
+            "Detects automatic fishing mods that cast and reel in fish that mimic regular player fishing, this is not an instantaneous detection and does not detect auto main.java.me.dniym.fishing on the first attempt..",
             "",
             0
     ),
@@ -805,7 +805,7 @@ public enum Protections {
             "Prevent Commands While In Bed",
             "ALL",
             "Exploits.Other.PreventCommandsInBed",
-            "Prevent players from being able to use me.dniym.commands while in bed.  This has been linked to a serious exploit where not all events fire properly while a player is in bed, one huge exploit with this is players can get any item out of a GUI if they can open it while sleeping.",
+            "Prevent players from being able to use main.java.me.dniym.commands while in bed.  This has been linked to a serious exploit where not all events fire properly while a player is in bed, one huge exploit with this is players can get any item out of a GUI if they can open it while sleeping.",
             "",
             0
     ),
@@ -1199,6 +1199,36 @@ public enum Protections {
             "",
             2
     ),
+    DamagePlayersAboveNether(
+    		60,
+    		false,
+    		"Damage Players Above Nether",
+    		"ALL",
+    		"UserRequested.NetherDamage.DamagePlayersAboveNether",
+    		"If this option is enabled, players will be allowed on top of the nether however they will take damage over time as long as they remain on top of the nether.",
+    		"",
+    		2
+    		),
+    AboveNetherDamageDelay(
+    		60,
+    		2,
+    		"Damage Delay",
+    		60,
+    		"UserRequested.NetherDamage.DamageDelay",
+    		"Amount of time in seconds to apply damage to a player who is above the nether ceiling.",
+    		"",
+    		2
+    		),
+    AboveNetherDamageAmount(
+    		60,
+    		2,
+    		"Damage Amount",
+    		60,
+    		"UserRequested.NetherDamage.DamageAmount",
+    		"Amount of damage to give to a player who is above the nether ceiling.",
+    		"",
+    		2
+    		),
     ;
 
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Protections.class.getSimpleName());
@@ -2012,12 +2042,24 @@ public enum Protections {
             }
             return addTxtSet(value, sender);
         }
-        if (this == Protections.LimitNumberOfPages || this == Protections.NetherYLevel || this == Protections.VillagerRestockTime || this == Protections.ZombieVillagerTransformChance || this == Protections.PageCountThreshold || this == MaxFishAllowedBeforeKick || this == MaxFishToNotifyStaffThenBlock) {
+        if (this == Protections.LimitNumberOfPages || this == Protections.NetherYLevel || this == Protections.VillagerRestockTime || this == Protections.ZombieVillagerTransformChance || this == Protections.PageCountThreshold || this == MaxFishAllowedBeforeKick || this == MaxFishToNotifyStaffThenBlock || this == AboveNetherDamageDelay || this == AboveNetherDamageAmount) {
             try {
                 int intCheck = Integer.parseInt(value.trim());
                 if (intCheck < 0) {
                     sender.sendMessage(ChatColor.RED + "Sorry! the value of this protection can NOT be less than zero.");
                     return false;
+                }
+                if (this == AboveNetherDamageAmount) {
+                	if(intCheck < 1) {
+                		sender.sendMessage(ChatColor.DARK_RED + "The minimum value for this protection must be greater than 1.");
+                		return false;
+                	}
+                }
+                if (this == AboveNetherDamageDelay) {
+                	if(intCheck < 1) {
+                		sender.sendMessage(ChatColor.DARK_RED + "The minimum value for this protection must be greater than 1 second.");
+                		return false;
+                	}
                 }
                 if (this == Protections.ZombieVillagerTransformChance) {
                     if (intCheck < 0 || intCheck > 100) {

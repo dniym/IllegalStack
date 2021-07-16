@@ -1,4 +1,4 @@
-package me.dniym.fishing;
+package main.java.me.dniym.fishing;
 
 import org.bukkit.Location;
 import org.bukkit.entity.FishHook;

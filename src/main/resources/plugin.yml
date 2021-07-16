@@ -1,4 +1,4 @@
-main: me.dniym.IllegalStack
+main: main.java.me.dniym.IllegalStack
 name: IllegalStack
 version: "${version}"
 api-version: 1.13

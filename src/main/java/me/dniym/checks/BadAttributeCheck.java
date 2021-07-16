@@ -1,11 +1,11 @@
-package me.dniym.checks;
+package main.java.me.dniym.checks;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
-import me.dniym.utils.NBTApiStuff;
-import me.dniym.utils.NBTStuff;
+
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.utils.NBTApiStuff;
+import main.java.me.dniym.utils.NBTStuff;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -14,6 +14,8 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import main.java.me.dniym.IllegalStack;
 
 import java.util.HashSet;
 

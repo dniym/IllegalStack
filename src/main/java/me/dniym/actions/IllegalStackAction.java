@@ -1,7 +1,7 @@
-package me.dniym.actions;
+package main.java.me.dniym.actions;
 
-import me.dniym.enums.Protections;
-import me.dniym.events.IllegalStackActionEvent;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.events.IllegalStackActionEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;

@@ -1,4 +1,4 @@
-package me.dniym.enums;
+package main.java.me.dniym.enums;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

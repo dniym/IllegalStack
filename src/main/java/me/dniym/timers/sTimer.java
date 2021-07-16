@@ -1,8 +1,8 @@
-package me.dniym.timers;
+package main.java.me.dniym.timers;
 
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

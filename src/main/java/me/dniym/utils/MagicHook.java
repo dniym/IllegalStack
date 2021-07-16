@@ -1,4 +1,4 @@
-package me.dniym.utils;
+package main.java.me.dniym.utils;
 
 import com.elmakers.mine.bukkit.api.magic.MagicAPI;
 import org.bukkit.Bukkit;

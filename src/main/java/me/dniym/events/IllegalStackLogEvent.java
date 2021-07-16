@@ -1,6 +1,6 @@
-package me.dniym.events;
+package main.java.me.dniym.events;
 
-import me.dniym.enums.Protections;
+import main.java.me.dniym.enums.Protections;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;

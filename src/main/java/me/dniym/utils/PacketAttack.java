@@ -1,11 +1,11 @@
-package me.dniym.utils;
+package main.java.me.dniym.utils;
 
 /*
  * This shouldn't be used anywhere, was some experimental code.
  */
 
 import com.comphenix.protocol.events.PacketEvent;
-import me.dniym.listeners.fListener;
+import main.java.me.dniym.listeners.fListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

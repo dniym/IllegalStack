@@ -1,11 +1,11 @@
-package me.dniym.checks;
+package main.java.me.dniym.checks;
 
-import me.dniym.IllegalStack;
-import me.dniym.actions.IllegalStackAction;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
-import me.dniym.utils.NBTStuff;
+
+import main.java.me.dniym.actions.IllegalStackAction;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.utils.NBTStuff;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -15,6 +15,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import main.java.me.dniym.IllegalStack;
 
 public class CheckUtils {
 

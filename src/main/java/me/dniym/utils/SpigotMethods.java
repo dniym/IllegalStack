@@ -1,6 +1,6 @@
-package me.dniym.utils;
+package main.java.me.dniym.utils;
 
-import me.dniym.enums.Protections;
+import main.java.me.dniym.enums.Protections;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;

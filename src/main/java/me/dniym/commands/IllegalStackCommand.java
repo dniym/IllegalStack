@@ -1,10 +1,10 @@
-package me.dniym.commands;
+package main.java.me.dniym.commands;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
-import me.dniym.utils.SpigotMethods;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.utils.SpigotMethods;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

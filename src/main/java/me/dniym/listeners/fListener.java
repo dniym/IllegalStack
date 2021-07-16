@@ -1,23 +1,23 @@
-package me.dniym.listeners;
+package main.java.me.dniym.listeners;
 
 import io.netty.util.internal.ThreadLocalRandom;
-import me.dniym.IllegalStack;
-import me.dniym.actions.IllegalStackAction;
-import me.dniym.checks.BadAttributeCheck;
-import me.dniym.checks.CheckUtils;
-import me.dniym.checks.IllegalEnchantCheck;
-import me.dniym.checks.IrritatingLegacyChecks;
-import me.dniym.checks.OverstackedItemCheck;
-import me.dniym.checks.RemoveItemTypesCheck;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.fishing.FishAttempt;
-import me.dniym.logging.Log;
-import me.dniym.timers.fTimer;
-import me.dniym.timers.sTimer;
-import me.dniym.utils.NBTStuff;
-import me.dniym.utils.SlimefunCompat;
-import me.dniym.utils.SpigotMethods;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.actions.IllegalStackAction;
+import main.java.me.dniym.checks.BadAttributeCheck;
+import main.java.me.dniym.checks.CheckUtils;
+import main.java.me.dniym.checks.IllegalEnchantCheck;
+import main.java.me.dniym.checks.IrritatingLegacyChecks;
+import main.java.me.dniym.checks.OverstackedItemCheck;
+import main.java.me.dniym.checks.RemoveItemTypesCheck;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.fishing.FishAttempt;
+import main.java.me.dniym.logging.Log;
+import main.java.me.dniym.timers.fTimer;
+import main.java.me.dniym.timers.sTimer;
+import main.java.me.dniym.utils.NBTStuff;
+import main.java.me.dniym.utils.SlimefunCompat;
+import main.java.me.dniym.utils.SpigotMethods;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
@@ -3721,9 +3721,14 @@ public class fListener implements Listener {
     public void NetherCeilingMovementCheck(PlayerMoveEvent e) {
         if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e
                 .getFrom()
-                .getBlockZ() == e.getTo().getBlockZ()
-                || e.getPlayer().isOp()
-                || e.getPlayer().hasPermission("illegalstack.notify")) {
+                .getBlockZ() == e.getTo().getBlockZ()) {
+        	
+        
+                if(e.getPlayer().isOp() || e.getPlayer().hasPermission("illegalstack.notify") || Protections.DamagePlayersAboveNether.isEnabled()) 
+                	return;
+               
+                
+               
             if (Protections.KillPlayersBelowNether.isEnabled() &&
                     (e.getPlayer().isFlying() || (IllegalStack.hasElytra() && e.getPlayer().isGliding()))) {
 
@@ -3764,7 +3769,7 @@ public class fListener implements Listener {
                     }
                 }
             }
-        }
+        
 
         if (Protections.BlockPlayersAboveNether.isEnabled()) {
             if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getTo().getWorld().getName())) {
@@ -3829,6 +3834,7 @@ public class fListener implements Listener {
                     e.getPlayer().sendMessage(Msg.PlayerNetherBlock.getValue(e.getPlayer().getName()));
                 }
             }
+        }
         }
     }
 

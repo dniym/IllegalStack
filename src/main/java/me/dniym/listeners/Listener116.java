@@ -1,7 +1,7 @@
-package me.dniym.listeners;
+package main.java.me.dniym.listeners;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Protections;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Protections;
 import org.bukkit.entity.Piglin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

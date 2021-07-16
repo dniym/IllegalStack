@@ -1,10 +1,10 @@
-package me.dniym.checks;
+package main.java.me.dniym.checks;
 
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
-import me.dniym.utils.SlimefunCompat;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.utils.SlimefunCompat;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Container;

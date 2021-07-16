@@ -1,10 +1,10 @@
-package me.dniym.listeners;
+package main.java.me.dniym.listeners;
 
 import io.netty.util.internal.ThreadLocalRandom;
-import me.dniym.IllegalStack;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.timers.fTimer;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.timers.fTimer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

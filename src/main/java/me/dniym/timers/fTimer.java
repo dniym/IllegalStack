@@ -1,15 +1,15 @@
-package me.dniym.timers;
+package main.java.me.dniym.timers;
 
 import io.netty.util.internal.ThreadLocalRandom;
-import me.dniym.IllegalStack;
-import me.dniym.checks.BadAttributeCheck;
-import me.dniym.enums.Msg;
-import me.dniym.enums.Protections;
-import me.dniym.listeners.fListener;
-import me.dniym.listeners.mcMMOListener;
-import me.dniym.utils.NBTStuff;
-import me.dniym.utils.SlimefunCompat;
-import me.dniym.utils.SpigotMethods;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.checks.BadAttributeCheck;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.listeners.mcMMOListener;
+import main.java.me.dniym.utils.NBTStuff;
+import main.java.me.dniym.utils.SlimefunCompat;
+import main.java.me.dniym.utils.SpigotMethods;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
@@ -53,10 +53,20 @@ public class fTimer implements Runnable {
     private long nextScan;
     private long longScan;
     private long endScan = 0L;
-
+    private long nextNetherDamage = 0L;
+    
     public fTimer(IllegalStack illegalStack) {
         this.plugin = illegalStack;
         this.nextScan = System.currentTimeMillis() + (scanDelay * 6000);
+        if(Protections.DamagePlayersAboveNether.isEnabled()) {
+        	if(Protections.AboveNetherDamageAmount.getIntValue() < 1)
+        		Protections.AboveNetherDamageAmount.setIntValue(1);
+        	if(Protections.AboveNetherDamageDelay.getIntValue() < 1)
+        		Protections.AboveNetherDamageDelay.setIntValue(1);
+        	
+        	this.nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000);
+        }
+        
 
 
         String version = IllegalStack.getPlugin().getServer().getClass().getPackage().getName().replace(".", ",")
@@ -104,7 +114,18 @@ public class fTimer implements Runnable {
         }
         punish.clear();
 
-
+        if (Protections.DamagePlayersAboveNether.isEnabled() && System.currentTimeMillis() >= nextNetherDamage) {
+        	 nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000);
+        	for(World w:plugin.getServer().getWorlds())
+        		if(w.getName().toLowerCase().contains("nether") || w.getEnvironment() == Environment.NETHER)
+        			for(Player p:w.getPlayers())
+        				if(p.isOp() || p.hasPermission("illegalstack.notify"))
+        					continue;
+        				else
+        					p.damage(Protections.AboveNetherDamageAmount.getIntValue());
+        				
+        	
+        }
         if (Protections.BlockNonPlayersInEndPortal.isEnabled() && getDragon() != null && System.currentTimeMillis() > endScan) {
             endScan = System.currentTimeMillis() + 500L;
             if (getDragon().getEnvironment() == Environment.THE_END) {

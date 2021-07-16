@@ -1,8 +1,8 @@
-package me.dniym.listeners;
+package main.java.me.dniym.listeners;
 
 import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityActivateEvent;
 import com.gmail.nossr50.events.skills.abilities.McMMOPlayerAbilityDeactivateEvent;
-import me.dniym.IllegalStack;
+import main.java.me.dniym.IllegalStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

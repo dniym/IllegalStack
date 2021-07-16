@@ -1,7 +1,7 @@
-package me.dniym.utils;
+package main.java.me.dniym.utils;
 
 import de.tr7zw.nbtapi.NBTItem;
-import me.dniym.IllegalStack;
+import main.java.me.dniym.IllegalStack;
 import me.mrCookieSlime.Slimefun.Objects.SlimefunItem.SlimefunItem;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
