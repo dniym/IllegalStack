@@ -3652,7 +3652,7 @@ public class fListener implements Listener {
                 }
             }.runTaskLater(this.plugin, 5);
         }
-        if (Protections.BlockPlayersAboveNether.isEnabled()) {
+        if (Protections.BlockPlayersAboveNether.isEnabled() && !Protections.DamagePlayersAboveNether.isEnabled()) {
             if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getTo().getWorld().getName())) {
                 return;
             }
@@ -3698,7 +3698,7 @@ public class fListener implements Listener {
 
     @EventHandler
     public void onVehicleExitEvent(VehicleExitEvent e) {
-        if (Protections.BlockPlayersAboveNether.isEnabled() && e.getExited() instanceof Player) {
+        if (Protections.BlockPlayersAboveNether.isEnabled() && e.getExited() instanceof Player && !Protections.DamagePlayersAboveNether.isEnabled()) {
             if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getVehicle().getWorld().getName())) {
                 return;
             }
