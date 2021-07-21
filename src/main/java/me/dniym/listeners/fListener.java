@@ -149,7 +149,7 @@ public class fListener implements Listener {
     private final HashMap<Player, Long> swapDelay = new HashMap<>();
     private final Set<Material> glassBlocks = new HashSet<>();
     private final HashSet<Player> itemWatcher = new HashSet<>();
-    private final HashSet<Material> unbreakable = new HashSet<>();
+    private final static HashSet<Material> unbreakable = new HashSet<>();
     IllegalStack plugin;
     HashMap<Block, Long> movedTNT = new HashMap<>();
     private boolean is117 = false;
@@ -277,16 +277,16 @@ public class fListener implements Listener {
             setPortal(Material.matchMaterial("NETHER_PORTAL"));
         }
 
-        unbreakable.add(endPortal);
+        getUnbreakable().add(endPortal);
         //unbreakable.add(portal);
-        unbreakable.add(Material.BEDROCK);
+        getUnbreakable().add(Material.BEDROCK);
 
         String[] mats = new String[]{"ENDER_PORTAL_FRAME", "END_PORTAL_FRAME", "COMMAND", "COMMAND_BLOCK", "COMMAND_CHAIN", "CHAIN_COMMAND_BLOCK",
                 "COMMAND_REPEATING", "REPEATING_COMMAND_BLOCK", "STRUCTURE_BLOCK", "BARRIER"};
         for (final String mat : mats) {
             Material testMaterial = Material.matchMaterial(mat);
             if (testMaterial != null) {
-                unbreakable.add(testMaterial);
+                getUnbreakable().add(testMaterial);
             }
         }
 
@@ -2483,29 +2483,6 @@ public class fListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPortal(PortalCreateEvent event) {
-        if (Protections.DisableInWorlds.isWhitelisted(event.getWorld().getName())) {
-            return;
-        }
-
-        if (Protections.PreventBedrockDestruction.isEnabled()) {
-            for (BlockState b : event.getBlocks()) {
-                if (unbreakable.contains(b.getType())) {
-                    //Blocking breaking of unbreakable blocks.
-                    LOGGER.info("Portal tried to break an unbreakable block: {}", b.getType().name());
-                    event.setCancelled(true);
-                    break;
-                }
-                if (b.getY() > 255) {
-                    //Blocking portals spawning at world height limit, preventing from https://i.imgur.com/mqAXdpU.png
-                    event.setCancelled(true);
-                    break;
-                }
-            }
-        }
-    }
-
     @EventHandler()
     public void onPistonExplode(EntityExplodeEvent e) //stuff that still works even in 1.14
     {
@@ -4052,5 +4029,9 @@ public class fListener implements Listener {
     public void setIs117(boolean is117) {
         this.is117 = is117;
     }
+
+	public static HashSet<Material> getUnbreakable() {
+		return unbreakable;
+	}
 
 }

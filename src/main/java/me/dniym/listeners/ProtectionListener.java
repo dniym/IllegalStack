@@ -4,7 +4,11 @@ import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.utils.NBTStuff;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +16,7 @@ import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,11 +24,34 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class ProtectionListener implements Listener {
 
     IllegalStack plugin;
-
+    private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + ProtectionListener.class.getSimpleName());
     public ProtectionListener(IllegalStack illegalStack) {
         this.plugin = illegalStack;
     }
 
+    @EventHandler
+    public void onPortal(PortalCreateEvent event) {
+        if (Protections.DisableInWorlds.isWhitelisted(event.getWorld().getName())) {
+            return;
+        }
+
+        if (Protections.PreventBedrockDestruction.isEnabled()) {
+            for (BlockState b : event.getBlocks()) {
+                if (fListener.getUnbreakable().contains(b.getType())) {
+                    //Blocking breaking of unbreakable blocks.
+                    LOGGER.info("Portal tried to break an unbreakable block: {}", b.getType().name());
+                    event.setCancelled(true);
+                    break;
+                }
+                if (b.getY() > 255) {
+                    //Blocking portals spawning at world height limit, preventing from https://i.imgur.com/mqAXdpU.png
+                    event.setCancelled(true);
+                    break;
+                }
+            }
+        }
+    }
+    
     @EventHandler
     public void onPlayerSwapHandItemsEvent(PlayerSwapHandItemsEvent e) {
 

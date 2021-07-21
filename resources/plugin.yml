@@ -1,0 +1,33 @@
+main: main.java.me.dniym.IllegalStack
+name: IllegalStack
+version: "${version}"
+api-version: 1.13
+description: Closes some dupe bugs still present in vanilla  minecraft.
+author: dNiym
+softdepend: [Magic, Factions, NBTAPI, ProtocolLib, Slimefun, CraftingStore, DynamicShop, ClueScrolls, mcMMO, JetsMinions, SmartInvs, FactionsX]
+loadbefore: [MythicDrops]
+website: https://www.spigotmc.org/resources/44411/
+commands:
+  istack:
+    description: allows  access to the /istack command
+    permission: illegalstack.help
+    usage: "Usage: /istack"
+permissions:
+  illegalstack.admin:
+    description: Allows users to use the /istack protections command
+    default: op
+  illegalstack.help:
+    description: Allows users with this perm to use the /istack command
+    default: op
+  illegalstack.notify:
+    description: Allows users with this perm to receive in game notifications of offenses and to teleport to those locations.
+    default: op
+  illegalstack.enchantbypass:
+    description: Allows users with this perm to have items that break the vanilla enchant limits.
+    default: false
+  illegalstack.removeitemsoftypebypass:
+    description: Allows users with this perm to bypass the check that removes items of a specific type.
+    default: false
+  illegalstack.overstack:
+    description: Allows users with this perm to have items in this list that are greater than the vanilla stack size.
+    default: false
