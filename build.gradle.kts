@@ -38,7 +38,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.18-rc3-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0-SNAPSHOT")
     implementation("com.elmakers.mine.bukkit:MagicAPI:8.6")
     implementation("de.tr7zw:item-nbt-api-plugin:2.8.0")
@@ -65,7 +65,7 @@ tasks.compileJava.configure {
     options.release.set(8)
 }
 
-version = "2.4.2"
+version = "2.4.4"
 
 tasks.named<Copy>("processResources") {
     filesMatching("plugin.yml") {

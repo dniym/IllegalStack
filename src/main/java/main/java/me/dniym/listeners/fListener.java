@@ -152,6 +152,7 @@ public class fListener implements Listener {
     private final static HashSet<Material> unbreakable = new HashSet<>();
     IllegalStack plugin;
     HashMap<Block, Long> movedTNT = new HashMap<>();
+    private boolean is118 = false;
     private boolean is117 = false;
     private Boolean is116 = false;
     private Boolean is115 = false;
@@ -190,6 +191,9 @@ public class fListener implements Listener {
             setIs112(true);
         }
 
+        if (ver.startsWith("v1_18")) {
+            setIs118(true);
+        }
 
         if (ver.startsWith("v1_17")) {
             setIs117(true);
@@ -290,9 +294,9 @@ public class fListener implements Listener {
             }
         }
 
-        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17")) {
+        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18")) {
             if (ver.contains("v1_13")) {
-                LOGGER.info("MC Version 1.13 detected!");
+                LOGGER.info("MC Version 1.13+ detected!");
 
                 blacklist.addAll(Tag.CARPETS.getValues());
                 blacklist.add(Material.matchMaterial("RAIL"));
@@ -577,7 +581,8 @@ public class fListener implements Listener {
         if (Protections.PreventTripwireDupe.isEnabled()) {
             if (e.getBlock().getType() == Material.TRIPWIRE_HOOK) {
                 for (BlockFace face : BlockFace.values()) {
-                    if (Tag.TRAPDOORS.getValues().contains(e.getBlock().getRelative(face).getType())
+                	
+                    if ((Tag.TRAPDOORS.getValues().contains(e.getBlock().getRelative(face).getType()) || Tag.DOORS.getValues().contains(e.getBlock().getRelative(face).getType()))
                             && IllegalStackAction.isCompleted(
                             Protections.PreventTripwireDupe,
                             e.getPlayer(),
@@ -4029,7 +4034,9 @@ public class fListener implements Listener {
     public void setIs117(boolean is117) {
         this.is117 = is117;
     }
-
+    public void setIs118(boolean is118) {
+        this.is118 = is118;
+    }
 	public static HashSet<Material> getUnbreakable() {
 		return unbreakable;
 	}
