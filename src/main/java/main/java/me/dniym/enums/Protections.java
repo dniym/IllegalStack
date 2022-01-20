@@ -732,7 +732,7 @@ public enum Protections {
             36,
             true,
             "Prevent Infinite Elytra Flight",
-            "> 1.9",
+            "1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17",
             "Exploits.Other.PreventInvalidElytraFlight",
             "Prevents players from using a glitch that grants unlimited elytra flight time without rockets,  This exploit allows the player to ascend vertically starting at the max build height until they decide to start descending or their elytra breaks.",
             "",

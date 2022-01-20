@@ -121,7 +121,7 @@ public class fTimer implements Runnable {
         			for(Player p:w.getPlayers())
         				if(p.isOp() || p.hasPermission("illegalstack.notify"))
         					continue;
-        				else
+        				else if (p.getLocation().getY()>= Protections.NetherYLevel.getIntValue()) 
         					p.damage(Protections.AboveNetherDamageAmount.getIntValue());
         				
         	
