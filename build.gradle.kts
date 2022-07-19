@@ -49,6 +49,7 @@ dependencies {
     implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation("com.github.CraftingStore:MinecraftPlugin:master-SNAPSHOT")
     compileOnly(":JetsMinions")
+    compileOnly(":EssentialsX")
     compileOnlyApi("org.apache.logging.log4j:log4j-api:2.0.1")
     compileOnly("org.jetbrains:annotations:21.0.1")
 }

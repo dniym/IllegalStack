@@ -3,6 +3,7 @@ package main.java.me.dniym.listeners;
 import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.utils.EssHook;
 import main.java.me.dniym.utils.NBTStuff;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,6 +45,9 @@ public class ProtectionListener implements Listener {
                     break;
                 }
                 if (b.getY() > 255) {
+                    if (IllegalStack.isHasEssentialsXPlugin() && EssHook.isHeight1_16()) {
+                        break;
+                    }
                     //Blocking portals spawning at world height limit, preventing from https://i.imgur.com/mqAXdpU.png
                     event.setCancelled(true);
                     break;

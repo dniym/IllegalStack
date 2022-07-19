@@ -63,6 +63,7 @@ public class IllegalStack extends JavaPlugin {
     private static boolean hasUnbreakable = false;
     private static boolean hasStorage = false;
     private static boolean hasIds = false;
+    private static boolean hasEssentialsXPlugin = false;
 
 
     private static String version = "";
@@ -253,6 +254,14 @@ public class IllegalStack extends JavaPlugin {
 
     public static boolean isHasMagicPlugin() {
         return hasMagicPlugin;
+    }
+
+    public static boolean isHasEssentialsXPlugin() {
+        return hasEssentialsXPlugin;
+    }
+
+    public static void setHasEssentialsXPlugin(final boolean hasEssentialsXPlugin) {
+        IllegalStack.hasEssentialsXPlugin = hasEssentialsXPlugin;
     }
 
     public static void setHasMagicPlugin(boolean hasMagicPlugin) {
@@ -473,6 +482,10 @@ public class IllegalStack extends JavaPlugin {
 
         if (this.getServer().getPluginManager().getPlugin("Magic") != null) {
             setHasMagicPlugin(true);
+        }
+
+        if (this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+            setHasEssentialsXPlugin(true);
         }
 
         if (this.getServer().getPluginManager().getPlugin("mcMMO") != null) {
