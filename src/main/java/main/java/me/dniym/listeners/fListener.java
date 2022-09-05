@@ -445,12 +445,12 @@ public class fListener implements Listener {
         boolean cancel = false;
 
         if (Protections.RemoveItemTypes.isEnabled() && RemoveItemTypesCheck.shouldRemove(e.getBlockPlaced().getType())) {
-        	e.getPlayer().sendMessage("Block place not allowed?");
+        	
             new BukkitRunnable() {
 
                 @Override
                 public void run() {
-                	e.getPlayer().sendMessage("nope?");
+            
                     fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnPlace.getValue(
                             e.getPlayer(),
                             e.getBlockPlaced().getType().name()
