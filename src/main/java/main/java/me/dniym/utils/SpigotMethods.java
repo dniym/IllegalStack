@@ -267,7 +267,7 @@ public class SpigotMethods {
     public static boolean isNPC(LivingEntity ent) {
 
 
-        return ent.hasMetadata("shopkeeper");
+        return ent.hasMetadata("shopkeeper") || ent.hasMetadata("NPC");
     }
 
     private static final class FlagFontInfo {

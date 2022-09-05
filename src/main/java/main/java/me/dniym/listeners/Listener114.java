@@ -5,10 +5,15 @@ import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.timers.fTimer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EnderPearl;
@@ -32,6 +37,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.inventory.MerchantInventory;
@@ -44,7 +50,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 public class Listener114 implements Listener {
-
+	final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Listener114.class.getSimpleName());
     private static final BlockFace[] faces = {BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH, BlockFace.NORTH};
     HashMap<UUID, Long> lastTrade = new HashMap<>();
     HashSet<Material> consumables = new HashSet<>();
@@ -52,7 +58,7 @@ public class Listener114 implements Listener {
 
     public Listener114(IllegalStack illegalStack) {
         plugin = illegalStack;
-
+         
         Material[] consume = new Material[]{Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
                 Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP, Material.COOKED_SALMON,
                 Material.COOKED_RABBIT, Material.COOKIE, Material.DRIED_KELP, Material.GOLDEN_APPLE, Material.ENCHANTED_GOLDEN_APPLE, Material.GOLDEN_CARROT,
@@ -242,6 +248,33 @@ public class Listener114 implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPortal(PortalCreateEvent event) {
+        if (Protections.DisableInWorlds.isWhitelisted(event.getWorld().getName())) {
+            return;
+        }
+
+        if (Protections.PreventBedrockDestruction.isEnabled()) {
+
+        
+        		for (BlockState b : event.getBlocks()) {
+                	if (fListener.getUnbreakable().contains(b.getType())) {
+                    	//Blocking breaking of unbreakable blocks.
+                    	LOGGER.info("Portal tried to break an unbreakable block: {}", b.getType().name());
+                    	event.setCancelled(true);
+                    	break;
+                	}
+                	if (b.getY() > b.getWorld().getMaxHeight()) {
+                    //Blocking portals spawning at world height limit, preventing from https://i.imgur.com/mqAXdpU.png
+                    	event.setCancelled(true);
+                    	break;
+                	}
+            	}
+        	}
+        
+        
+    }
+    
     @EventHandler
     public void onPearlHit(ProjectileHitEvent e) {
 

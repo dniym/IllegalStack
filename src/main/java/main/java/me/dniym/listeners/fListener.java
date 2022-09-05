@@ -84,6 +84,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -108,7 +109,6 @@ import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -445,10 +445,12 @@ public class fListener implements Listener {
         boolean cancel = false;
 
         if (Protections.RemoveItemTypes.isEnabled() && RemoveItemTypesCheck.shouldRemove(e.getBlockPlaced().getType())) {
+        	e.getPlayer().sendMessage("Block place not allowed?");
             new BukkitRunnable() {
 
                 @Override
                 public void run() {
+                	e.getPlayer().sendMessage("nope?");
                     fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnPlace.getValue(
                             e.getPlayer(),
                             e.getBlockPlaced().getType().name()
@@ -1326,7 +1328,8 @@ public class fListener implements Listener {
                         }
                     }
 
-                    if (is != null && is.hasItemMeta() && is.getItemMeta() instanceof BookMeta) {
+                    
+                    if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && is != null && is.hasItemMeta() && is.getItemMeta() instanceof BookMeta) {
 
                         BookMeta bm = (BookMeta) is.getItemMeta();
 
@@ -1862,11 +1865,15 @@ public class fListener implements Listener {
         }
     }
 
+
+    
     @EventHandler(priority = EventPriority.LOWEST)
     public void creatureSpawnEvent(CreatureSpawnEvent e) {
+
         if (Protections.DisableInWorlds.isWhitelisted(e.getLocation().getWorld().getName())) {
             return;
         }
+    	
         if (Protections.PreventZombieItemPickup.isEnabled()) {
             if (e.getEntity() instanceof Zombie) {
                 Zombie z = (Zombie) e.getEntity();
@@ -3695,12 +3702,13 @@ public class fListener implements Listener {
 
     @EventHandler
     public void NetherCeilingMovementCheck(PlayerMoveEvent e) {
-        if (e.getFrom().getBlockX() == e.getTo().getBlockX() && e.getFrom().getBlockY() == e.getTo().getBlockY() && e
-                .getFrom()
-                .getBlockZ() == e.getTo().getBlockZ()) {
+    	
+        if (e.getFrom().getBlockX() != e.getTo().getBlockX() || 
+        		e.getFrom().getBlockY() != e.getTo().getBlockY() || 
+        		e.getFrom().getBlockZ() != e.getTo().getBlockZ()) {
         	
         
-                if(e.getPlayer().isOp() || e.getPlayer().hasPermission("illegalstack.notify") || Protections.DamagePlayersAboveNether.isEnabled()) 
+                if(e.getPlayer().isOp()) 
                 	return;
                
                 
@@ -3747,10 +3755,11 @@ public class fListener implements Listener {
             }
         
 
-        if (Protections.BlockPlayersAboveNether.isEnabled()) {
+        if (!Protections.DamagePlayersAboveNether.isEnabled() && Protections.BlockPlayersAboveNether.isEnabled()) {
             if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getTo().getWorld().getName())) {
                 return;
             }
+            
             Location l = e.getTo();
             if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
                 if (e.getFrom().getBlockY() >= Protections.NetherYLevel.getIntValue() && (l
@@ -3760,6 +3769,10 @@ public class fListener implements Listener {
                         .contains("nether") || l
                         .getWorld()
                         .getEnvironment() == Environment.NETHER)) { //already on top of the nether..
+                	
+                	if(e.getPlayer().hasPermission("illegalstack.notify"))
+                		return;
+                	
                     e.setCancelled(true);
                     if (Protections.EnsureSafeTeleportLocationIfAboveCeiling.isEnabled()) {
                         int x = e.getFrom().getBlockX();
@@ -3849,6 +3862,7 @@ public class fListener implements Listener {
             }
         }
 
+        
         if (Protections.ResetSpawnersOfType.getTxtSet().isEmpty()) {
             return;
         }

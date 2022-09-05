@@ -111,6 +111,7 @@ public enum Msg {
     StaffMsgDropperExploit("Detected a hopper/dropper loop exploit and removed a dispenser/dropper @"),
     StaffMsgDispenerFlint("Detected a downward facing dispenser from dispensing flint and steel which would crash the server @"),
     StaffMsgSpawnerReset("A ~type~ spawner was reset to a pig spawner when broken by ~name~ @"),
+    StaffMsgSpawnerOnSpawnReset("A ~type~ spawner was reset to a pig spawner when it tried to spawn a creature. @"),
     StaffMsgCreativeBlock("~name~ was prevented from loading in an illegal item via the creative saved toolbar."),
     StaffMsgNetherBlock("~name~ was prevented from accessing the top of the nether @"),
     StaffMsgNetherFix("~name~ has been teleported down from above the nether ceiling @"),
@@ -218,7 +219,7 @@ public enum Msg {
 
     public String getValue(String source, Location loc) {
         String val = value;
-
+        val = val.replace("~type~", source);
         val = val.replace("~player~", source);
         val = val.replace("@", "@ " + loc.toString());
         return val;

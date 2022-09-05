@@ -38,19 +38,21 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.18-rc3-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.19.2-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0-SNAPSHOT")
     implementation("com.elmakers.mine.bukkit:MagicAPI:8.6")
     implementation("de.tr7zw:item-nbt-api-plugin:2.8.0")
-    implementation("com.github.TheBusyBiscuit:Slimefun4:v4.1.15") { isTransitive = false }
+    implementation("com.github.TheBusyBiscuit:Slimefun4:RC-30")
     implementation("io.netty:netty-all:4.1.65.Final")
     implementation("com.gmail.nossr50.mcMMO:mcMMO:2.1.200") { isTransitive = false }
-    implementation("com.github.brcdev-minecraft:shopgui-api:2.2.0")
+    
+    
     implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation("com.github.CraftingStore:MinecraftPlugin:master-SNAPSHOT")
     compileOnly(":JetsMinions")
     compileOnlyApi("org.apache.logging.log4j:log4j-api:2.0.1")
     compileOnly("org.jetbrains:annotations:21.0.1")
+    compileOnly("com.github.brcdev-minecraft:shopgui-api:3.0.0")
 }
 
 the<JavaPluginExtension>().toolchain {
@@ -65,7 +67,7 @@ tasks.compileJava.configure {
     options.release.set(8)
 }
 
-version = "2.4.5"
+version = "2.7.1"
 
 tasks.named<Copy>("processResources") {
     filesMatching("plugin.yml") {

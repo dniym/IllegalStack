@@ -88,7 +88,7 @@ public class pLisbListener {
                                                         .getEntityModifier(event.getPlayer().getWorld())
                                                         .read(0);
                                             } catch (RuntimeException ex) {
-                                                LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
+                                                //LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
                                                 return;
                                             }
                                             if (entity instanceof Horse && ((Horse) entity).isTamed()) {

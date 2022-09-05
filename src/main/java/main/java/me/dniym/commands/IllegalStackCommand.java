@@ -5,7 +5,6 @@ import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.utils.SpigotMethods;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -74,13 +73,17 @@ public class IllegalStackCommand implements CommandExecutor {
                 int parentId = 0;
                 int catId = 0;
                 if (args.length >= 2) {
-                    if (StringUtils.isNumeric(args[1].trim())) {
-                        catId = Integer.parseInt(args[1].trim());
-                    }
+                	try {
+                		catId = Integer.parseInt(args[1].trim());
+                	} catch (NumberFormatException ex) {
+                		
+                	}
                 }
                 if (args.length == 3) {
-                    if (StringUtils.isNumeric(args[1].trim())) {
-                        parentId = Integer.parseInt(args[2].trim());
+                	try {
+                	    parentId = Integer.parseInt(args[2].trim());	
+                	} catch (NumberFormatException ex) {
+                    
                     }
                 }
                 for (Protections p : Protections.values()) {

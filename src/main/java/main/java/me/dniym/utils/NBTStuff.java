@@ -20,6 +20,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
+import java.awt.Image;
 import java.util.HashSet;
 
 public class NBTStuff {
@@ -27,7 +28,7 @@ public class NBTStuff {
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + NBTStuff.class.getSimpleName());
 
     public static ItemStack addNBTTag(ItemStack item, String value, Protections prot) {
-        if (hasSpigotNBT()) {
+        if (hasSpigotNBT() && item.hasItemMeta()) {
 
             ItemMeta im = item.getItemMeta();
             PersistentDataContainer data = im.getPersistentDataContainer();
@@ -46,7 +47,7 @@ public class NBTStuff {
     }
 
     public static ItemStack updateTimeStamp(ItemStack item, Protections prot) {
-        if (hasSpigotNBT()) {
+        if (hasSpigotNBT() && item.hasItemMeta()) {
             //use the new built in methods.
 
             ItemMeta im = item.getItemMeta();
@@ -161,7 +162,7 @@ public class NBTStuff {
 
         ItemMeta im = is.getItemMeta();
 
-        if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) {
+        if (IllegalStack.isHasAttribAPI() && is.hasItemMeta() && im.hasAttributeModifiers()) {
 
             return true;
         } else if (IllegalStack.isNbtAPI()) {
@@ -178,7 +179,7 @@ public class NBTStuff {
         }
 
         if (IllegalStack.isHasAttribAPI()) {
-            if (is.getItemMeta() instanceof Damageable) {
+            if (is.hasItemMeta() && is.getItemMeta() instanceof Damageable) {
                 Damageable dmg = (Damageable) is.getItemMeta();
                 if (dmg.getDamage() > is.getType().getMaxDurability()) {
                     fListener.getLog().append(Msg.IllegalStackDurability.getValue(p, is), Protections.FixNegativeDurability);
@@ -192,6 +193,9 @@ public class NBTStuff {
 
     public static void checkForBadCustomData(ItemStack is, Player p, boolean sendToPlayer) {
 
+    	if(!is.hasItemMeta())
+    		return;
+    	
         ItemMeta im = is.getItemMeta();
 
         if (IllegalStack.isHasAttribAPI() && im.hasAttributeModifiers()) {
