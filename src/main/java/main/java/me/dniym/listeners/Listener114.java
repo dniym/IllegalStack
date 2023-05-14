@@ -6,6 +6,7 @@ import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.timers.fTimer;
 
+import main.java.me.dniym.utils.Scheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
@@ -42,7 +43,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Merchant;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -236,15 +236,10 @@ public class Listener114 implements Listener {
             e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             e.getPlayer().getInventory().setItemInOffHand(new ItemStack(Material.AIR));
             e.setCancelled(true);
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    e.getPlayer().getInventory().setItemInMainHand(item1);
-                    e.getPlayer().getInventory().setItemInOffHand(item2);
-                }
-
-            }.runTaskLater(IllegalStack.getPlugin(), 3);
+            Scheduler.runTaskLater(IllegalStack.getPlugin(), () -> {
+                e.getPlayer().getInventory().setItemInMainHand(item1);
+                e.getPlayer().getInventory().setItemInOffHand(item2);
+            }, 3, e.getPlayer());
         }
     }
 
@@ -323,13 +318,7 @@ public class Listener114 implements Listener {
             final int slot = tSlot;
             final ItemStack food = tFood;
             e.getPlayer().getInventory().setItem(slot, new ItemStack(Material.AIR));
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    e.getPlayer().getInventory().setItem(slot, food);
-                }
-            }.runTaskLater(IllegalStack.getPlugin(), 3);
+            Scheduler.runTaskLater(IllegalStack.getPlugin(), () -> e.getPlayer().getInventory().setItem(slot, food), 3, e.getPlayer());
         }
     }
 
