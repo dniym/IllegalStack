@@ -137,11 +137,11 @@ public class fTimer implements Runnable {
             endScan = System.currentTimeMillis() + 500L;
             if (getDragon().getEnvironment() == Environment.THE_END) {
 
-                for (int y = 0; y < 256; y++) {
-                    Location l = new Location(getDragon(), 0, y, 0);
-                    if (l.getBlock().getType() == Material.BEDROCK) //found bottom of portal
-                    {
-                        Scheduler.executeOrScheduleSync(plugin, () -> {
+                Scheduler.executeOrScheduleSync(plugin, () -> {
+                    for (int y = 0; y < 256; y++) {
+                        Location l = new Location(getDragon(), 0, y, 0);
+                        if (l.getBlock().getType() == Material.BEDROCK) //found bottom of portal
+                        {
                             for (Entity ent : l.getWorld().getNearbyEntities(l, 3, 2, 3)) {
                                 if (ent instanceof Player) {
                                     continue;
@@ -153,10 +153,10 @@ public class fTimer implements Runnable {
                                 v.setZ(ThreadLocalRandom.current().nextInt(-2, 2));
                                 ent.setVelocity(v.normalize().multiply(2));
                             }
-                        }, l);
-                        break;
+                            break;
+                        }
                     }
-                }
+                }, new Location(getDragon(), 0, 0, 0));
             }
         }
 
@@ -166,41 +166,60 @@ public class fTimer implements Runnable {
 
         if (Protections.PreventPortalTraps.isEnabled() && System.currentTimeMillis() >= this.longScan) {
             this.longScan = System.currentTimeMillis() + 10000L;
+            List<Future<Boolean>> results = new ArrayList<>();
             for (Player p : Bukkit.getOnlinePlayers()) {
-                Block exit = p.getLocation().getBlock();
+                results.add(Scheduler.executeOrScheduleSync(plugin, () -> {
+                    Block exit = p.getLocation().getBlock();
 
-                if (exit.getType() != fListener.getPortal()) {
-                    continue;
-                }
-                String invalid = "";
-                for (BlockFace face : fListener.getFaces()) {
-                    exit = exit.getRelative(face);
-                    if (exit.getType() == fListener.getPortal()) {
-                        break;
+                    if (exit.getType() != fListener.getPortal()) {
+                        return false;
                     }
-                }
-
-                boolean valid = false;
-
-                for (int i = 0; i < 5; i++) {
+                    String invalid = "";
                     for (BlockFace face : fListener.getFaces()) {
-                        Block next = exit.getRelative(face);
-                        if (fListener.getPassThrough().contains(next.getType())) {
-                            if (fListener.getPassThrough().contains(next.getRelative(BlockFace.UP).getType())) {
-                                valid = true;
-                                break;
-                            }
+                        exit = exit.getRelative(face);
+                        if (exit.getType() == fListener.getPortal()) {
+                            break;
                         }
-
-                    } //didn't find a valid exit point at the exit block, lets search and try to find a new valid portal block to check
-                    if (!valid) {
-                        Scheduler.executeOrScheduleSync(plugin,
-                                () -> p.getLocation().getBlock().breakNaturally(), p);
-                        fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
-                      //  LOGGER.info("Invalid was: {}", invalid);
-                        return;
-
                     }
+
+                    boolean valid = false;
+
+                    for (int i = 0; i < 5; i++) {
+                        for (BlockFace face : fListener.getFaces()) {
+                            Block next = exit.getRelative(face);
+                            if (fListener.getPassThrough().contains(next.getType())) {
+                                if (fListener.getPassThrough().contains(next.getRelative(BlockFace.UP).getType())) {
+                                    valid = true;
+                                    break;
+                                }
+                            }
+
+                        } //didn't find a valid exit point at the exit block, lets search and try to find a new valid portal block to check
+                        if (!valid) {
+                            Scheduler.executeOrScheduleSync(plugin,
+                                    () -> p.getLocation().getBlock().breakNaturally(), p);
+                            fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
+                            //  LOGGER.info("Invalid was: {}", invalid);
+                            return true;
+
+                        }
+                    }
+                    return false;
+                }, p));
+            }
+            while (true) {
+                if (results.stream().anyMatch(e -> {
+                    try {
+                        return e.get();
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ex.printStackTrace();
+                        return false;
+                    }
+                })) {
+                    results.forEach(e -> e.cancel(true));
+                    return;
+                } else if (results.stream().allMatch(Future::isDone)) {
+                    break;
                 }
             }
         }
