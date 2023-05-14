@@ -16,6 +16,7 @@ import main.java.me.dniym.logging.Log;
 import main.java.me.dniym.timers.fTimer;
 import main.java.me.dniym.timers.sTimer;
 import main.java.me.dniym.utils.NBTStuff;
+import main.java.me.dniym.utils.Scheduler;
 import main.java.me.dniym.utils.SlimefunCompat;
 import main.java.me.dniym.utils.SpigotMethods;
 import org.apache.logging.log4j.LogManager;
@@ -115,7 +116,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityMountEvent;
 
@@ -415,18 +415,13 @@ public class fListener implements Listener {
                 .getItemStack()
                 .getType())) {
             e.setCancelled(true);
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnDrop.getValue(
-                            e.getPlayer(),
-                            e.getItemDrop().getItemStack().getType().name()
-                    ), Protections.RemoveItemTypes);
-                    e.getPlayer().getInventory().remove(e.getItemDrop().getItemStack());
-                }
-
-            }.runTaskLater(this.plugin, 2);
+            Scheduler.runTaskLater(this.plugin, () -> {
+                fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnDrop.getValue(
+                        e.getPlayer(),
+                        e.getItemDrop().getItemStack().getType().name()
+                ), Protections.RemoveItemTypes);
+                e.getPlayer().getInventory().remove(e.getItemDrop().getItemStack());
+            }, 2, e.getPlayer());
 
         }
 
@@ -446,20 +441,13 @@ public class fListener implements Listener {
 
         if (Protections.RemoveItemTypes.isEnabled() && RemoveItemTypesCheck.shouldRemove(e.getBlockPlaced().getType())) {
         	
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-            
-                    fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnPlace.getValue(
-                            e.getPlayer(),
-                            e.getBlockPlaced().getType().name()
-                    ), Protections.RemoveItemTypes);
-                    e.getBlockPlaced().setType(Material.AIR);
-
-                }
-
-            }.runTaskLater(this.plugin, 2);
+            Scheduler.runTaskLater(this.plugin, () -> {
+                fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnPlace.getValue(
+                        e.getPlayer(),
+                        e.getBlockPlaced().getType().name()
+                ), Protections.RemoveItemTypes);
+                e.getBlockPlaced().setType(Material.AIR);
+            }, 2, e.getPlayer());
 
         }
 
@@ -498,18 +486,13 @@ public class fListener implements Listener {
                                 if (IllegalStackAction.isCompleted(prot, e.getPlayer(), e.getBlock(), e.getItemInHand())) {
                                     cancel = true;
 
-                                    new BukkitRunnable() {
-
-                                        @Override
-                                        public void run() {
-                                            e.getPlayer().getInventory().removeItem(e.getItemInHand());
-                                            fListener.getLog().append(Msg.ShulkerPlace.getValue(
-                                                    e.getPlayer(),
-                                                    e.getBlockPlaced().getLocation()
-                                            ), p);
-                                        }
-
-                                    }.runTaskLater(this.plugin, 2);
+                                    Scheduler.runTaskLater(this.plugin, () -> {
+                                        e.getPlayer().getInventory().removeItem(e.getItemInHand());
+                                        fListener.getLog().append(Msg.ShulkerPlace.getValue(
+                                                e.getPlayer(),
+                                                e.getBlockPlaced().getLocation()
+                                        ), p);
+                                    }, 2, e.getPlayer());
                                 }
                                 break;
                             }
@@ -794,14 +777,7 @@ public class fListener implements Listener {
                             Msg.StaffMsgDispenerFlint.getValue(e.getItem().getType().name(), e.getBlock().getLocation()),
                             Protections.PreventShulkerCrash2
                     );
-                    new BukkitRunnable() {
-
-                        @Override
-                        public void run() {
-                            e.getBlock().breakNaturally();
-                        }
-
-                    }.runTaskLater(this.plugin, 4);
+                    Scheduler.runTaskLater(this.plugin, () -> e.getBlock().breakNaturally(), 4, e.getBlock().getLocation());
                 }
             }
         }
@@ -818,14 +794,7 @@ public class fListener implements Listener {
                     for (ItemStack itemStack : c.getInventory()) {
                         if (itemStack != null && itemStack.getType() == e.getItem().getType()) {
 
-                            new BukkitRunnable() {
-
-                                @Override
-                                public void run() {
-                                    e.getBlock().breakNaturally();
-                                }
-
-                            }.runTaskLater(this.plugin, 4);
+                            Scheduler.runTaskLater(this.plugin, () -> e.getBlock().breakNaturally(), 4, e.getBlock().getLocation());
 
 
                         }
@@ -909,20 +878,15 @@ public class fListener implements Listener {
 
         if (CheckUtils.CheckEntireInventory(e.getSource())) {
             e.setCancelled(true);
-            new BukkitRunnable() {
+            Scheduler.runTaskLater(this.plugin, () -> {
+                if (e.getSource().getHolder() instanceof DoubleChest) {
+                    e.getSource().getHolder().getInventory().remove(e.getItem());
 
-                @Override
-                public void run() {
-                    if (e.getSource().getHolder() instanceof DoubleChest) {
-                        e.getSource().getHolder().getInventory().remove(e.getItem());
-
-                    } else if (e.getSource().getHolder().getInventory() instanceof BlockState) {
-                        BlockState bs = (BlockState) e.getSource().getHolder();
-                        bs.getBlock().breakNaturally();
-                    }
+                } else if (e.getSource().getHolder().getInventory() instanceof BlockState) {
+                    BlockState bs = (BlockState) e.getSource().getHolder();
+                    bs.getBlock().breakNaturally();
                 }
-
-            }.runTaskLater(this.plugin, 2);
+            }, 2, e.getSource().getLocation());
 
             return;
         }
@@ -1590,43 +1554,38 @@ public class fListener implements Listener {
                 e.setNewBookMeta(bm);
 
                 final Player player = e.getPlayer();
-                new BukkitRunnable() {
+                Scheduler.runTaskLater(this.plugin, () -> {
+                    for (ItemStack is : player.getInventory()) {
+                        if (is != null && (is.getType() == book || is.getType() == Material.WRITTEN_BOOK)) {
+                            BookMeta bm1 = (BookMeta) is.getItemMeta();
 
-                    @Override
-                    public void run() {
-                        for (ItemStack is : player.getInventory()) {
-                            if (is != null && (is.getType() == book || is.getType() == Material.WRITTEN_BOOK)) {
-                                BookMeta bm = (BookMeta) is.getItemMeta();
-
-                                if (bm.getAuthor() != null && Protections.BookAuthorWhitelist.isWhitelisted(bm.getAuthor())) {
-                                    continue;
-                                }
-                                for (String page : bm.getPages()) {
-                                    if (page != null && !page.isEmpty()) {
-                                        if (!is18() && player.getInventory().getItemInOffHand().equals(is)) {
-                                            player.getInventory().setItemInOffHand(new ItemStack(Material.AIR, 1));
-                                        } else {
-                                            player.getInventory().removeItem(is);
-                                        }
-                                    }
-                                }
+                            if (bm1.getAuthor() != null && Protections.BookAuthorWhitelist.isWhitelisted(bm1.getAuthor())) {
+                                continue;
                             }
-                            if (is != null && is.getType() == Material.WRITTEN_BOOK) {
-                                BookMeta bm = (BookMeta) is.getItemMeta();
-                                if (Protections.BookAuthorWhitelist.isWhitelisted(bm.getAuthor())) {
-                                    continue;
-                                }
-
-                                for (String page : bm.getPages()) {
-                                    if (page.contains(ChatColor.RED + "*DISABLED BOOK*")) {
+                            for (String page : bm1.getPages()) {
+                                if (page != null && !page.isEmpty()) {
+                                    if (!is18() && player.getInventory().getItemInOffHand().equals(is)) {
+                                        player.getInventory().setItemInOffHand(new ItemStack(Material.AIR, 1));
+                                    } else {
                                         player.getInventory().removeItem(is);
                                     }
                                 }
                             }
                         }
-                    }
+                        if (is != null && is.getType() == Material.WRITTEN_BOOK) {
+                            BookMeta bm1 = (BookMeta) is.getItemMeta();
+                            if (Protections.BookAuthorWhitelist.isWhitelisted(bm1.getAuthor())) {
+                                continue;
+                            }
 
-                }.runTaskLater(this.plugin, 12);
+                            for (String page : bm1.getPages()) {
+                                if (page.contains(ChatColor.RED + "*DISABLED BOOK*")) {
+                                    player.getInventory().removeItem(is);
+                                }
+                            }
+                        }
+                    }
+                }, 12, player);
             } else {
                 getLog().notify(Protections.DisableBookWriting, " Triggered by" + e.getPlayer());
             }
@@ -1828,34 +1787,30 @@ public class fListener implements Listener {
         }
 
         if (Protections.RemoveExistingGlitchedMinecarts.isEnabled()) {
-            new BukkitRunnable() {
-                final Chunk chunk = e.getChunk();
+            final Chunk chunk = e.getChunk();
+            Scheduler.runTaskLater(this.plugin, () -> {
+                if (!chunk.isLoaded()) {
+                    return;
+                }
 
-                @Override
-                public void run() {
-                    if (!chunk.isLoaded()) {
-                        return;
-                    }
+                for (Entity ent : e.getChunk().getEntities()) {
+                    if (ent instanceof Minecart) {
 
-                    for (Entity ent : e.getChunk().getEntities()) {
-                        if (ent instanceof Minecart) {
-
-                            Block b = ent.getLocation().getBlock();
-                            if (b.getType().isSolid()) {
-                                if (Protections.RemoveExistingGlitchedMinecarts.notifyOnly()) {
-                                    getLog().notify(
-                                            Protections.RemoveExistingGlitchedMinecarts,
-                                            " Triggered @" + b.getLocation()
-                                    );
-                                } else {
-                                    getLog().append2(Msg.MinecartGlitch1.getValue(b.getLocation(), b.getType().name()));
-                                    ent.remove();
-                                }
+                        Block b = ent.getLocation().getBlock();
+                        if (b.getType().isSolid()) {
+                            if (Protections.RemoveExistingGlitchedMinecarts.notifyOnly()) {
+                                getLog().notify(
+                                        Protections.RemoveExistingGlitchedMinecarts,
+                                        " Triggered @" + b.getLocation()
+                                );
+                            } else {
+                                getLog().append2(Msg.MinecartGlitch1.getValue(b.getLocation(), b.getType().name()));
+                                ent.remove();
                             }
                         }
                     }
                 }
-            }.runTaskLater(this.plugin, 250);
+            }, 250, e.getChunk().getBlock(0, 0, 0).getLocation());
 
         }
 
@@ -2015,41 +1970,36 @@ public class fListener implements Listener {
             final List<Block> bList = event.getBlocks();
             final BlockFace dir = event.getDirection();
 
-            new BukkitRunnable() {
+            Scheduler.runTaskLater(this.plugin, () -> {
+                for (Block b : bList) {
+                    Block next = b.getRelative(dir);
+                    if (next.getType() == Material.AIR || Protections.MinecartBlockWhiteList.isWhitelisted(next
+                            .getType()
+                            .name()) || fListener.getInstance().blacklist.contains(next.getType())) {
+                        continue;
+                    }
 
-                @Override
-                public void run() {
-                    for (Block b : bList) {
-                        Block next = b.getRelative(dir);
-                        if (next.getType() == Material.AIR || Protections.MinecartBlockWhiteList.isWhitelisted(next
-                                .getType()
-                                .name()) || fListener.getInstance().blacklist.contains(next.getType())) {
-                            continue;
-                        }
+                    for (Entity ent : next.getWorld().getNearbyEntities(
+                            next.getLocation().clone().add(0.5, 0.5, 0.5),
+                            0.4,
+                            0.4,
+                            0.4
+                    )) {
 
-                        for (Entity ent : next.getWorld().getNearbyEntities(
-                                next.getLocation().clone().add(0.5, 0.5, 0.5),
-                                0.4,
-                                0.4,
-                                0.4
-                        )) {
-
-                            if (ent instanceof Minecart) {
-                                if (Protections.PreventMinecartGlitch.notifyOnly()) {
-                                    getLog().notify(
-                                            Protections.PreventMinecartGlitch,
-                                            " Triggered @" + ent.getLocation()
-                                    );
-                                } else {
-                                    getLog().append2(Msg.MinecartGlitch2.getValue(ent.getLocation(), ""));
-                                    ent.remove();
-                                }
+                        if (ent instanceof Minecart) {
+                            if (Protections.PreventMinecartGlitch.notifyOnly()) {
+                                getLog().notify(
+                                        Protections.PreventMinecartGlitch,
+                                        " Triggered @" + ent.getLocation()
+                                );
+                            } else {
+                                getLog().append2(Msg.MinecartGlitch2.getValue(ent.getLocation(), ""));
+                                ent.remove();
                             }
                         }
                     }
                 }
-
-            }.runTaskLater(this.plugin, 50);
+            }, 50, event.getBlock().getLocation());
         }
         //Not fixed in 1.14
         if (Protections.PreventCactusDupe.isEnabled()) {
@@ -2527,11 +2477,9 @@ public class fListener implements Listener {
 
             if (!remove.isEmpty()) {
                 e.blockList().removeAll(remove);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    for (Block b : remove) {
-                        b.setType(Material.AIR);
-                    }
-                }, 5);
+                for (Block b : remove) {
+                    Scheduler.runTaskLater(plugin, () -> b.setType(Material.AIR), 5, b.getLocation());
+                }
             }
 
         }
@@ -3110,14 +3058,7 @@ public class fListener implements Listener {
                             e.getCursor().setAmount(0);
                             e.setCursor(new ItemStack(Material.AIR, 1));
                             final ItemStack isRemove = is;
-                            new BukkitRunnable() {
-
-                                @Override
-                                public void run() {
-                                    p.getInventory().removeItem(isRemove);
-                                }
-
-                            }.runTaskLater(this.plugin, 12);
+                            Scheduler.runTaskLater(this.plugin, () -> p.getInventory().removeItem(isRemove), 12, p);
 
                         }
                     }
@@ -3194,14 +3135,7 @@ public class fListener implements Listener {
 
                             e.setCancelled(true);
                             final ItemStack isRemove = is;
-                            new BukkitRunnable() {
-
-                                @Override
-                                public void run() {
-                                    p.getInventory().removeItem(isRemove);
-                                }
-
-                            }.runTaskLater(this.plugin, 12);
+                            Scheduler.runTaskLater(this.plugin, () -> p.getInventory().removeItem(isRemove), 12, p);
                         }
                         return;
                     }
@@ -3337,17 +3271,12 @@ public class fListener implements Listener {
                         final ItemStack remove = e.getItem();
                         final Player player = e.getPlayer();
                         final boolean offhandRemove = wasOffhand;
-                        new BukkitRunnable() {
-
-                            @Override
-                            public void run() {
-                                player.getInventory().removeItem(remove);
-                                if (!is18() && offhandRemove) {
-                                    player.getInventory().setItemInOffHand(new ItemStack(Material.AIR, 1));
-                                }
+                        Scheduler.runTaskLater(this.plugin, () -> {
+                            player.getInventory().removeItem(remove);
+                            if (!is18() && offhandRemove) {
+                                player.getInventory().setItemInOffHand(new ItemStack(Material.AIR, 1));
                             }
-
-                        }.runTaskLater(this.plugin, 12);
+                        }, 12, player);
                     }
                 }
             }
@@ -3503,15 +3432,7 @@ public class fListener implements Listener {
             }
             final String msg = message;
             if (shouldKick) {
-                new BukkitRunnable() {
-
-                    @Override
-                    public void run() {
-                        e.getPlayer().kickPlayer(msg);
-
-                    }
-
-                }.runTaskLater(this.plugin, 1);
+                Scheduler.runTaskLater(this.plugin, () -> e.getPlayer().kickPlayer(msg), 1, e.getPlayer());
             }
         }
     }
@@ -3579,17 +3500,12 @@ public class fListener implements Listener {
                             punishPlayer(e.getPlayer(), e.getRightClicked());
                         } else {
                             e.setCancelled(true);
-                            new BukkitRunnable() {
-
-                                @Override
-                                public void run() {
-                                    e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
-                                    getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
-                                    horse.setCarryingChest(false);
-                                    punishPlayer(e.getPlayer(), e.getRightClicked());
-                                }
-
-                            }.runTaskLater(this.plugin, 2);
+                            Scheduler.runTaskLater(this.plugin, () -> {
+                                e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
+                                getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
+                                horse.setCarryingChest(false);
+                                punishPlayer(e.getPlayer(), e.getRightClicked());
+                            }, 2, e.getPlayer());
                         }
                     }
                 } else if (e.getRightClicked() instanceof ChestedHorse) {
@@ -3598,19 +3514,14 @@ public class fListener implements Listener {
                     horse.setCarryingChest(false);
                     e.setCancelled(true);
 
-                    new BukkitRunnable() {
-
-                        @Override
-                        public void run() {
-                            e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
-                            getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
-                            horse.setCarryingChest(false);
-                            LOGGER.warn(
-                                    "ProtocolLib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
-                            punishPlayer(e.getPlayer(), e.getRightClicked());
-                        }
-
-                    }.runTaskLater(this.plugin, 2);
+                    Scheduler.runTaskLater(this.plugin, () -> {
+                        e.getPlayer().sendMessage(Msg.PlayerDisabledHorseChestMsg.getValue());
+                        getLog().append2(Msg.ChestPrevented.getValue(e.getPlayer(), horse));
+                        horse.setCarryingChest(false);
+                        LOGGER.warn(
+                                "ProtocolLib was NOT found on this server and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
+                        punishPlayer(e.getPlayer(), e.getRightClicked());
+                    }, 2, e.getPlayer());
                 }
             }
         }
@@ -3619,21 +3530,21 @@ public class fListener implements Listener {
     @EventHandler
     public void NetherCeilingExploitTPCheck(PlayerTeleportEvent e) {
         if (Protections.PreventPearlGlassPhasing.isEnabled()) {
-            new BukkitRunnable() {
-
-                @Override
-                public void run() {
-                    if (getTeleGlitch().containsKey(e.getPlayer().getUniqueId())) {
-                        Location corrected = getTeleGlitch().get(e.getPlayer().getUniqueId());
-                        corrected.setDirection(e.getTo().getDirection());
+            Scheduler.runTaskLater(this.plugin, () -> {
+                if (getTeleGlitch().containsKey(e.getPlayer().getUniqueId())) {
+                    Location corrected = getTeleGlitch().get(e.getPlayer().getUniqueId());
+                    corrected.setDirection(e.getTo().getDirection());
+                    if (Scheduler.FOLIA) {
+                        e.getPlayer().teleportAsync(corrected);
+                    } else {
                         e.getPlayer().teleport(corrected);
-                        getTeleGlitch().remove(e.getPlayer().getUniqueId());
-                        if (Protections.TeleportCorrectionNotify.isEnabled()) {
-                            getLog().append2(Msg.CorrectedPlayerLocation.getValue(e.getPlayer(), corrected));
-                        }
+                    }
+                    getTeleGlitch().remove(e.getPlayer().getUniqueId());
+                    if (Protections.TeleportCorrectionNotify.isEnabled()) {
+                        getLog().append2(Msg.CorrectedPlayerLocation.getValue(e.getPlayer(), corrected));
                     }
                 }
-            }.runTaskLater(this.plugin, 5);
+            }, 5, e.getPlayer());
         }
         if (Protections.BlockPlayersAboveNether.isEnabled() && !Protections.DamagePlayersAboveNether.isEnabled()) {
             if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getTo().getWorld().getName())) {
@@ -3740,14 +3651,7 @@ public class fListener implements Listener {
 
                         e.setCancelled(true);
                         getLog().append2(Msg.StaffMsgUnderNether.getValue(e.getPlayer(), e.getPlayer().getLocation().toString()));
-                        new BukkitRunnable() {
-
-                            @Override
-                            public void run() {
-                                e.getPlayer().damage(9999);
-                            }
-
-                        }.runTaskLater(this.plugin, 12);
+                        Scheduler.runTaskLater(this.plugin, () -> e.getPlayer().damage(9999), 12, e.getPlayer());
                         return;
 
                     }
@@ -3804,19 +3708,22 @@ public class fListener implements Listener {
                                 getLog().append2(Msg.StaffMsgNetherFix.getValue(e.getPlayer(), loc.toString()));
                                 e.setCancelled(true);
 
-                                new BukkitRunnable() {
-
-                                    @Override
-                                    public void run() {
+                                Scheduler.runTaskLater(this.plugin, () -> {
+                                    if (Scheduler.FOLIA) {
+                                        e.getPlayer().teleportAsync(loc);
+                                    } else {
                                         e.getPlayer().teleport(loc);
                                     }
-
-                                }.runTaskLater(this.plugin, 12);
+                                }, 12, e.getPlayer());
                                 return;
                             }
                         }
                     } else {
-                        e.getPlayer().teleport(e.getPlayer().getLocation().subtract(0, 3, 0));
+                        if (Scheduler.FOLIA) {
+                            e.getPlayer().teleportAsync(e.getPlayer().getLocation().subtract(0, 3, 0));
+                        } else {
+                            e.getPlayer().teleport(e.getPlayer().getLocation().subtract(0, 3, 0));
+                        }
                     }
                     e.setCancelled(true);
                     getLog().append2(Msg.StaffMsgNetherBlock.getValue(e.getPlayer(), l.toString()));

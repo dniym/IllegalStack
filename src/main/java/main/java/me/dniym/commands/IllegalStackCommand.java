@@ -4,6 +4,7 @@ import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.utils.Scheduler;
 import main.java.me.dniym.utils.SpigotMethods;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,7 +13,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashSet;
 
@@ -157,7 +157,11 @@ public class IllegalStackCommand implements CommandExecutor {
                                 Integer.parseInt(args[2]),
                                 Integer.parseInt(args[3])
                         );
-                        ((Player) sender).teleport(loc);
+                        if (Scheduler.FOLIA) {
+                            ((Player) sender).teleportAsync(loc);
+                        } else {
+                            ((Player) sender).teleport(loc);
+                        }
                         return true;
                     }
                 } else {
@@ -364,12 +368,7 @@ public class IllegalStackCommand implements CommandExecutor {
     }
 
     private void refreshCommands(final CommandSender sender) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                IllegalStack.getPlugin().getServer().dispatchCommand(sender, "istack prot");
-            }
-        }.runTaskLater(IllegalStack.getPlugin(), 5);
+        Scheduler.runTaskLater(IllegalStack.getPlugin(), () -> IllegalStack.getPlugin().getServer().dispatchCommand(sender, "istack prot"), 5);
     }
 
 }

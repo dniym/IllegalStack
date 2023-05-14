@@ -2,6 +2,7 @@ package main.java.me.dniym.checks;
 
 import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.utils.Scheduler;
 import main.java.me.dniym.utils.SlimefunCompat;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -11,7 +12,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class IrritatingLegacyChecks {
 
@@ -115,13 +115,9 @@ public class IrritatingLegacyChecks {
         if (blockState instanceof InventoryHolder) {
             for (ItemStack itemStack : ((InventoryHolder) blockState).getInventory()) {
                 if (itemStack != null && CheckItem(itemStack, block.getLocation())) {
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            ((InventoryHolder) blockState).getInventory().removeItem(itemStack);
-                        }
-
-                    }.runTaskLater(IllegalStack.getPlugin(), 2);
+                    Scheduler.runTaskLater(IllegalStack.getPlugin(), () -> {
+                        ((InventoryHolder) blockState).getInventory().removeItem(itemStack);
+                    }, 2, blockState.getLocation());
                     invalid = true;
                 }
             }
