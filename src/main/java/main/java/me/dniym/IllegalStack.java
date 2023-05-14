@@ -339,7 +339,9 @@ public class IllegalStack extends JavaPlugin {
         loadConfig();
         updateConfig();
         loadMsgs();
-        this.getCommand("istack").setExecutor(new IllegalStackCommand());
+        IllegalStackCommand illegalStackCommand = new IllegalStackCommand();
+        this.getCommand("istack").setExecutor(illegalStackCommand);
+        this.getCommand("istack").setTabCompleter(illegalStackCommand);
 
         ProCosmetics = this.getServer().getPluginManager().getPlugin("ProCosmetics");
 

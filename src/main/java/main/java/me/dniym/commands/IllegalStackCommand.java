@@ -12,11 +12,16 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
-public class IllegalStackCommand implements CommandExecutor {
+public class IllegalStackCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -369,6 +374,26 @@ public class IllegalStackCommand implements CommandExecutor {
 
     private void refreshCommands(final CommandSender sender) {
         Scheduler.runTaskLater(IllegalStack.getPlugin(), () -> IllegalStack.getPlugin().getServer().dispatchCommand(sender, "istack prot"), 5);
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull final CommandSender sender, @NotNull final Command command, @NotNull final String label, final @NotNull String[] args) {
+
+        List<String> arguments = new ArrayList<>();
+        arguments.add("protections");
+        arguments.add("toggle");
+        arguments.add("reload");
+
+        List<String> result = new ArrayList<>();
+        if (args.length == 1){
+            for (String a : arguments){
+                if (a.toLowerCase().startsWith(args[0].toLowerCase())){
+                    result.add(a);
+                }
+            }
+            return result;
+        }
+        return null;
     }
 
 }
