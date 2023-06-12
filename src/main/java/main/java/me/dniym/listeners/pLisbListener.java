@@ -8,6 +8,7 @@ import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.timers.fTimer;
+import main.java.me.dniym.utils.Scheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
@@ -17,7 +18,6 @@ import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -50,7 +50,7 @@ public class pLisbListener {
                                 if (stack != null && stack.hasItemMeta()) {
                                     stack = new ItemStack(Material.AIR);
                                     final Player player = event.getPlayer();
-                                    plugin.getServer().getScheduler().runTaskLater(plugin, player::updateInventory, 5L);
+                                    Scheduler.runTaskLater(plugin, player::updateInventory, 5L, player);
                                     event.setCancelled(true);
                                     Msg.StaffMsgCreativeBlock.getValue(event.getPlayer().getName());
                                 }
@@ -78,52 +78,47 @@ public class pLisbListener {
 
                                 if (event.isAsync()) {
                                     //event.setCancelled(true);
-                                    new BukkitRunnable() {
-                                        @Override
-                                        public void run() {
-                                            Entity entity;
-                                            try {
-                                                entity = event
-                                                        .getPacket()
-                                                        .getEntityModifier(event.getPlayer().getWorld())
-                                                        .read(0);
-                                            } catch (RuntimeException ex) {
-                                                //LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
+                                    Entity entity;
+                                    try {
+                                        entity = event
+                                                .getPacket()
+                                                .getEntityModifier(event.getPlayer().getWorld())
+                                                .read(0);
+                                    } catch (RuntimeException ex) {
+                                        //LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
+                                        return;
+                                    }
+                                    Scheduler.runTaskLater(this.plugin, () -> {
+                                        if (entity instanceof Horse && ((Horse) entity).isTamed()) {
+                                            ItemStack is = event.getPlayer().getInventory().getItemInHand();
+                                            if (!fListener.is18() && (is == null || is.getType() != Material.CHEST)) {
+                                                is = event.getPlayer().getInventory().getItemInOffHand();
+                                            }
+                                            if (is == null || is.getType() != Material.CHEST) {
                                                 return;
                                             }
-                                            if (entity instanceof Horse && ((Horse) entity).isTamed()) {
-                                                ItemStack is = event.getPlayer().getInventory().getItemInHand();
-                                                if (!fListener.is18() && (is == null || is.getType() != Material.CHEST)) {
-                                                    is = event.getPlayer().getInventory().getItemInOffHand();
-                                                }
-                                                if (is == null || is.getType() != Material.CHEST) {
-                                                    return;
-                                                }
-                                                exploitMessage(event.getPlayer(), entity);
-                                                event.setCancelled(true);
-                                                fTimer.getPunish().put(event.getPlayer(), entity);
-                                                return;
-                                            }
-
-                                            if (entity instanceof ChestedHorse && ((ChestedHorse) entity).isTamed()) {
-                                                ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
-                                                if (is == null || is.getType() != Material.CHEST) {
-                                                    is = event.getPlayer().getInventory().getItemInOffHand();
-                                                }
-                                                if (is == null || is.getType() != Material.CHEST) {
-                                                    return;
-                                                }
-                                                exploitMessage(event.getPlayer(), entity);
-                                                event.setCancelled(true);
-
-                                                ((ChestedHorse) entity).setCarryingChest(true);
-                                                ((ChestedHorse) entity).setCarryingChest(false);
-                                                fTimer.getPunish().put(event.getPlayer(), entity);
-                                            }
-
+                                            exploitMessage(event.getPlayer(), entity);
+                                            event.setCancelled(true);
+                                            fTimer.getPunish().put(event.getPlayer(), entity);
+                                            return;
                                         }
 
-                                    }.runTaskLater(this.plugin, 1);
+                                        if (entity instanceof ChestedHorse && ((ChestedHorse) entity).isTamed()) {
+                                            ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
+                                            if (is == null || is.getType() != Material.CHEST) {
+                                                is = event.getPlayer().getInventory().getItemInOffHand();
+                                            }
+                                            if (is == null || is.getType() != Material.CHEST) {
+                                                return;
+                                            }
+                                            exploitMessage(event.getPlayer(), entity);
+                                            event.setCancelled(true);
+
+                                            ((ChestedHorse) entity).setCarryingChest(true);
+                                            ((ChestedHorse) entity).setCarryingChest(false);
+                                            fTimer.getPunish().put(event.getPlayer(), entity);
+                                        }
+                                    }, 1, entity);
                                 } else {
 
                                     try {
