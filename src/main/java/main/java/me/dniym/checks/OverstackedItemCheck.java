@@ -43,6 +43,10 @@ public class OverstackedItemCheck {
         return CheckContainer(itemStack, obj, false);
     }
 
+    public static boolean isOverstacked(ItemStack is) {
+    	return is.getAmount() > is.getMaxStackSize();
+    }
+    
     public static boolean CheckContainer(ItemStack is, Object obj, Boolean silent) {
         if (is == null) {
             return false;

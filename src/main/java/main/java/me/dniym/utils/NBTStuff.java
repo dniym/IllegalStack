@@ -1,6 +1,7 @@
 package main.java.me.dniym.utils;
 
 import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.actions.Actions;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.listeners.fListener;
@@ -173,24 +174,6 @@ public class NBTStuff {
         return false;
     }
 
-    public static void checkForNegativeDurability(ItemStack is, Player p) {
-        if (is == null) {
-            return;
-        }
-
-        if (IllegalStack.isHasAttribAPI()) {
-            if (is.hasItemMeta() && is.getItemMeta() instanceof Damageable) {
-                Damageable dmg = (Damageable) is.getItemMeta();
-                if (dmg.getDamage() > is.getType().getMaxDurability()) {
-                    fListener.getLog().append(Msg.IllegalStackDurability.getValue(p, is), Protections.FixNegativeDurability);
-                    dmg.setDamage(is.getType().getMaxDurability());
-                    is.setItemMeta((ItemMeta) dmg);
-
-                }
-            }
-        }
-    }
-
     public static void checkForBadCustomData(ItemStack is, Player p, boolean sendToPlayer) {
 
     	if(!is.hasItemMeta())
@@ -258,5 +241,21 @@ public class NBTStuff {
         return data.has(key, PersistentDataType.STRING);
 
     }
+
+	public static boolean hasNegativeDurability(ItemStack is, Player p) {
+        if (is == null) {
+            return false;
+        }
+
+        if (IllegalStack.isHasAttribAPI()) {
+            if (is.hasItemMeta() && is.getItemMeta() instanceof Damageable) {
+                Damageable dmg = (Damageable) is.getItemMeta();
+                if (dmg.getDamage() > is.getType().getMaxDurability()) 
+                	return true;
+            }
+        }
+        
+		return false;
+	}
 
 }

@@ -4,6 +4,7 @@ import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.listeners.fListener;
+import main.java.me.dniym.listeners.mcMMOListener;
 import main.java.me.dniym.utils.SlimefunCompat;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class IllegalEnchantCheck {
@@ -50,6 +52,59 @@ public class IllegalEnchantCheck {
         return invalid;
     }
 
+    public static HashMap<Enchantment,String> checkEnchants (ItemStack is,Player p) {
+    	
+    	HashMap<Enchantment,String> replace = new HashMap<Enchantment,String>();
+        if (!mcMMOListener.ismcMMOActive(p)) {
+        	
+            if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
+                if (!Protections.OnlyFunctionInWorlds.getTxtSet().contains(p.getWorld().getName())) //isn't in a checked world
+                    return replace;
+            
+            if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) 
+                return replace;
+            
+            if (is != null && !is.getEnchantments().isEmpty()) {
+            	
+                for (Enchantment en : is.getEnchantments().keySet()) {
+                    if (is.getEnchantmentLevel(en) > en.getMaxLevel()) {
+                    	
+                        if (SlimefunCompat.isValid(is, en)) 
+                            continue;
+                        
+                        if (IllegalStack.isClueScrolls() && en == Enchantment.DURABILITY && is.getType() == Material.PAPER) 
+                            continue;
+                        
+                        if (IllegalStack.isEpicRename() && ((en == Enchantment.LURE || en == Enchantment.ARROW_INFINITE) && is
+                                .getEnchantmentLevel(en) == 4341)) 
+                            continue;
+                        
+                        if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) 
+                            break;
+                        
+                        if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en))) 
+                            continue;
+
+                        replace.put(en,Msg.IllegalEnchantLevel.getValue(p,is,en));
+                        
+                    } else {
+                        if (!en.canEnchantItem(is)) {
+                            if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) 
+                                continue;
+                            
+                            if (SlimefunCompat.isValid(is, en)) 
+                                continue;
+                            
+                            replace.put(en,Msg.IllegalEnchantType.getValue(p,is,en));
+                            
+                        }
+                    }
+                }
+                
+            }
+        }
+        return replace;
+    }
     public static boolean isIllegallyEnchanted(ItemStack itemStack, Object obj) {
         return isIllegallyEnchanted(itemStack, obj, false);
     }
@@ -138,7 +193,9 @@ public class IllegalEnchantCheck {
             for (Enchantment en : replace) {
                 itemStack.removeEnchantment(en);
                 if (en.canEnchantItem(itemStack)) {
-                    itemStack.addEnchantment(en, en.getMaxLevel());
+                	int maxLevel = Protections.CustomEnchantOverride.getMaxAllowedEnchantLevel(en);
+                	
+                    itemStack.addEnchantment(en, maxLevel);
                 }
             }
         }

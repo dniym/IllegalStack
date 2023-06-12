@@ -10,6 +10,7 @@ import main.java.me.dniym.listeners.ProtectionListener;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.listeners.mcMMOListener;
 import main.java.me.dniym.listeners.pLisbListener;
+import main.java.me.dniym.timers.asyncProtectionTimer;
 import main.java.me.dniym.timers.fTimer;
 import main.java.me.dniym.timers.sTimer;
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -66,7 +68,7 @@ public class IllegalStack extends JavaPlugin {
 
 
     private static String version = "";
-    private int ScanTimer = 0;
+    private BukkitTask ScanTimer = null;
     private int SignTimer = 0;
 //	private static NMSEntityVillager nmsTrader= null;
 
@@ -126,6 +128,11 @@ public class IllegalStack extends JavaPlugin {
         if (fListener.getInstance() == null) {
             plugin.getServer().getPluginManager().registerEvents(new fListener(plugin), plugin);
         }
+        
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, new asyncProtectionTimer(plugin), 10, 10);
+        
+        //plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new syncEventHandler(plugin), 10, 10);
+        /*
         if (Protections.RemoveOverstackedItems.isEnabled()) {
             if (plugin.ScanTimer == 0) {
                 plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new fTimer(plugin), 10, 10);
@@ -136,7 +143,7 @@ public class IllegalStack extends JavaPlugin {
                 plugin.getServer().getScheduler().cancelTask(plugin.ScanTimer);
             }
         }
-
+*/
 
         if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
             if (plugin.SignTimer == 0) {
@@ -448,6 +455,7 @@ public class IllegalStack extends JavaPlugin {
             this.getServer().getPluginManager().registerEvents(new ProtectionListener(this), this);
         }
 
+        /*
         if (Protections.RemoveOverstackedItems.isEnabled() || Protections.PreventVibratingBlocks.isEnabled()) {
             ScanTimer = getServer().getScheduler().scheduleSyncRepeatingTask(
                     this,
@@ -456,7 +464,9 @@ public class IllegalStack extends JavaPlugin {
                     Protections.ItemScanTimer.getIntValue()
             );
         }
-
+*/
+        ScanTimer = getServer().getScheduler().runTaskTimerAsynchronously(plugin, new asyncProtectionTimer(plugin), 10, 10);
+        
         if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
             SignTimer = getServer().getScheduler().scheduleSyncRepeatingTask(this, new sTimer(), 10, 10);
         }
@@ -890,7 +900,8 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getServer().getScheduler().cancelTask(ScanTimer);
+        //getServer().getScheduler().cancelTask(ScanTimer);
+        ScanTimer.cancel();
         getServer().getScheduler().cancelTask(SignTimer);
         getServer().getScheduler().cancelTasks(this);
         writeConfig();

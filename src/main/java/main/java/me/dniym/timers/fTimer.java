@@ -113,7 +113,7 @@ public class fTimer implements Runnable {
             fListener.punishPlayer(p, punish.get(p));
         }
         punish.clear();
-
+/*
         if (Protections.DamagePlayersAboveNether.isEnabled() && System.currentTimeMillis() >= nextNetherDamage) {
         	 nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000);
         	for(World w:plugin.getServer().getWorlds())
@@ -126,6 +126,8 @@ public class fTimer implements Runnable {
         				
         	
         }
+        */
+        
         if (Protections.BlockNonPlayersInEndPortal.isEnabled() && getDragon() != null && System.currentTimeMillis() > endScan) {
             endScan = System.currentTimeMillis() + 500L;
             if (getDragon().getEnvironment() == Environment.THE_END) {
@@ -233,6 +235,7 @@ public class fTimer implements Runnable {
                 }
             }
 
+            /*
             for (Player p : plugin.getServer().getOnlinePlayers()) {
                 if (SpigotMethods.isNPC(p)) {
                     continue;
@@ -713,7 +716,7 @@ public class fTimer implements Runnable {
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 

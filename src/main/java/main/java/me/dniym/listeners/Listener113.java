@@ -44,6 +44,7 @@ public class Listener113 implements Listener {
         	
         		CreatureSpawner cs = e.getSpawner();
         		EntityType et = e.getEntityType();
+      		
         		if(et != null && Protections.ResetSpawnersOfTypeOnSpawn.isWhitelisted(et))
         		{
         			e.setCancelled(true);

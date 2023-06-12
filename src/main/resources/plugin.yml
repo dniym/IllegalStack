@@ -2,7 +2,7 @@ main: main.java.me.dniym.IllegalStack
 name: IllegalStack
 version: "${version}"
 api-version: 1.13
-description: Closes some dupe bugs still present in vanilla  minecraft.
+description:  Closes some dupe bugs still present in vanilla  minecraft.
 author: dNiym
 softdepend: [Magic, Factions, NBTAPI, ProtocolLib, Slimefun, CraftingStore, DynamicShop, ClueScrolls, mcMMO, JetsMinions, SmartInvs, FactionsX]
 loadbefore: [MythicDrops]

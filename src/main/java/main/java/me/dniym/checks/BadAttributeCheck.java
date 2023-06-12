@@ -47,6 +47,29 @@ public class BadAttributeCheck {
         return is != null && is.getType() != Material.AIR && checkForBadCustomData(is, obj);
     }
 
+    public static HashSet<Attribute> getBadAttributes(ItemStack is, Player p) {
+    	HashSet<Attribute> toRemove = new HashSet<Attribute>();
+        if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) 
+            return toRemove;
+        
+        ItemMeta itemMeta = is.getItemMeta();
+        if (IllegalStack.isHasAttribAPI()) {
+            if (itemMeta.hasAttributeModifiers()) {
+                StringBuilder attribs = new StringBuilder();
+                
+                for (Attribute a : itemMeta.getAttributeModifiers().keySet()) {
+
+                    for (AttributeModifier st : itemMeta.getAttributeModifiers(a)) {
+                        attribs.append(" ").append(st.getName()).append(" value: ").append(st.getAmount());
+                    }
+                    toRemove.add(a);
+                }
+                
+            }
+        }       
+        return toRemove;
+    }
+    
     public static boolean checkForBadCustomData(ItemStack itemStack, Object obj) {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (IllegalStack.isHasAttribAPI()) {

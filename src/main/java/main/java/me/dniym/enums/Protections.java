@@ -671,7 +671,7 @@ public enum Protections {
             8,
             true,
             "Destroy Rail / Carpet Dupers",
-            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19",
+            "> 1.12",
             "Exploits.Other.PreventRailDupe",
             "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.",
             "",
@@ -953,7 +953,7 @@ public enum Protections {
             19,
             true,
             "Prevent Villager Trade Cheesing",
-            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19",
+            "> 1.14",
             "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing",
             "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.",
             "",
@@ -995,7 +995,7 @@ public enum Protections {
             46,
             true,
             "Prevent Tripwire Dupe",
-            "1.15 / 1.16 / 1.17 / 1.18 / 1.19",
+            "> 1.15",
             "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe",
             "Prevents players from using trapdoors to dupe tripwire hooks.",
             "",
@@ -1037,7 +1037,7 @@ public enum Protections {
     		33,
     		false,
     		"Force Spawner Resets",
-    		"> 1.12",
+    		"ALL",
     		"UserRequested.Spawners.SpawnerReset",
     		"Options for resetting spawners of a specific type",
     		"",
@@ -1493,7 +1493,7 @@ public enum Protections {
         for (Enchantment removeEnchantment : replace) {
             itemStack.removeEnchantment(removeEnchantment);
             if (removeEnchantment.canEnchantItem(itemStack)) {
-                itemStack.addEnchantment(removeEnchantment, removeEnchantment.getMaxLevel());
+                itemStack.addEnchantment(removeEnchantment, Protections.CustomEnchantOverride.getMaxAllowedEnchantLevel(removeEnchantment));
                 player.sendMessage(Msg.StaffEnchantFixed.getValue(player, itemStack, removeEnchantment));
             }
         }
@@ -1641,6 +1641,10 @@ public enum Protections {
             return false; //must be a child node
         }
 
+        if (this.getVersion().contains("< 1.20")) {
+            return !serverVersion.contains("1.20");
+        }
+
         if (this.getVersion().contains("< 1.19")) {
             return !serverVersion.contains("1.19");
         }
@@ -1655,7 +1659,7 @@ public enum Protections {
 
         if (this.getVersion().contains("< 1.15")) {
             return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19");
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");
         }
 
         if (this.getVersion().equalsIgnoreCase("1.14.4") && !serverVersion.contains("1.14.R4")) {
@@ -1667,6 +1671,10 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("ALL")) {
+            return true;
+        }
+
+        if (this.getVersion().equalsIgnoreCase("1.20") && serverVersion.contains("1.20")) {
             return true;
         }
 
@@ -1718,15 +1726,25 @@ public enum Protections {
             return true;
         }
 
-        if (this.getVersion().contains("> 1.12")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
-                    .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
-                return true;
-            }
+        if (this.getVersion().contains("1.20") && serverVersion.contains("1.20")) {
+            return true;
         }
 
+        if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+                .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
+            return true;
+        }
+    	
+
+    	if (this.getVersion().contains("> 1.12")) {
+    		if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+                .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
+    			return true;
+    		}
+    	}
+
         if (this.getVersion().contains("> 1.9")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11") ||
                     this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9")) {
@@ -1735,7 +1753,7 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("> 1.11")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11")) {
                 return true;
@@ -1757,7 +1775,6 @@ public enum Protections {
             return Material.matchMaterial("CAVE_AIR") == null;
         }
 
-
         return false;
 
     }
@@ -1765,6 +1782,12 @@ public enum Protections {
     public boolean isVersionSpecific(String serverVersion) {
         if (this.version.isEmpty()) {
             return false;
+        }
+
+        if (this.getVersion().equals("1.20")) {
+            if (serverVersion.contains("v1_20")) {
+                return true;
+            }
         }
 
         if (this.getVersion().equals("1.19")) {
@@ -1805,6 +1828,11 @@ public enum Protections {
         if (this.getVersion().equals("1.14.3")) {
             return serverVersion.contains("v1_14_R3");
         }
+
+        if (serverVersion.contains("v1_20") && this.getVersion().contains("1.20")) {
+            return true;
+        }
+        
         if (serverVersion.contains("v1_19") && this.getVersion().contains("1.19")) {
             return true;
         }
@@ -2184,7 +2212,7 @@ public enum Protections {
     	if (this == Protections.ResetSpawnersOfTypeOnSpawn && et != null)
     	{
     		for(String s:Protections.ResetSpawnersOfTypeOnSpawn.getTxtSet())
-    			if(s.contains("*") || s.toLowerCase().contains(et.name().toLowerCase()))
+    			if(s.contains("*") || s.toLowerCase().equals(et.name().toLowerCase()))
     				return true;
 
     	}
@@ -2353,6 +2381,38 @@ public enum Protections {
         return children;
     }
 
+    public int getMaxAllowedEnchantLevel(Enchantment en) {
+        for (String s : this.getTxtSet()) {
+            String[] val = s.split("\\.");
+            if (val.length < 2) {
+                LOGGER.error(
+                        "Unable to translate an enchantment/level from the {} path please check the config.yml!",
+                        this.getConfigPath()
+                );
+                return en.getMaxLevel();
+            }
+            Enchantment ench = Enchantment.getByName(val[0]);
+            int level = Integer.parseInt(val[1]);
+            if (ench == null) {
+                LOGGER.error(
+                        "Unable to locate enchantment: {} please check your config.yml at section: {} and verify that you are using a valid enchantment.",
+                        val[0],
+                        this.getConfigPath()
+                );
+                return en.getMaxLevel();
+            }
+
+            if (en != ench) //not a overridden enchantment
+            {
+                continue;
+            }
+            //level higher than override.
+            return level;
+
+            //otherwise enchant is good
+        }
+        return en.getMaxLevel();
+    }
     public boolean isAllowedEnchant(Enchantment en, int lvl) {
 
 

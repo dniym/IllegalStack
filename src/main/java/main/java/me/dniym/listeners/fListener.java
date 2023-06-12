@@ -294,7 +294,7 @@ public class fListener implements Listener {
             }
         }
 
-        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18")) {
+        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18") && !ver.contains("v1_19")) {
             if (ver.contains("v1_13")) {
                 LOGGER.info("MC Version 1.13+ detected!");
 
@@ -666,6 +666,7 @@ public class fListener implements Listener {
                 e.getMount().remove();
             }
         }
+
 
         if (Protections.DisableRidingExploitableMobs.isEnabled()) {
             if (IllegalStack.hasChestedAnimals()) {
@@ -1262,7 +1263,7 @@ public class fListener implements Listener {
                     for (Enchantment en : replace) {
                         is.removeEnchantment(en);
                         if (en.canEnchantItem(is)) {
-                            is.addEnchantment(en, en.getMaxLevel());
+                            is.addEnchantment(en, Protections.CustomEnchantOverride.getMaxAllowedEnchantLevel(en));
                         }
                     }
                 }
@@ -2794,7 +2795,7 @@ public class fListener implements Listener {
                 for (Enchantment en : replace) {
                     is.removeEnchantment(en);
                     if (en.canEnchantItem(is)) {
-                        is.addEnchantment(en, en.getMaxLevel());
+                        is.addEnchantment(en, Protections.CustomEnchantOverride.getMaxAllowedEnchantLevel(en));
                     }
                 }
             }
@@ -2920,7 +2921,7 @@ public class fListener implements Listener {
                 for (Enchantment en : replace) {
                     is.removeEnchantment(en);
                     if (en.canEnchantItem(is)) {
-                        is.addEnchantment(en, en.getMaxLevel());
+                        is.addEnchantment(en, Protections.CustomEnchantOverride.getMaxAllowedEnchantLevel(en));
                     }
                 }
             }
@@ -3175,7 +3176,7 @@ public class fListener implements Listener {
                         for (Enchantment en : replace) {
                             is.removeEnchantment(en);
                             if (en.canEnchantItem(is)) {
-                                is.addEnchantment(en, en.getMaxLevel());
+                                is.addEnchantment(en, Protections.CustomEnchantOverride.getMaxAllowedEnchantLevel(en));
                             }
                         }
                     }
