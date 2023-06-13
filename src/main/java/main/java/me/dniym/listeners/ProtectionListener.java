@@ -5,6 +5,7 @@ import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.utils.NBTStuff;
 
+import main.java.me.dniym.utils.Scheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Material;
@@ -17,7 +18,6 @@ import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class ProtectionListener implements Listener {
 
@@ -53,17 +53,12 @@ public class ProtectionListener implements Listener {
                 p.setGliding(false);
                 e.setCancelled(true);
             }
-            new BukkitRunnable() {
-                final Player player = p;
-
-                @Override
-                public void run() {
-                    if (player.getLocation().getBlockY() > 255 && player.isGliding()) {
-                        fListener.getLog().append2(Msg.GlideAboveMaxBuild.getValue(p, ""));
-                        player.setGliding(false);
-                    }
+            Scheduler.runTaskLater(this.plugin, () -> {
+                if (p.getLocation().getBlockY() > 255 && p.isGliding()) {
+                    fListener.getLog().append2(Msg.GlideAboveMaxBuild.getValue(p, ""));
+                    p.setGliding(false);
                 }
-            }.runTaskLater(this.plugin, 3250);
+            }, 3250, p);
 
         }
     }

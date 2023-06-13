@@ -13,6 +13,10 @@ repositories {
         url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
     }
     maven {
+        name = "PaperMC"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
         name = "Spigot"
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
@@ -38,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
+    compileOnly("dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0-SNAPSHOT")
     implementation("com.elmakers.mine.bukkit:MagicAPI:8.6")
     implementation("de.tr7zw:item-nbt-api-plugin:2.8.0")
@@ -56,11 +60,11 @@ dependencies {
 }
 
 the<JavaPluginExtension>().toolchain {
-    languageVersion.set(JavaLanguageVersion.of(16))
+    languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 configurations.all {
-    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 16)
+    attributes.attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
 }
 
 tasks.compileJava.configure {
