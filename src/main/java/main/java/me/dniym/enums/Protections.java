@@ -734,7 +734,7 @@ public enum Protections {
             36,
             true,
             "Prevent Infinite Elytra Flight",
-            "> 1.9",
+            "1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17",
             "Exploits.Other.PreventInvalidElytraFlight",
             "Prevents players from using a glitch that grants unlimited elytra flight time without rockets,  This exploit allows the player to ascend vertically starting at the max build height until they decide to start descending or their elytra breaks.",
             "",
@@ -953,7 +953,7 @@ public enum Protections {
             19,
             true,
             "Prevent Villager Trade Cheesing",
-            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20",
+            "> 1.14",
             "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing",
             "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.",
             "",
@@ -1690,7 +1690,7 @@ public enum Protections {
             return serverVersion.contains("v1_14_R3");
         }
 
-        String[] versionParts = serverVersion.split("v|\\.");
+        String[] versionParts = serverVersion.split("[v_]");
         if (versionParts.length >= 2) {
             String majorVersion = versionParts[1];
             String minorVersion = versionParts[2];
