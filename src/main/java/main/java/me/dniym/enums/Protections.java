@@ -671,7 +671,7 @@ public enum Protections {
             8,
             true,
             "Destroy Rail / Carpet Dupers",
-            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19",
+            "> 1.12",
             "Exploits.Other.PreventRailDupe",
             "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.",
             "",
@@ -953,7 +953,7 @@ public enum Protections {
             19,
             true,
             "Prevent Villager Trade Cheesing",
-            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19",
+            "> 1.14",
             "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing",
             "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.",
             "",
@@ -995,7 +995,7 @@ public enum Protections {
             46,
             true,
             "Prevent Tripwire Dupe",
-            "1.15 / 1.16 / 1.17 / 1.18 / 1.19",
+            "> 1.15",
             "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe",
             "Prevents players from using trapdoors to dupe tripwire hooks.",
             "",
@@ -1042,7 +1042,7 @@ public enum Protections {
     		"Options for resetting spawners of a specific type",
     		"",
     		2
-    		
+
     ),
     ResetSpawnersOfType(
             33,
@@ -1066,7 +1066,7 @@ public enum Protections {
     		2,
     		false
     		),
-   
+
     RemoveItemsMatchingName(
             23,
             false,
@@ -1637,126 +1637,36 @@ public enum Protections {
         if (serverVersion.contains("_")) {
             serverVersion = serverVersion.replace("_", ".");
         }
+
         if (this.getVersion().isEmpty()) {
-            return false; //must be a child node
+            return false; // must be a child node
         }
 
-        if (this.getVersion().contains("< 1.19")) {
-            return !serverVersion.contains("1.19");
-        }
-
-        if (this.getVersion().contains("< 1.18")) {
-            return !serverVersion.contains("1.18");
-        }
-
-        if (this.getVersion().contains("< 1.17")) {
-            return !serverVersion.contains("1.17");
-        }
-
-        if (this.getVersion().contains("< 1.15")) {
-            return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19");
-        }
-
-        if (this.getVersion().equalsIgnoreCase("1.14.4") && !serverVersion.contains("1.14.R4")) {
-            return false;
-        }
-
-        if (this.getVersion().equalsIgnoreCase("1.14.3") && !serverVersion.contains("1.14.R3")) {
-            return false;
-        }
-
-        if (this.getVersion().contains("ALL")) {
+        if (serverVersion.contains(this.getVersion()) || this.getVersion().equalsIgnoreCase("ALL")) {
             return true;
         }
 
-        if (this.getVersion().equalsIgnoreCase("1.19") && serverVersion.contains("1.19")) {
-            return true;
-        }
+        if (this.getVersion().contains("<") || this.getVersion().contains(">")) {
+            String[] versionParts = this.getVersion().split(" ");
+            String operator = versionParts[0];
+            String versionNumber = versionParts[1];
+            String[] serverVersionParts = serverVersion.split("\\.");
+            String[] targetVersionParts = versionNumber.split("\\.");
+            int serverMajor = Integer.parseInt(serverVersionParts[0]);
+            int serverMinor = Integer.parseInt(serverVersionParts[1]);
+            int targetMajor = Integer.parseInt(targetVersionParts[0]);
+            int targetMinor = Integer.parseInt(targetVersionParts[1]);
 
-        if (this.getVersion().equalsIgnoreCase("1.18") && serverVersion.contains("1.18")) {
-            return true;
-        }
-
-        if (this.getVersion().equalsIgnoreCase("1.17") && serverVersion.contains("1.17")) {
-            return true;
-        }
-
-        if (this.getVersion().equalsIgnoreCase("1.16") && serverVersion.contains("1.16")) {
-            return true;
-        }
-
-        if (this.getVersion().equalsIgnoreCase("1.15") && serverVersion.contains("1.15")) {
-            return true;
-        }
-
-        if (this.getVersion().equalsIgnoreCase("1.14") && serverVersion.contains("1.14")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("1.14") && serverVersion.contains("1.14")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("1.15") && serverVersion.contains("1.15")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("1.16") && serverVersion.contains("1.16")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("1.17") && serverVersion.contains("1.17")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("1.18") && serverVersion.contains("1.18")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("1.19") && serverVersion.contains("1.19")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("> 1.12")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
-                    .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
-                return true;
+            if (operator.equals("<")) {
+                if (serverMajor < targetMajor || (serverMajor == targetMajor && serverMinor < targetMinor)) {
+                    return true;
+                }
+            } else if (operator.equals(">")) {
+                if (serverMajor > targetMajor || (serverMajor == targetMajor && serverMinor >= targetMinor)) {
+                    return true;
+                }
             }
         }
-
-        if (this.getVersion().contains("> 1.9")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
-                    .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
-                    "1.11") ||
-                    this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9")) {
-                return true;
-            }
-        }
-
-        if (this.getVersion().contains("> 1.11")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
-                    .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
-                    "1.11")) {
-                return true;
-            }
-        }
-        if (this.getVersion().contains("1.12")) {
-            if (serverVersion.contains("1.12")) {
-                return true;
-            }
-        }
-        if (this.getVersion().contains("1.13") && serverVersion.contains("1.13")) {
-            return true;
-        }
-
-        if (this.getVersion().contains("> 1.13")) {
-            return Material.matchMaterial("CAVE_AIR") != null;
-        }
-        if (this.getVersion().contains("< 1.13")) {
-            return Material.matchMaterial("CAVE_AIR") == null;
-        }
-
 
         return false;
 
@@ -1765,30 +1675,6 @@ public enum Protections {
     public boolean isVersionSpecific(String serverVersion) {
         if (this.version.isEmpty()) {
             return false;
-        }
-
-        if (this.getVersion().equals("1.19")) {
-            if (serverVersion.contains("v1_19")) {
-                return true;
-            }
-        }
-
-        if (this.getVersion().equals("1.18")) {
-            if (serverVersion.contains("v1_18")) {
-                return true;
-            }
-        }
-        if (this.getVersion().equals("1.17")) {
-            if (serverVersion.contains("v1_17")) {
-                return true;
-            }
-        }
-
-        if (this.getVersion().equals("1.16")) {
-            if (serverVersion.contains("v1_16")) {
-                return true;
-            }
-
         }
         if (this.getVersion().equals("1.15")) {
             if (serverVersion.contains("v1_15_R1")) {
@@ -1800,47 +1686,21 @@ public enum Protections {
         if (this.getVersion().equals("1.14.4")) {
             return serverVersion.contains("v1_14_R4");
         }
-
-
         if (this.getVersion().equals("1.14.3")) {
             return serverVersion.contains("v1_14_R3");
         }
-        if (serverVersion.contains("v1_19") && this.getVersion().contains("1.19")) {
-            return true;
+
+        String[] versionParts = serverVersion.split("[v_]");
+        if (versionParts.length >= 2) {
+            String majorVersion = versionParts[1];
+            String minorVersion = versionParts[2];
+
+            if (this.getVersion().contains(majorVersion + "." + minorVersion)) {
+                return true;
+            }
         }
 
-        if (serverVersion.contains("v1_18") && this.getVersion().contains("1.18")) {
-            return true;
-        }
-
-        if (serverVersion.contains("v1_17") && this.getVersion().contains("1.17")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_16") && this.getVersion().contains("1.16")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_15") && this.getVersion().contains("1.15")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_14") && this.getVersion().contains("1.14")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_13") && this.getVersion().contains("1.13")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_12") && this.getVersion().contains("1.12")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_11") && this.getVersion().contains("1.11")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_10") && this.getVersion().contains("1.10")) {
-            return true;
-        }
-        if (serverVersion.contains("v1_9") && this.getVersion().contains("1.9")) {
-            return true;
-        }
-        return serverVersion.contains("v1_8") && this.getVersion().contains("1.8");
+        return false;
     }
 
     public String getConfigPath() {
@@ -2179,7 +2039,7 @@ public enum Protections {
     public boolean isWhitelisted(String name) {
         return isWhitelisted(name, null);
     }
-    
+
     public boolean isWhitelisted(EntityType et) {
     	if (this == Protections.ResetSpawnersOfTypeOnSpawn && et != null)
     	{
@@ -2189,7 +2049,7 @@ public enum Protections {
 
     	}
     	return false;
-    	
+
     }
     public boolean isWhitelisted(String name, Player player) {
 
@@ -2403,11 +2263,11 @@ public enum Protections {
             boolean minion = MinionAPI.isMinion(entity);
             if (minion) {
                 return true;
-            } 
+            }
         }
         if(entity instanceof LivingEntity && SpigotMethods.isNPC((LivingEntity)entity))
         	return true;
-        
+
         return false;
     }
 
