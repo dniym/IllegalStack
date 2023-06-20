@@ -63,9 +63,12 @@ public class pLisbListener {
         }
 
         if (Protections.DisableChestsOnMobs.isEnabled()) {
-
-            ProtocolLibrary.getProtocolManager().addPacketListener(
-                    new PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
+    
+       		ProtocolLibrary.getProtocolManager().addPacketListener(
+       				new PacketAdapter(PacketAdapter.params().plugin(plugin).optionSync().types(PacketType.Play.Client.USE_ENTITY)) {
+        			  	  
+//            ProtocolLibrary.getProtocolManager().addPacketListener(
+  //                  new PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
 
                         @Override
                         public void onPacketReceiving(PacketEvent event) {
@@ -76,8 +79,9 @@ public class pLisbListener {
 
                             if (IllegalStack.hasChestedAnimals()) {
 
-                                if (event.isAsync()) {
+                            /*	if (event.isAsync()) {
                                     //event.setCancelled(true);
+                                     */
                                     Entity entity;
                                     try {
                                         entity = event
@@ -119,56 +123,8 @@ public class pLisbListener {
                                             fTimer.getPunish().put(event.getPlayer(), entity);
                                         }
                                     }, 1, entity);
-                                } else {
+                                    
 
-                                    try {
-                                        Entity entity = null;
-                                        try {
-                                            event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
-                                        } catch (RuntimeException ex) {
-                                            LOGGER.info("No entity available from id. ", ex);
-                                            return;
-                                        }
-                                        if (entity instanceof ChestedHorse && ((ChestedHorse) entity).isTamed()) {
-                                            ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
-                                            if (is == null || is.getType() != Material.CHEST) {
-                                                is = event.getPlayer().getInventory().getItemInOffHand();
-                                            }
-                                            if (is == null || is.getType() != Material.CHEST) {
-                                                return;
-                                            }
-                                            exploitMessage(event.getPlayer(), entity);
-
-                                            event.setCancelled(true);
-//                                        event.setPacket(new PacketContainer(Packet));
-                                            ((ChestedHorse) entity).setCarryingChest(true);
-                                            ((ChestedHorse) entity).setCarryingChest(false);
-                                            fTimer.getPunish().put(event.getPlayer(), entity);
-                                        }
-                                    } catch (IndexOutOfBoundsException ex) {
-                                        LOGGER.error("An error receiving a USE_ENTITY packet has occurred.", ex);
-                                    }
-                                }
-                            } else {
-                                try {
-
-                                    Entity entity = event.getPacket().getEntityModifier(event.getPlayer().getWorld()).read(0);
-                                    if (entity instanceof Horse && ((Horse) entity).isTamed()) {
-                                        ItemStack is = event.getPlayer().getInventory().getItemInHand();
-                                        if (!fListener.is18() && (is == null || is.getType() != Material.CHEST)) {
-                                            is = event.getPlayer().getInventory().getItemInOffHand();
-                                        }
-                                        if (is == null || is.getType() != Material.CHEST) {
-                                            return;
-                                        }
-                                        exploitMessage(event.getPlayer(), entity);
-                                        event.setCancelled(true);
-
-                                        fTimer.getPunish().put(event.getPlayer(), entity);
-                                    }
-                                } catch (IndexOutOfBoundsException ex) {
-                                    LOGGER.error("An error receiving a USE_ENTITY packet has occurred, ", ex);
-                                }
                             }
 
                         }
