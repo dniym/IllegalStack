@@ -84,6 +84,9 @@ public enum Msg {
     RemovedRenamedItem("Removed a renamed item ~item~ from the inventory of ~name~"),
     BlockedTripwireDupe(
             "Player ~name~ attempted to place a tripwire hook on a trap door, it has been removed (PreventTripwireDupe = true)"),
+    BlockedStringDupe(
+            "Removed a string that would have been broken by water..  Possible string dupe @"),
+    
     GenericItemRemoval("~item~ removed by protection ~protection~, found on source ~source~"),
     PlayerTrappedPortalMsg(
             "&cSorry ~name~ but that portal appears to not have a valid exit!  You would be trapped if you went through it!"),

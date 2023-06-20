@@ -75,6 +75,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -105,6 +106,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -3282,6 +3284,21 @@ public class fListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onStringShear(BlockFromToEvent e) {
+        if (Protections.DisableInWorlds.isWhitelisted(e.getBlock().getWorld().getName()) || !Protections.PreventStringDupe.isEnabled()) {
+            return;
+        }
+        
+        if(e.getToBlock().getType() == Material.TRIPWIRE)
+        {
+        	e.setCancelled(true);
+        	e.getToBlock().setType(Material.AIR);
+        	fListener.getLog().append(Msg.BlockedStringDupe.getValue(e.getBlock().getLocation(), ""), Protections.PreventStringDupe);
+        }
+    }
+
 
     @EventHandler
     public void onFish2(PlayerInteractEvent e) {

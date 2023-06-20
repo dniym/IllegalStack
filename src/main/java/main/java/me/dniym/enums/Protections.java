@@ -5,8 +5,8 @@ import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.utils.MagicHook;
 import main.java.me.dniym.utils.NBTStuff;
 import main.java.me.dniym.utils.SpigotMethods;
-import me.jet315.minions.MinionAPI;
-import me.jet315.minions.minions.Minion;
+//import me.jet315.minions.MinionAPI;
+//import me.jet315.minions.minions.Minion;
 import net.brcdev.shopgui.gui.gui.OpenGui;
 import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
 import org.apache.logging.log4j.LogManager;
@@ -671,7 +671,7 @@ public enum Protections {
             8,
             true,
             "Destroy Rail / Carpet Dupers",
-            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19",
+            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19/1.20",
             "Exploits.Other.PreventRailDupe",
             "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.",
             "",
@@ -693,7 +693,7 @@ public enum Protections {
             27,
             true,
             "Disable Chests on Mobs",
-            "ALL",
+            "< 1.18",
             "Exploits.Other.DisableChestsOnMobs",
             "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.",
             "",
@@ -953,7 +953,7 @@ public enum Protections {
             19,
             true,
             "Prevent Villager Trade Cheesing",
-            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19",
+            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20",
             "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing",
             "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.",
             "",
@@ -995,12 +995,23 @@ public enum Protections {
             46,
             true,
             "Prevent Tripwire Dupe",
-            "1.15 / 1.16 / 1.17 / 1.18 / 1.19",
+            "1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20",
             "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe",
             "Prevents players from using trapdoors to dupe tripwire hooks.",
             "",
             0
     ),
+    
+    PreventStringDupe(
+    		46,
+    		true,
+    		"Prevent String Duping",
+    		46,
+    		"Exploits.1_15_Exploits.Dupes.PreventStringDupe",
+    		"Prevents water from being used to trigger a string duplication glitch.",
+    		"",
+    		0
+    		),
     //User Requested | Obscure Features
     MeltSnowballsInWater(
             65,
@@ -1641,21 +1652,27 @@ public enum Protections {
             return false; //must be a child node
         }
 
+        if (this.getVersion().contains("< 1.20")) {
+            return !serverVersion.contains("1.20");
+        }
+
         if (this.getVersion().contains("< 1.19")) {
-            return !serverVersion.contains("1.19");
+            return !serverVersion.contains("1.19") 	&& !serverVersion.contains("1.20");
         }
 
         if (this.getVersion().contains("< 1.18")) {
-            return !serverVersion.contains("1.18");
+            return !serverVersion.contains("1.18") && !serverVersion.contains("1.18")
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");
         }
 
         if (this.getVersion().contains("< 1.17")) {
-            return !serverVersion.contains("1.17");
+            return !serverVersion.contains("1.17") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");
         }
 
         if (this.getVersion().contains("< 1.15")) {
             return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19");
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");
         }
 
         if (this.getVersion().equalsIgnoreCase("1.14.4") && !serverVersion.contains("1.14.R4")) {
@@ -1667,6 +1684,10 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("ALL")) {
+            return true;
+        }
+
+        if (this.getVersion().equalsIgnoreCase("1.20") && serverVersion.contains("1.20")) {
             return true;
         }
 
@@ -1718,15 +1739,19 @@ public enum Protections {
             return true;
         }
 
+        if (this.getVersion().contains("1.20") && serverVersion.contains("1.20")) {
+            return true;
+        }
+
         if (this.getVersion().contains("> 1.12")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
                 return true;
             }
         }
 
         if (this.getVersion().contains("> 1.9")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11") ||
                     this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9")) {
@@ -1735,7 +1760,7 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("> 1.11")) {
-            if (serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11")) {
                 return true;
@@ -1765,6 +1790,12 @@ public enum Protections {
     public boolean isVersionSpecific(String serverVersion) {
         if (this.version.isEmpty()) {
             return false;
+        }
+
+        if (this.getVersion().equals("1.20")) {
+            if (serverVersion.contains("v1_20")) {
+                return true;
+            }
         }
 
         if (this.getVersion().equals("1.19")) {
@@ -1805,6 +1836,11 @@ public enum Protections {
         if (this.getVersion().equals("1.14.3")) {
             return serverVersion.contains("v1_14_R3");
         }
+        
+        if (serverVersion.contains("v1_20") && this.getVersion().contains("1.20")) {
+            return true;
+        }
+        
         if (serverVersion.contains("v1_19") && this.getVersion().contains("1.19")) {
             return true;
         }
@@ -2399,12 +2435,12 @@ public enum Protections {
 
     public boolean isThirdPartyObject(Entity entity) {
 
-        if (IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("JetsMinions") != null) {
+/*        if (IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("JetsMinions") != null) {
             boolean minion = MinionAPI.isMinion(entity);
             if (minion) {
                 return true;
             } 
-        }
+        } */
         if(entity instanceof LivingEntity && SpigotMethods.isNPC((LivingEntity)entity))
         	return true;
         

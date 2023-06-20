@@ -43,7 +43,7 @@ repositories {
 
 dependencies {
     compileOnly("dev.folia:folia-api:1.19.4-R0.1-SNAPSHOT")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0-SNAPSHOT")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0")
     implementation("com.elmakers.mine.bukkit:MagicAPI:8.6")
     implementation("de.tr7zw:item-nbt-api-plugin:2.8.0")
     implementation("com.github.TheBusyBiscuit:Slimefun4:RC-30")
@@ -53,7 +53,7 @@ dependencies {
     
     implementation("fr.minuskube.inv:smart-invs:1.2.7")
     implementation("com.github.CraftingStore:MinecraftPlugin:master-SNAPSHOT")
-    compileOnly(":JetsMinions")
+    
     compileOnlyApi("org.apache.logging.log4j:log4j-api:2.0.1")
     compileOnly("org.jetbrains:annotations:21.0.1")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.0.0")
@@ -71,7 +71,7 @@ tasks.compileJava.configure {
     options.release.set(8)
 }
 
-version = "2.7.1"
+version = "2.8.4"
 
 tasks.named<Copy>("processResources") {
     filesMatching("plugin.yml") {
