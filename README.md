@@ -9,5 +9,6 @@ A spigot based plugin dedicated to fixing glitches and exploits that have made i
 
 ## Building this project
 
-Gradle is the recommended way to build the project. Use `./gradlew build` in the main project directory to build the project.
+Gradle is the recommended way to build the project. Use `./gradlew clean build` in the main project directory to build the 
+project.
 The output is located at `/build/libs/IllegalStack.jar`.
