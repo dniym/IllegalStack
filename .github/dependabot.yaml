@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: monthly
+    ignore:
+      # Provided and bundled by the minecraft server itself.
+      - dependency-name: io.netty:netty-all
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
