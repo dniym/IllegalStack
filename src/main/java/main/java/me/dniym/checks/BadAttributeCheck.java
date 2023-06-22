@@ -22,7 +22,7 @@ import java.util.HashSet;
 public class BadAttributeCheck {
 
     public static void CheckStorageInventory(CraftingInventory inventory, Player player) {
-        if (Protections.RemoveCustomAttributes.isEnabled() && IllegalStack.hasStorage()) {
+        if (Protections.RemoveCustomAttributes.isEnabled(inventory) && IllegalStack.hasStorage()) {
             if (Protections.AllowBypass.isEnabled() && player.hasPermission("illegalstack.enchantbypass")) {
                 return;
             }
@@ -34,6 +34,7 @@ public class BadAttributeCheck {
                             player,
                             "Crafting Inventory"
                     ));
+                    
                     inventory.removeItem(itemStack);
                 }
             }
@@ -41,7 +42,7 @@ public class BadAttributeCheck {
     }
 
     public static boolean hasBadAttributes(ItemStack is, Object obj) {
-        if (!Protections.RemoveCustomAttributes.isEnabled()) {
+        if (!Protections.RemoveCustomAttributes.isEnabled(obj)) {
             return false;
         }
         return is != null && is.getType() != Material.AIR && checkForBadCustomData(is, obj);

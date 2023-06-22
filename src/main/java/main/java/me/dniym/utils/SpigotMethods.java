@@ -7,6 +7,8 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
+
 import org.bukkit.entity.LivingEntity;
 
 public class SpigotMethods {
@@ -118,7 +120,7 @@ public class SpigotMethods {
 
         TextComponent cLink = new TextComponent(ChatColor.GRAY + "  -> ");
 
-        cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(p.getDescription()).create()));
+        cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(p.getDescription())));
 
         if (p.isList()) {
             TextComponent option = new TextComponent(ChatColor.GOLD + " [" + ChatColor.GREEN + "A");
@@ -126,13 +128,13 @@ public class SpigotMethods {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/istack enchantwhitelistmode"));
                 option.setHoverEvent(new HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder("Click to toggle adding EnchantedItemWhitelist add mode on/off").create()
+                        new Text("Click to toggle adding EnchantedItemWhitelist add mode on/off")
                 ));
             } else {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/istack value add " + p.name()));
                 option.setHoverEvent(new HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder("Click to add a value to this list.").create()
+                        new Text("Click to add a value to this list.")
                 ));
             }
 
@@ -142,7 +144,7 @@ public class SpigotMethods {
                 option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/istack value remove " + p.name()));
                 option.setHoverEvent(new HoverEvent(
                         HoverEvent.Action.SHOW_TEXT,
-                        new ComponentBuilder("Click to remove a value from this list.").create()
+                        new Text("Click to remove a value from this list.")
                 ));
                 cLink.addExtra(option);
             } else {
@@ -150,7 +152,7 @@ public class SpigotMethods {
             }
 
             option = new TextComponent(ChatColor.GRAY + "L" + ChatColor.GOLD + "] ");
-            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(p.findValue()).create()));
+            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(p.findValue())));
             cLink.addExtra(option);
 
         } else if (p.getIntValue() >= 0) {
@@ -169,10 +171,10 @@ public class SpigotMethods {
 
 
             TextComponent option = new TextComponent(ChatColor.GRAY + " [" + p.findValue() + pad + "] ");
-            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(p.findValue()).create()));
+            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(p.findValue())));
             option.setHoverEvent(new HoverEvent(
                     HoverEvent.Action.SHOW_TEXT,
-                    new ComponentBuilder(ChatColor.GREEN + "(Click to change)").create()
+                    new Text(ChatColor.GREEN + "(Click to change)")
             ));
             String command = "/istack value set " + p.name();
             option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
@@ -180,10 +182,9 @@ public class SpigotMethods {
             cLink.addExtra(option);
         } else if (!p.getTxtValue().isEmpty()) {
             TextComponent option = new TextComponent(ChatColor.GRAY + " [" + ChatColor.GREEN + "TXT" + ChatColor.GRAY + "] ");
-            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(p.findValue()).create()));
+            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(p.findValue())));
             option.setHoverEvent(new HoverEvent(
-                    HoverEvent.Action.SHOW_TEXT,
-                    new ComponentBuilder(ChatColor.GRAY + p.findValue() + ChatColor.GREEN + " (Click to change)").create()
+                    HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GRAY + p.findValue() + ChatColor.GREEN + " (Click to change)")
             ));
             String command = "/istack value set " + p.name() + " " + p.getConfigValue();
             option.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command));
@@ -195,7 +196,7 @@ public class SpigotMethods {
             }
 
             TextComponent option = new TextComponent(ChatColor.GOLD + " [" + status + ChatColor.GOLD + "] ");
-            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to toggle").create()));
+            option.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click to toggle")));
             String command = "/istack toggle " + p.name();
             option.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command + " " + catId));
             cLink.addExtra(option);
@@ -205,8 +206,7 @@ public class SpigotMethods {
         if (!p.getDescription().equalsIgnoreCase("")) {
 
             String desc = p.getDescription();
-
-            cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(desc).create()));
+            cLink.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(desc)));
         }
 
 

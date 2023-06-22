@@ -21,7 +21,6 @@ import main.java.me.dniym.utils.SlimefunCompat;
 import main.java.me.dniym.utils.SpigotMethods;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -86,7 +85,6 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -106,7 +104,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -296,7 +293,7 @@ public class fListener implements Listener {
             }
         }
 
-        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18")) {
+        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18") && !ver.contains("V1_19") && !ver.contains("v1_20")) {
             if (ver.contains("v1_13")) {
                 LOGGER.info("MC Version 1.13+ detected!");
 
@@ -563,9 +560,9 @@ public class fListener implements Listener {
     /*
      * Looks for bad signs, tripwire dupe, players on top of the nether etc
      */
-    @EventHandler
+    @EventHandler (ignoreCancelled = true)
     public void onSignPlace(BlockPlaceEvent e) {  //only affects versions 1.9 through 1.12
-        if (Protections.PreventTripwireDupe.isEnabled()) {
+        if (Protections.PreventTripwireDupe.isEnabled(e.getBlock().getWorld())) {
             if (e.getBlock().getType() == Material.TRIPWIRE_HOOK) {
                 for (BlockFace face : BlockFace.values()) {
                 	

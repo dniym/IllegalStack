@@ -27,6 +27,7 @@ public class ProtectionListener implements Listener {
         this.plugin = illegalStack;
     }
 
+    
     @EventHandler
     public void onPlayerSwapHandItemsEvent(PlayerSwapHandItemsEvent e) {
 

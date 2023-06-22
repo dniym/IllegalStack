@@ -93,7 +93,7 @@ public class fTimer implements Runnable {
     }
 
     public static void trackProjectile(Projectile proj) {
-        projTracker.put(proj, System.currentTimeMillis() + 14000L);
+        projTracker.put(proj, (System.currentTimeMillis() + (Protections.ProjectileDespawnDelay.getIntValue() * 1000)));
     }
 
     public static long getEndScanFinish() {
@@ -225,16 +225,13 @@ public class fTimer implements Runnable {
         }
 
         if (System.currentTimeMillis() >= this.nextScan) {
-            if (Protections.PreventProjectileExploit.isEnabled()) {
+            if (Protections.PreventProjectileExploit2.isEnabled()) {
                 HashSet<Projectile> removed = new HashSet<>();
                 for (Projectile p : projTracker.keySet()) {
-                    if (p == null || projTracker.get(p) >= System.currentTimeMillis()) {
+                    if (p == null || System.currentTimeMillis() > projTracker.get(p) ) {
                         removed.add(p);
-                    }
-
-                    if (p != null && p.getLocation().getBlock().getType() == Material.BUBBLE_COLUMN) {
-                        removed.add(p);
-                        Scheduler.executeOrScheduleSync(plugin, () -> p.remove(), p);
+                        if(!p.isOnGround() && !Protections.PreventProjectileExploit2.isDisabledInWorld(p.getWorld()))
+                        	Scheduler.executeOrScheduleSync(plugin, () -> p.remove(), p);
                     }
                 }
                 for (Projectile p : removed) {

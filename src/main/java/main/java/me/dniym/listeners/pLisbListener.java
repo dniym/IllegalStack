@@ -36,8 +36,9 @@ public class pLisbListener {
 
         //ProtocolLibrary.getProtocolManager().addPacketListener(new BookCrashExploitCheck(plugin));
         if (Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
-            ProtocolLibrary.getProtocolManager().addPacketListener(
-                    new PacketAdapter(plugin, PacketType.Play.Client.SET_CREATIVE_SLOT) {
+        	ProtocolLibrary.getProtocolManager().addPacketListener(
+            		new PacketAdapter(PacketAdapter.params(plugin, PacketType.Play.Client.SET_CREATIVE_SLOT).optionAsync()) {
+                    //new PacketAdapter(plugin, PacketType.Play.Client.SET_CREATIVE_SLOT) {
                         @Override
                         public void onPacketReceiving(PacketEvent event) {
                             if (!Protections.BlockBadItemsFromCreativeTab.isEnabled() || event.getPlayer().isOp() || event
@@ -64,11 +65,18 @@ public class pLisbListener {
 
         if (Protections.DisableChestsOnMobs.isEnabled()) {
     
+        	
        		ProtocolLibrary.getProtocolManager().addPacketListener(
-       				new PacketAdapter(PacketAdapter.params().plugin(plugin).optionSync().types(PacketType.Play.Client.USE_ENTITY)) {
-        			  	  
-//            ProtocolLibrary.getProtocolManager().addPacketListener(
-  //                  new PacketAdapter(plugin, PacketType.Play.Client.USE_ENTITY) {
+       				new PacketAdapter(PacketAdapter.params(plugin, PacketType.Play.Client.USE_ENTITY).optionAsync()) {
+       					
+       					/*
+       					 * Must use optionAsync here... if optionSync is used it breaks player damage, eg no crits, no sweeping edge...
+       					 * 
+       					 * new PacketAdapter(PacketAdapter.params().plugin(plugin).optionSync().types(PacketType.Play.Client.USE_ENTITY)) {
+       					 * 
+       					 */
+       					
+       					
 
                         @Override
                         public void onPacketReceiving(PacketEvent event) {
@@ -78,10 +86,6 @@ public class pLisbListener {
                             }
 
                             if (IllegalStack.hasChestedAnimals()) {
-
-                            /*	if (event.isAsync()) {
-                                    //event.setCancelled(true);
-                                     */
                                     Entity entity;
                                     try {
                                         entity = event
@@ -89,9 +93,10 @@ public class pLisbListener {
                                                 .getEntityModifier(event.getPlayer().getWorld())
                                                 .read(0);
                                     } catch (RuntimeException ex) {
-                                        //LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
+                                   //     LOGGER.error("Async Packet - Couldn't get an entity from id: ", ex);
                                         return;
                                     }
+                                
                                     Scheduler.runTaskLater(this.plugin, () -> {
                                         if (entity instanceof Horse && ((Horse) entity).isTamed()) {
                                             ItemStack is = event.getPlayer().getInventory().getItemInHand();

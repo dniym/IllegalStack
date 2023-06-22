@@ -20,7 +20,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
-import java.awt.Image;
 import java.util.HashSet;
 
 public class NBTStuff {

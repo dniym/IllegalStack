@@ -2,6 +2,7 @@ package main.java.me.dniym.enums;
 
 
 import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.utils.MagicHook;
 import main.java.me.dniym.utils.NBTStuff;
 import main.java.me.dniym.utils.SpigotMethods;
@@ -12,18 +13,23 @@ import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.block.Container;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import io.netty.handler.logging.LogLevel;
 
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
@@ -31,6 +37,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Level;
 
 public enum Protections {
 
@@ -328,6 +335,26 @@ public enum Protections {
             "ALL",
             "Exploits.TNTDupe.PreventIndirectTNTPowerDupe",
             "Prevents tnt duping methods that exploit an indirect power bug that causes tnt to ignite and fall away / be launched but leave an unlit block of tnt behind.",
+            "",
+            0
+    ),
+    PreventProjectileExploit2(
+            41,
+            true,
+            "Prevent Projectile Lag Exploit",
+            "> 1.13",
+            "Exploits.1_13_Exploits.Entities.PreventProjectileExploit2",
+            "Prevents Projectiles such as arrows from getting trapped inside bubble columns, creating lag when lots of these items are floating and falling constantly.",
+            "",
+            0
+    ),
+    ProjectileDespawnDelay(
+            41,
+            11,
+            "Projectile Despawn Delay",
+            41,
+            "Exploits.1_13_Exploits.Entities.ProjectileDespawnDelay",
+            "Amount of seconds to wait to despawn projectiles (setting this value too low may cause arrows/snowballs to miss before they hit their target)",
             "",
             0
     ),
@@ -693,7 +720,7 @@ public enum Protections {
             27,
             true,
             "Disable Chests on Mobs",
-            "< 1.18",
+            "<= 1.17",
             "Exploits.Other.DisableChestsOnMobs",
             "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.",
             "",
@@ -788,16 +815,6 @@ public enum Protections {
             "> 1.11",
             "Exploit.LagMachines.End Crystal",
             "Prevents pistons pushing end crystals into a huge pile, typically used to construct lag machines.",
-            "",
-            0
-    ),
-    PreventProjectileExploit(
-            41,
-            true,
-            "Prevent Projectile Lag Exploit",
-            "1.14",
-            "Exploits.1_14_Exploits.Entities.PreventProjectileExploit",
-            "Prevents Projectiles such as arrows from getting trapped inside bubble columns, creating lag when lots of these items are floating and falling constantly.",
             "",
             0
     ),
@@ -1013,17 +1030,6 @@ public enum Protections {
     		0
     		),
     //User Requested | Obscure Features
-    MeltSnowballsInWater(
-            65,
-            false,
-            "Melt Snowballs Floating In Water",
-            "> 1.13",
-            "Exploits.1_13._Exploits.MeltSnowballsInWater",
-            "Causes snowballs thrown into water to instantly despawn, useful if your players are using snowballs to create lag machines.",
-            "",
-            0
-    ),
-
     PreventZombieItemPickup(
             14,
             false,
@@ -1588,11 +1594,48 @@ public enum Protections {
         this.relevant = isRelevantToVersion(getServerVersion());
     }
 
+    public boolean isEnabled(Object obj) {
+    	
+    	World wld = getWorldFromObj(obj);
+    	
+    	if(!isEnabled())
+    		return false;
+    	
+    	if(wld != null && isDisabledInWorld(wld))
+    			return false;
+    	
+    	return true; 
+    		
+    }
+    
+    World getWorldFromObj(Object obj) {
+    	
+    	if(obj instanceof World)
+    		return ((World)obj);
+    	if(obj instanceof Player)
+    		return ((Player)obj).getWorld();
+        if (obj instanceof Inventory) 
+            return ((Inventory) obj).getLocation().getWorld();
+        if (obj instanceof Location) 
+            return ((Location) obj).getWorld();
+        if (obj instanceof Container)
+        	return ((Container)obj).getWorld();
+
+        if(obj != null) 
+        	IllegalStack.getPlugin().getLogger().log(Level.WARNING, "Unable to obtain world information from object type: " + obj.toString() + " please inform dNiym of this issue via github or the offical IllegalStack discord!");
+        
+        return null;
+    	
+    }
+    public boolean isDisabledInWorld(World wld) {
+    	return Protections.DisableInWorlds.isWhitelisted(wld.getName());
+    }
+    
+    @Deprecated
     public boolean isEnabled() {
         if (this.getVersion().isEmpty()) //child node
-        {
             return this.enabled;
-        }
+        
         return this.relevant && this.enabled;
     }
 
@@ -1998,6 +2041,8 @@ public enum Protections {
 
     public boolean validate(String value, CommandSender sender) {
 
+    	
+    		
         if (this == Protections.AlsoPreventHeadInside) {
             return addTxtSet(value, sender);
         }
@@ -2152,7 +2197,7 @@ public enum Protections {
             }
             return addTxtSet(value, sender);
         }
-        if (this == Protections.LimitNumberOfPages || this == Protections.NetherYLevel || this == Protections.VillagerRestockTime || this == Protections.ZombieVillagerTransformChance || this == Protections.PageCountThreshold || this == MaxFishAllowedBeforeKick || this == MaxFishToNotifyStaffThenBlock || this == AboveNetherDamageDelay || this == AboveNetherDamageAmount) {
+        if (this == Protections.ProjectileDespawnDelay || this == Protections.LimitNumberOfPages || this == Protections.NetherYLevel || this == Protections.VillagerRestockTime || this == Protections.ZombieVillagerTransformChance || this == Protections.PageCountThreshold || this == MaxFishAllowedBeforeKick || this == MaxFishToNotifyStaffThenBlock || this == AboveNetherDamageDelay || this == AboveNetherDamageAmount) {
             try {
                 int intCheck = Integer.parseInt(value.trim());
                 if (intCheck < 0) {
@@ -2165,7 +2210,7 @@ public enum Protections {
                 		return false;
                 	}
                 }
-                if (this == AboveNetherDamageDelay) {
+                if (this == ProjectileDespawnDelay || this == AboveNetherDamageDelay) {
                 	if(intCheck < 1) {
                 		sender.sendMessage(ChatColor.DARK_RED + "The minimum value for this protection must be greater than 1 second.");
                 		return false;

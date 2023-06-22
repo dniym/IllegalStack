@@ -3,23 +3,16 @@ package main.java.me.dniym.listeners;
 import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.SpawnerSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -39,7 +32,7 @@ public class Listener113 implements Listener {
     @EventHandler
     public void spawnerSpawnEvent(SpawnerSpawnEvent e) {
     	
-        if(Protections.SpawnerReset.isEnabled()) {
+        if(Protections.SpawnerReset.isEnabled(e.getLocation())) {
         		
         	
         		CreatureSpawner cs = e.getSpawner();
@@ -61,7 +54,7 @@ public class Listener113 implements Listener {
     
     @EventHandler
     public void spawnerChangeCheck(PlayerInteractEvent event) {
-        if (Protections.PreventSpawnEggsOnSpawners.isEnabled()) {
+        if (Protections.PreventSpawnEggsOnSpawners.isEnabled(event.getPlayer())) {
 
             Player plr = event.getPlayer();
             ItemStack is = plr.getInventory().getItemInMainHand();
@@ -90,20 +83,5 @@ public class Listener113 implements Listener {
             }
         }
     }
-    
-    @EventHandler
-    public void onSnowballHit(ProjectileHitEvent e) {
-
-        if (Protections.MeltSnowballsInWater.isEnabled()) {
-            if (!(e.getEntity() instanceof Snowball) || e.getHitBlock() == null) {
-                return;
-            }
-            if(e.getHitBlock().getType() == Material.WATER || e.getHitBlock().getType() == Material.BUBBLE_COLUMN)
-            	e.getEntity().remove();
-        }
-        
-    }
-
-
 
 }

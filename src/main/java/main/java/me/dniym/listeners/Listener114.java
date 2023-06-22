@@ -1,15 +1,12 @@
 package main.java.me.dniym.listeners;
 
-import io.netty.util.internal.ThreadLocalRandom;
-import main.java.me.dniym.IllegalStack;
-import main.java.me.dniym.enums.Msg;
-import main.java.me.dniym.enums.Protections;
-import main.java.me.dniym.timers.fTimer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
-import main.java.me.dniym.utils.Scheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,10 +41,12 @@ import org.bukkit.inventory.Merchant;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
+import io.netty.util.internal.ThreadLocalRandom;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.enums.Msg;
+import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.timers.fTimer;
+import main.java.me.dniym.utils.Scheduler;
 
 public class Listener114 implements Listener {
 	final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Listener114.class.getSimpleName());
@@ -73,7 +72,7 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void onChestDispense(BlockDispenseArmorEvent e) {
-        if (Protections.DisableChestsOnMobs.isEnabled()) {
+        if (Protections.DisableChestsOnMobs.isEnabled(e.getBlock().getLocation())) {
 
             if (e.getItem().getType() == Material.CHEST) {
                 e.setCancelled(true);
@@ -84,7 +83,7 @@ public class Listener114 implements Listener {
     @EventHandler
     public void OnVillagerTransform(EntityTransformEvent e) {
 
-        if (Protections.ZombieVillagerTransformChance.getIntValue() < 100) {
+        if (Protections.ZombieVillagerTransformChance.getIntValue() < 100 && !Protections.ZombieVillagerTransformChance.isDisabledInWorld(e.getEntity().getWorld())) {
             for (Entity ent : e.getTransformedEntities()) {
 
                 if (ent instanceof ZombieVillager) {
@@ -106,10 +105,8 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void OnVillagerInteract(PlayerInteractEntityEvent e) {
-        if (Protections.DisableInWorlds.getTxtSet().contains(e.getPlayer().getWorld().getName())) {
-            return;
-        }
-        if (Protections.PreventVillagerSwimExploit.isEnabled()) {
+        
+        if (Protections.PreventVillagerSwimExploit.isEnabled(e.getPlayer())) {
             if (e.getRightClicked() != null && e.getRightClicked() instanceof Villager && e.getRightClicked() instanceof Merchant) {
                 boolean cancel = false;
 
@@ -139,7 +136,7 @@ public class Listener114 implements Listener {
     public void onBlockBreak(BlockBreakEvent e) {
 
 
-        if (Protections.SilkTouchBookExploit.isEnabled()) {
+        if (Protections.SilkTouchBookExploit.isEnabled(e.getPlayer())) {
             Player p = e.getPlayer();
             if (p != null && p.getInventory().getItemInMainHand() != null) {
                 ItemStack is = p.getInventory().getItemInMainHand();
@@ -165,14 +162,11 @@ public class Listener114 implements Listener {
     public void LockMerchantTrades(InventoryOpenEvent e) {
 
 
-        if (Protections.DisableInWorlds.getTxtSet().contains(e.getPlayer().getWorld().getName())) {
-            return;
-        }
-        if (Protections.PreventCommandsInBed.isEnabled() && e.getPlayer().isSleeping()) {
+        if (Protections.PreventCommandsInBed.isEnabled(e.getPlayer()) && e.getPlayer().isSleeping()) {
             e.setCancelled(true);
             return;
         }
-        if (!Protections.VillagerTradeCheesing.isEnabled()) {
+        if (!Protections.VillagerTradeCheesing.isEnabled(e.getPlayer())) {
             return;
         }
         if (e.getInventory() instanceof MerchantInventory) {
@@ -194,10 +188,7 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void PreventVillagerRestock(VillagerReplenishTradeEvent e) {
-        if (Protections.DisableInWorlds.getTxtSet().contains(e.getEntity().getWorld().getName())) {
-            return;
-        }
-        if (!Protections.VillagerTradeCheesing.isEnabled()) {
+        if (!Protections.VillagerTradeCheesing.isEnabled(e.getEntity().getWorld())) {
             return;
         }
         if (Protections.VillagerRestockTime.getIntValue() <= 0 || !fListener.getIs114()) {
@@ -221,7 +212,7 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void onHandSwap(PlayerSwapHandItemsEvent e) {
-        if (!Protections.PreventFoodDupe.isEnabled()) {
+        if (!Protections.PreventFoodDupe.isEnabled(e.getPlayer())) {
             return;
         }
         ItemStack item1 = e.getMainHandItem();
@@ -245,11 +236,7 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void onPortal(PortalCreateEvent event) {
-        if (Protections.DisableInWorlds.isWhitelisted(event.getWorld().getName())) {
-            return;
-        }
-
-        if (Protections.PreventBedrockDestruction.isEnabled()) {
+        if (Protections.PreventBedrockDestruction.isEnabled(event.getWorld())) {
 
         
         		for (BlockState b : event.getBlocks()) {
@@ -273,7 +260,8 @@ public class Listener114 implements Listener {
     @EventHandler
     public void onPearlHit(ProjectileHitEvent e) {
 
-        if (Protections.PreventPearlGlassPhasing.isEnabled()) {
+    	
+        if (Protections.PreventPearlGlassPhasing.isEnabled(e.getEntity().getLocation())) {
             if (!(e.getEntity() instanceof EnderPearl) || e.getHitBlock() == null || !(e
                     .getEntity()
                     .getShooter() instanceof Player) || e.getHitBlockFace() != BlockFace.UP) {
@@ -296,7 +284,7 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void onItemSwitch(PlayerItemHeldEvent e) {
-        if (!Protections.PreventFoodDupe.isEnabled()) {
+        if (!Protections.PreventFoodDupe.isEnabled(e.getPlayer())) {
             return;
         }
         ItemStack item1 = e.getPlayer().getInventory().getItem(e.getPreviousSlot());
@@ -324,22 +312,19 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
-        if (Protections.PreventProjectileExploit.isEnabled()) {
+        if (Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
             fTimer.trackProjectile(e.getEntity());
+            
         }
     }
 
     @EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
     public void onFallingBlockSpawn(EntitySpawnEvent e) {
-        if (e.getEntity() instanceof Projectile && Protections.PreventProjectileExploit.isEnabled()) {
+        if (e.getEntity() instanceof Projectile && Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
             fTimer.trackProjectile((Projectile) e.getEntity());
         }
 
-        if (!(e.getEntity() instanceof FallingBlock) || !Protections.PreventVibratingBlocks.isEnabled()) {
-            return;
-        }
-
-        if (Protections.DisableInWorlds.isWhitelisted(e.getEntity().getWorld().getName())) {
+        if (!(e.getEntity() instanceof FallingBlock) || !Protections.PreventVibratingBlocks.isEnabled(e.getLocation())) {
             return;
         }
 

@@ -60,7 +60,7 @@ public class IllegalEnchantCheck {
             return false;
         }
 
-        if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !itemStack.getEnchantments().isEmpty()) {
+        if (Protections.FixIllegalEnchantmentLevels.isEnabled(obj) && !itemStack.getEnchantments().isEmpty()) {
             if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) {//world list isnt empty
                 Location loc = null;
 
@@ -104,16 +104,16 @@ public class IllegalEnchantCheck {
                         continue;
                     }
 
-                    if (Protections.DestroyIllegallyEnchantedItemsInstead.isEnabled()) {
+                    if (Protections.DestroyIllegallyEnchantedItemsInstead.isEnabled(obj)) {
                         if (!silent) {
-                            fListener.getLog().append2(Msg.DestroyedEnchantedItem.getValue(obj, itemStack, enchantment));
+                            fListener.getLog().append(Msg.DestroyedEnchantedItem.getValue(obj, itemStack, enchantment), Protections.DestroyIllegallyEnchantedItemsInstead);
                         }
                         itemStack.setType(Material.AIR);
                         return true;
                     }
                     if (enchantment.canEnchantItem(itemStack)) {
                         if (!silent) {
-                            fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(obj, itemStack, enchantment));
+                            fListener.getLog().append(Msg.IllegalEnchantLevel.getValue(obj, itemStack, enchantment), Protections.FixIllegalEnchantmentLevels);
                         }
                     } else {
                         if (!silent) {
