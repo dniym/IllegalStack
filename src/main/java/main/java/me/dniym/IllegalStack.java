@@ -12,6 +12,7 @@ import main.java.me.dniym.listeners.mcMMOListener;
 import main.java.me.dniym.listeners.pLisbListener;
 import main.java.me.dniym.timers.fTimer;
 import main.java.me.dniym.timers.sTimer;
+import main.java.me.dniym.timers.syncTimer;
 import main.java.me.dniym.utils.Scheduler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,6 +70,7 @@ public class IllegalStack extends JavaPlugin {
     private static String version = "";
     private Scheduler.ScheduledTask ScanTimer = null;
     private Scheduler.ScheduledTask SignTimer = null;
+    private Scheduler.ScheduledTask syncTimer = null;
 //	private static NMSEntityVillager nmsTrader= null;
 
     public static IllegalStack getPlugin() {
@@ -130,12 +132,15 @@ public class IllegalStack extends JavaPlugin {
         if (Protections.RemoveOverstackedItems.isEnabled()) {
             if (plugin.ScanTimer == null) {
                 Scheduler.runTaskTimerAsynchronously(plugin, new fTimer(plugin), 10, 10);
+                Scheduler.runTaskTimer(plugin, new syncTimer(plugin), 10l, 10l);
             }
 
         } else {
             if (plugin.ScanTimer != null) {
                 plugin.ScanTimer.cancel();
             }
+            if (plugin.syncTimer != null)
+            	plugin.syncTimer.cancel();
         }
 
 
@@ -458,6 +463,8 @@ public class IllegalStack extends JavaPlugin {
                     Protections.ItemScanTimer.getIntValue(),
                     Protections.ItemScanTimer.getIntValue()
             );
+            syncTimer = Scheduler.runTaskTimer(this, new syncTimer(this), 10, 10);
+            
         }
 
         if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {

@@ -17,6 +17,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Villager;
@@ -313,7 +314,10 @@ public class Listener114 implements Listener {
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
         if (Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
+        	if(e.getEntity() instanceof FishHook)
+        		return;
             fTimer.trackProjectile(e.getEntity());
+            
             
         }
     }
@@ -321,7 +325,11 @@ public class Listener114 implements Listener {
     @EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
     public void onFallingBlockSpawn(EntitySpawnEvent e) {
         if (e.getEntity() instanceof Projectile && Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
+        	//if(e.getEntity() instanceof FishHook)
+        		//return;
+        	
             fTimer.trackProjectile((Projectile) e.getEntity());
+            
         }
 
         if (!(e.getEntity() instanceof FallingBlock) || !Protections.PreventVibratingBlocks.isEnabled(e.getLocation())) {

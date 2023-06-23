@@ -265,7 +265,8 @@ public class SpigotMethods {
     }
 
     public static boolean isNPC(LivingEntity ent) {
-
+    	if(ent == null)
+    		return false;
 
         return ent.hasMetadata("shopkeeper") || ent.hasMetadata("NPC");
     }

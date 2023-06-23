@@ -85,7 +85,7 @@ public class pLisbListener {
                                 return;
                             }
 
-                            if (IllegalStack.hasChestedAnimals()) {
+                            if (IllegalStack.hasChestedAnimals() && Protections.DisableChestsOnMobs.isEnabled()) {
                                     Entity entity;
                                     try {
                                         entity = event

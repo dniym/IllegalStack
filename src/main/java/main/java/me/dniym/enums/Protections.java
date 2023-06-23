@@ -720,7 +720,7 @@ public enum Protections {
             27,
             true,
             "Disable Chests on Mobs",
-            "<= 1.17",
+            "< 1.16",
             "Exploits.Other.DisableChestsOnMobs",
             "Prevents players from using or adding chests to Llamas, Donkeys, Horses etc.  Used to prevent players with hacked clients from duping useing these creatures.",
             "",
@@ -1712,7 +1712,10 @@ public enum Protections {
             return !serverVersion.contains("1.17") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
             		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");
         }
-
+        if (this.getVersion().contains("< 1.16")) {
+            return !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");
+        }
         if (this.getVersion().contains("< 1.15")) {
             return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
             		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20");

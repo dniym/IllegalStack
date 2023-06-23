@@ -7,6 +7,7 @@ import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.listeners.mcMMOListener;
+import main.java.me.dniym.util.TrackedProjectile;
 import main.java.me.dniym.utils.NBTStuff;
 import main.java.me.dniym.utils.Scheduler;
 import main.java.me.dniym.utils.SlimefunCompat;
@@ -41,6 +42,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -48,7 +50,9 @@ import java.util.concurrent.Future;
 public class fTimer implements Runnable {
 
     private static final Map<FallingBlock, Long> fbTracker = new ConcurrentHashMap<>();
-    private static final Map<Projectile, Long> projTracker = new ConcurrentHashMap<>();
+    //private static final Map<Projectile, Long> projTracker = new ConcurrentHashMap<>();
+    
+    
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + fTimer.class.getSimpleName());
     private static long endScanFinish = 0L;
     private static World dragon = null;
@@ -93,7 +97,8 @@ public class fTimer implements Runnable {
     }
 
     public static void trackProjectile(Projectile proj) {
-        projTracker.put(proj, (System.currentTimeMillis() + (Protections.ProjectileDespawnDelay.getIntValue() * 1000)));
+    	if (Protections.PreventProjectileExploit2.isEnabled(proj.getWorld())) 
+    		new TrackedProjectile(proj);
     }
 
     public static long getEndScanFinish() {
@@ -225,20 +230,12 @@ public class fTimer implements Runnable {
         }
 
         if (System.currentTimeMillis() >= this.nextScan) {
-            if (Protections.PreventProjectileExploit2.isEnabled()) {
-                HashSet<Projectile> removed = new HashSet<>();
-                for (Projectile p : projTracker.keySet()) {
-                    if (p == null || System.currentTimeMillis() > projTracker.get(p) ) {
-                        removed.add(p);
-                        if(!p.isOnGround() && !Protections.PreventProjectileExploit2.isDisabledInWorld(p.getWorld()))
-                        	Scheduler.executeOrScheduleSync(plugin, () -> p.remove(), p);
-                    }
-                }
-                for (Projectile p : removed) {
-                    projTracker.remove(p);
-                }
-            }
-
+        	/*
+        	 * Moved to a sync listener, if tracked projectiles are removed via this async timer it crashes the server.
+        	 */
+        	
+        	//TrackedProjectile.manageAsync();
+        	
             if (Protections.PreventVibratingBlocks.isEnabled()) {
                 HashSet<FallingBlock> removed = new HashSet<>();
                 for (FallingBlock fb : fbTracker.keySet()) {
