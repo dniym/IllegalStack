@@ -88,7 +88,7 @@ public class TrackedProjectile {
 				}
 			}
 		}
-		System.out.println("There are " + trackedProjectiles.size() + " projectiles being tracked");
+//		System.out.println("There are " + trackedProjectiles.size() + " projectiles being tracked");
 		trackedProjectiles.removeAll(removed);
 
 		

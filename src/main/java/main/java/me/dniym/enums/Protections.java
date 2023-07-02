@@ -17,6 +17,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -24,6 +25,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -340,7 +342,7 @@ public enum Protections {
     ),
     PreventProjectileExploit2(
             41,
-            true,
+            false,
             "Prevent Projectile Lag Exploit",
             "> 1.13",
             "Exploits.1_13_Exploits.Entities.PreventProjectileExploit2",
@@ -350,7 +352,7 @@ public enum Protections {
     ),
     ProjectileDespawnDelay(
             41,
-            11,
+            22,
             "Projectile Despawn Delay",
             41,
             "Exploits.1_13_Exploits.Entities.ProjectileDespawnDelay",
@@ -1614,8 +1616,38 @@ public enum Protections {
     		return ((World)obj);
     	if(obj instanceof Player)
     		return ((Player)obj).getWorld();
-        if (obj instanceof Inventory) 
+        if (obj instanceof Inventory) {
+        	/*
+        	 * Due to a paper bug https://github.com/PaperMC/Paper/issues/9437
+        	 * affected as of build #61 of 1.20.1
+        	 * The inventory's getLocation() method returns null if a hopper pulls bonemeal from a composter's inventory.
+        	 * Issue only appears to affect paper, not regular spigot.
+        	 */
+        	Inventory inv = ((Inventory)obj);
+        	if(inv.getLocation() == null) {
+        		String message = "";
+        		if(!inv.getViewers().isEmpty()) {
+        			message = "Inventory had no location... being viewed by " + inv.getViewers().get(0);
+        		} else {
+        			if(inv.getHolder() instanceof BlockInventoryHolder)
+        			{
+        				BlockInventoryHolder bi = ((BlockInventoryHolder)inv.getHolder());
+        				if(bi != null)
+        				{
+        					Block b = bi.getBlock();
+        					if(b == null)
+        						message = "Block inventory detected but getBlock() was null...";
+        					else 
+        						message = "Found a block @ " + b.getX() + " x, " + b.getY() + " y, " + b.getZ() + " z " + "in world: " + b.getWorld().getName() + " type: " + b.getType().name();
+        				}
+        			}
+            		LOGGER.error("NULL location detected on inventory object, please report this bug to the IllegalStack discord.  If you are using paper please make sure you're running the latest version!  " + message);
+        			return null;
+        		}
+        		
+        	} 
             return ((Inventory) obj).getLocation().getWorld();
+        }
         if (obj instanceof Location) 
             return ((Location) obj).getWorld();
         if (obj instanceof Container)

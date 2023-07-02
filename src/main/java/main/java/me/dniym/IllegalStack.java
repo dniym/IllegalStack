@@ -27,6 +27,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scheduler.BukkitWorker;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -900,6 +902,7 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onDisable() {
+    	getServer().getAsyncScheduler().cancelTasks(this);
         writeConfig();
     }
 
