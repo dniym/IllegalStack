@@ -1,15 +1,14 @@
 package main.java.me.dniym.enums;
 
 
-import main.java.me.dniym.IllegalStack;
-import main.java.me.dniym.listeners.fListener;
-import main.java.me.dniym.utils.MagicHook;
-import main.java.me.dniym.utils.NBTStuff;
-import main.java.me.dniym.utils.SpigotMethods;
-//import me.jet315.minions.MinionAPI;
-//import me.jet315.minions.minions.Minion;
-import net.brcdev.shopgui.gui.gui.OpenGui;
-import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.logging.Level;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.ChatColor;
@@ -31,15 +30,14 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import io.netty.handler.logging.LogLevel;
-
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.logging.Level;
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.utils.MagicHook;
+import main.java.me.dniym.utils.NBTStuff;
+import main.java.me.dniym.utils.SpigotMethods;
+//import me.jet315.minions.MinionAPI;
+//import me.jet315.minions.minions.Minion;
+import net.brcdev.shopgui.gui.gui.OpenGui;
+import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
 
 public enum Protections {
 

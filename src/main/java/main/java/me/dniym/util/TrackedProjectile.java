@@ -6,7 +6,6 @@ import java.util.Set;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Snowball;
 import org.bukkit.entity.ThrowableProjectile;
 
 import main.java.me.dniym.IllegalStack;
