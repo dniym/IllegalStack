@@ -3855,7 +3855,7 @@ public class fListener implements Listener {
     			Vex v = ((Vex)e.getEntity());
     			if(v.isInsideVehicle()) {
     				v.getVehicle().removePassenger(e.getEntity());
-    	            getLog().append(Msg.VexEjected.getValue(v.getLocation().toString()), Protections.PunishForChestsOnMobs);
+    	            getLog().append(Msg.VexEjected.getValue(v.getLocation().toString()), Protections.PreventVexTrapping);
     			}
     		}
     	}
