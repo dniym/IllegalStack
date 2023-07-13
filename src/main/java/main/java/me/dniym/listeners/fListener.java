@@ -64,6 +64,8 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TraderLlama;
+import org.bukkit.entity.Vehicle;
+import org.bukkit.entity.Vex;
 import org.bukkit.entity.Zombie;
 import org.bukkit.entity.minecart.HopperMinecart;
 import org.bukkit.event.Event.Result;
@@ -85,6 +87,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -629,7 +632,14 @@ public class fListener implements Listener {
         if (e.getMount() instanceof Player) {
             return;
         }
-
+        if(Protections.PreventVexTrapping.isEnabled(e.getEntity().getLocation())) {
+        	if(e.getEntity() instanceof Vex) {
+                Vex v = ((Vex)e.getEntity());
+                v.eject();
+        		v.getCollidableExemptions().add(e.getMount().getUniqueId());
+        		e.setCancelled(true);
+        	}
+        }
 
         if (Protections.PreventHeadInsideBlock.isEnabled() && e.getEntity() instanceof Player) {
             Player driver = (Player) e.getEntity();
@@ -846,23 +856,6 @@ public class fListener implements Listener {
                         getLog().append2(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
 
                     }
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onHopperPickup(InventoryPickupItemEvent e) {
-        if (Protections.PreventLavaDupe.isEnabled()) {
-            if (e.getInventory().getHolder() instanceof Hopper) {
-                Hopper h = (Hopper) e.getInventory().getHolder();
-                if (h.getBlock().getRelative(BlockFace.UP).getType() == Material.LAVA) {
-                    e.setCancelled(true);
-                }
-            } else if (e.getInventory().getHolder() instanceof HopperMinecart) {
-                HopperMinecart h = (HopperMinecart) e.getInventory().getHolder();
-                if (h.getLocation().getBlock().getRelative(BlockFace.UP).getType() == Material.LAVA) {
-                    e.setCancelled(true);
                 }
             }
         }
@@ -3453,7 +3446,6 @@ public class fListener implements Listener {
 
     @EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
     public void onTNTPrime(EntitySpawnEvent e) {
-
         if (e.getEntity() instanceof Item) {
             if (RemoveItemTypesCheck.shouldRemove(((Item) e.getEntity()).getItemStack(), null)) {
                 e.setCancelled(true);
@@ -3855,6 +3847,20 @@ public class fListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onEntityTarget(EntityTargetEvent e) {
+    	if(Protections.PreventVexTrapping.isEnabled(e.getEntity().getLocation())) {
+    		if(e.getEntity() instanceof Vex) {
+    			
+    			Vex v = ((Vex)e.getEntity());
+    			if(v.isInsideVehicle()) {
+    				v.getVehicle().removePassenger(e.getEntity());
+    	            getLog().append(Msg.VexEjected.getValue(v.getLocation().toString()), Protections.PunishForChestsOnMobs);
+    			}
+    		}
+    	}
+
+    }
     public Boolean is113() {
         return is113;
     }

@@ -59,6 +59,7 @@ public enum Msg {
     ItemTypeRemovedPlayerOnPlace("~name~ attempted to place a blacklisted item type: ~item~, it has been removed"),
     ItemTypeRemovedPlayerOnDrop("~name~ attempted to drop a blacklisted item type: ~item~, it has been removed"),
     ItemTypeRemoved("Found a blacklisted item type: ~item~ in ~player~'s inventory, it has been removed"),
+    VexEjected("Found a vex trapped in a boat, it has been set free @"),
     SilkTouchBookBlocked("Stopped  ~name~ from breaking ~block~ using a silk touch book @"),
 
     PistonHeadRemoval("A piston head was exploded.. removing an orphan piston base @"),

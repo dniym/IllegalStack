@@ -671,15 +671,16 @@ public enum Protections {
             "",
             0
     ),
-    PreventLavaDupe(
+    PreventVexTrapping(
             55,
-            true,
-            "Prevent Lava Dupe",
-            "ALL",
-            "Exploits.LavaDupe.PreventLavaDupe",
-            "Prevents an exploit using lava and hoppers to dupe on multiple versions",
+            false,
+            "Prevent Vex Trapping",
+            "> 1.11",
+            "UserRequested.Mobs.PreventVexTrapping",
+            "Prevents vexes from getting trapped in minecarts/boats, typically used for raid farms.   User Requested feature.",
             "",
-            0
+            2
+
     ),
     PreventRecordDupe(
             61,
@@ -1618,30 +1619,36 @@ public enum Protections {
         	/*
         	 * Due to a paper bug https://github.com/PaperMC/Paper/issues/9437
         	 * affected as of build #61 of 1.20.1
-        	 * The inventory's getLocation() method returns null if a hopper pulls bonemeal from a composter's inventory.
+        	 * The inventory's getLocation() method returns null if a hopper pulls bonemeal from a composter's inventory, also apparently affects juke boxes. 
         	 * Issue only appears to affect paper, not regular spigot.
+        	 * 
+        	 * The following is some validation that should get the world of the object rather than throwing an error and bothering the user, perhaps
+        	 * paper will implement getLocation() on juke boxes and composters via the regular method just like every other container.
         	 */
         	Inventory inv = ((Inventory)obj);
-        	if(inv.getLocation() == null) {
-        		String message = "";
+        	Location loc = inv.getLocation();
+        	if(loc == null) {
         		if(!inv.getViewers().isEmpty()) {
-        			message = "Inventory had no location... being viewed by " + inv.getViewers().get(0);
+        			if(inv.getViewers().get(0).getLocation() != null)
+        				return inv.getViewers().get(0).getWorld();
         		} else {
+        			if(inv.getHolder() instanceof Player) {
+        				Player p = (Player) inv.getHolder();
+        				if(p != null)
+        					return p.getWorld();
+        			}
         			if(inv.getHolder() instanceof BlockInventoryHolder)
         			{
         				BlockInventoryHolder bi = ((BlockInventoryHolder)inv.getHolder());
         				if(bi != null)
         				{
         					Block b = bi.getBlock();
-        					if(b == null)
-        						message = "Block inventory detected but getBlock() was null...";
-        					else 
-        						message = "Found a block @ " + b.getX() + " x, " + b.getY() + " y, " + b.getZ() + " z " + "in world: " + b.getWorld().getName() + " type: " + b.getType().name();
+       						return b.getWorld();
         				}
         			}
-            		LOGGER.error("NULL location detected on inventory object, please report this bug to the IllegalStack discord.  If you are using paper please make sure you're running the latest version!  " + message);
-        			return null;
+            		
         		}
+    			return null;
         		
         	} 
             return ((Inventory) obj).getLocation().getWorld();
@@ -1651,8 +1658,8 @@ public enum Protections {
         if (obj instanceof Container)
         	return ((Container)obj).getWorld();
 
-        if(obj != null) 
-        	IllegalStack.getPlugin().getLogger().log(Level.WARNING, "Unable to obtain world information from object type: " + obj.toString() + " please inform dNiym of this issue via github or the offical IllegalStack discord!");
+        //if(obj != null) 
+        	//IllegalStack.getPlugin().getLogger().log(Level.WARNING, "Unable to obtain world information from object type: " + obj.toString() + " please inform dNiym of this issue via github or the offical IllegalStack discord!");
         
         return null;
     	

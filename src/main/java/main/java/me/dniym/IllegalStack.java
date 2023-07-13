@@ -59,6 +59,7 @@ public class IllegalStack extends JavaPlugin {
     private static boolean hasChestedAnimals = false;
     private static boolean hasContainers = false;
     private static boolean hasShulkers = false;
+    private static boolean hasAsyncScheduler = false;
     private static boolean hasElytra = false;
     private static boolean hasMagicPlugin = false;
     private static boolean disablePaperShulkerCheck = false;
@@ -311,6 +312,9 @@ public class IllegalStack extends JavaPlugin {
         return hasIds;
     }
 
+    public static boolean hasAsyncScheduler() {
+    	return hasAsyncScheduler;
+    }
     public static boolean hasShulkers() {
         return hasShulkers;
     }
@@ -362,6 +366,7 @@ public class IllegalStack extends JavaPlugin {
         setHasContainers();
         setHasTraders();
         setHasShulkers();
+        setHasAsyncScheduler();
         setHasElytra();
         setHasUnbreakable();
         setHasStorage();
@@ -572,6 +577,14 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
+    private void setHasAsyncScheduler() {
+    	try {
+    		Class.forName("org.bukkit.Server.getAsyncScheduler");
+    		hasAsyncScheduler = true;
+    	} catch (ClassNotFoundException ignored) {
+    		
+    	}
+    }
     private void setHasChestedAnimals() {
 
         try {
@@ -900,7 +913,9 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onDisable() {
-    	getServer().getAsyncScheduler().cancelTasks(this);
+    	if(hasAsyncScheduler)
+    		getServer().getAsyncScheduler().cancelTasks(this);
+    	
         writeConfig();
     }
 
