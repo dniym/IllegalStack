@@ -21,21 +21,22 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Log {
 
+	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm:ss");
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Log.class.getSimpleName());
     IllegalStack plugin;
     File file;
-    Calendar date;
+    
 
     public Log(IllegalStack plugin) {
         this.plugin = plugin;
         if (Protections.LogOffensesInSeparateFile.isEnabled()) {
             file = new File(plugin.getDataFolder() + "/OffenseLog.txt");
         }
-        date = Calendar.getInstance();
     }
 
     @Deprecated
@@ -59,7 +60,7 @@ public class Log {
             try {
                 LOGGER.info(message);
                 BufferedWriter bw = new BufferedWriter(new FileWriter(file, true));
-                bw.append(dateStamp()).append(message).append("\r\n");
+                bw.append(dateStamp() + " - ").append(message).append("\r\n");
                 bw.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -147,43 +148,10 @@ public class Log {
     }
 
     public String dateStamp() {
-        String now;
-
-        now = monthFromNumber(date.get(Calendar.MONTH)) + " " + date.get(Calendar.DAY_OF_MONTH) + " " + date.get(Calendar.YEAR) + " (" + date
-                .get(Calendar.HOUR) + ":" +
-                date.get(Calendar.MINUTE) + ":" + date.get(Calendar.SECOND) + ") - ";
-        return now;
-    }
-
-    public String monthFromNumber(int month) {
-
-        switch (month) {
-            case 1:
-                return "January";
-            case 2:
-                return "February";
-            case 3:
-                return "March";
-            case 4:
-                return "April";
-            case 5:
-                return "May";
-            case 6:
-                return "June";
-            case 7:
-                return "July";
-            case 8:
-                return "August";
-            case 9:
-                return "September";
-            case 10:
-                return "October";
-            case 11:
-                return "November";
-            case 12:
-                return "December";
-        }
-        return "Unknown";
+    	
+    	Date date = new Date(System.currentTimeMillis());
+    	return dateFormat.format(date);	
+        
     }
 
     public void notify(Protections prot, String message) {

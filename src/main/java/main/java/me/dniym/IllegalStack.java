@@ -352,8 +352,10 @@ public class IllegalStack extends JavaPlugin {
         this.getCommand("istack").setExecutor(illegalStackCommand);
         this.getCommand("istack").setTabCompleter(illegalStackCommand);
 
+        
         ProCosmetics = this.getServer().getPluginManager().getPlugin("ProCosmetics");
-
+        
+        	
         if (this.getServer().getPluginManager().getPlugin("EpicRename") != null) {
             EpicRename = true;
         }
@@ -938,14 +940,20 @@ public class IllegalStack extends JavaPlugin {
                 if (relevant.get(p)) //relevant to this version, check if it exists.
                 {
                     if (config.getString(p.getConfigPath()) == null) {
-                        config.set(p.getConfigPath(), p.getDefaultValue());
+                    	
+                    	if(p == Protections.RemoveOverstackedItems && this.getServer().getPluginManager().getPlugin("StackableItems") != null) {  
+                        		config.set(p.getConfigPath(),  false);
+                        		LOGGER.warn("The StackableItems plugin has been detected on your server, The protection RemoveOverstackedItems has been automatically disabled to prevent item loss, enabling this protection will most definitely remove items as this plugin is known to break the vanilla stack limits.");
+                        		p.setEnabled(false);
+                    	} else
+                               config.set(p.getConfigPath(), p.getDefaultValue());
+                    	
                         LOGGER.warn(
                                 "Found a missing protection from your configuration: {} it has been added with a default value of: {}",
                                 p.name(),
                                 p.getDefaultValue()
                         );
                     }
-
                     if (p.isList()) {
                         ArrayList<String> list = new ArrayList<>();
                         for (String s : (HashSet<String>) p.getConfigValue()) {

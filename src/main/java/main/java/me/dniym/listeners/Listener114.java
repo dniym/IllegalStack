@@ -313,23 +313,17 @@ public class Listener114 implements Listener {
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
+    	if(e.getEntity() instanceof FishHook)
+    		return;
         if (Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
-        	if(e.getEntity() instanceof FishHook)
-        		return;
             fTimer.trackProjectile(e.getEntity());
-            
-            
         }
     }
 
     @EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
     public void onFallingBlockSpawn(EntitySpawnEvent e) {
-        if (e.getEntity() instanceof Projectile && Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
-        	//if(e.getEntity() instanceof FishHook)
-        		//return;
-        	
+        if (e.getEntity() instanceof Projectile && !(e.getEntity() instanceof FishHook) && Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
             fTimer.trackProjectile((Projectile) e.getEntity());
-            
         }
 
         if (!(e.getEntity() instanceof FallingBlock) || !Protections.PreventVibratingBlocks.isEnabled(e.getLocation())) {
