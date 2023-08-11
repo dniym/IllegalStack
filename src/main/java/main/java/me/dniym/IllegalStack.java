@@ -915,9 +915,12 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onDisable() {
-    	if(hasAsyncScheduler)
-    		getServer().getAsyncScheduler().cancelTasks(this);
-    	
+    	if(hasAsyncScheduler) {
+            getServer().getAsyncScheduler().cancelTasks(this);
+        }else {
+            Bukkit.getScheduler().cancelTasks(this);
+        }
+
         writeConfig();
     }
 
