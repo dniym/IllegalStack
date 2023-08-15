@@ -2314,7 +2314,7 @@ public enum Protections {
     }
     public boolean isWhitelisted(String name, Player player) {
 
-        if (this == Protections.RemoveItemTypes && player != null) {
+    	if (this == Protections.RemoveItemTypes && player != null) {
             if (player.hasPermission("illegalstack.removeitemsoftypebypass")) {
                 return true;
             }

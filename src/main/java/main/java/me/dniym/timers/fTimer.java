@@ -30,6 +30,7 @@ import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
@@ -283,17 +284,22 @@ public class fTimer implements Runnable {
                         }
 
                         if (is != null && !p.isOp()) {
-                            if (Protections.RemoveItemTypes.isWhitelisted(is)) {
-                                if (Protections.RemoveItemTypes.notifyOnly()) {
-                                    fListener.getLog().notify(
-                                            Protections.RemoveItemTypes,
-                                            " Triggered by: " + p.getName() + " with item: " + is.getType().name()
-                                    );
-                                } else {
-                                    fListener.getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
-                                    p.getInventory().remove(is);
-                                }
-                            }
+
+                        	if (Protections.RemoveItemTypes.isWhitelisted(is)) {
+                        		if (IllegalStack.getLbBlock() != null && IllegalStack.getLbBlock() == is.getType() && p.hasPermission("logblock.tools.toolblock")) {
+                        			//found a logblock block in the players inventory and they have permission to have it. don't remove it.
+                        		} else {
+                        			if (Protections.RemoveItemTypes.notifyOnly()) {
+                        				fListener.getLog().notify(
+                        						Protections.RemoveItemTypes,
+                        						" Triggered by: " + p.getName() + " with item: " + is.getType().name()
+                        						);
+                        			} else {
+                        				fListener.getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
+                        				p.getInventory().remove(is);
+                        			}
+                        		}
+                        	}
                         }
 
                         if (Protections.RemoveAllRenamedItems.isEnabled()) {

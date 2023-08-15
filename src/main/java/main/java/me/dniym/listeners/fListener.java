@@ -167,7 +167,7 @@ public class fListener implements Listener {
     private Boolean is112 = false;
     private Boolean is110 = false;
     private HashMap<UUID, Location> teleGlitch = new HashMap<>();
-
+    
     public fListener(IllegalStack plugin) {
         this.plugin = plugin;
         fListener.setInstance(this);
@@ -3896,25 +3896,6 @@ public class fListener implements Listener {
     public void setIs1142(Boolean is1142) {
         this.is1142 = is1142;
     }
-
-	/*
-	@EventHandler
-	public void onCmd(PlayerCommandPreprocessEvent e) {
-		if(e.getPlayer().getName().equalsIgnoreCase("dniym") && e.getMessage().contains("teste"))
-		{
-			ItemStack is = e.getPlayer().getInventory().getItemInMainHand();
-			if(is == null)
-				return;
-			ItemMeta im = is.getItemMeta();
-			List<String> lore = new ArrayList<>();
-			lore.add("Test Item");
-			lore.add("PoopTest");
-			im.setLore(lore);
-			is.setItemMeta(im);
-			e.getPlayer().sendMessage("Item lore set");
-		}
-	}
-	 */
 
     public void setIs1143(Boolean is1143) {
         this.is1143 = is1143;

@@ -66,7 +66,7 @@ public class IllegalStack extends JavaPlugin {
     private static boolean hasUnbreakable = false;
     private static boolean hasStorage = false;
     private static boolean hasIds = false;
-
+    private static Material lbBlock = null;
 
     private static String version = "";
     private Scheduler.ScheduledTask ScanTimer = null;
@@ -115,6 +115,15 @@ public class IllegalStack extends JavaPlugin {
             LOGGER.info("Server is NOT spigot, disabling chat components.");
         }
 
+        if (plugin.getServer().getPluginManager().getPlugin("Logblock") != null) {
+        	File conf = new File(Bukkit.getPluginManager().getPlugin("Logblock").getDataFolder(), "config.yml");
+        	final FileConfiguration lbconfig = YamlConfiguration.loadConfiguration(conf);
+        	
+        	if(lbconfig != null) {
+        		setLbBlock(Material.matchMaterial(lbconfig.getString("tools.toolblock.item")));
+        		LOGGER.info("Logblock plugin found, if blacklisted the toolblock item: " + getLbBlock().name() + " will not be removed.");
+        	} 
+        }
         if (plugin.getServer().getPluginManager().getPlugin("CMI") != null) {
             CMI = true;
             if (Protections.BlockCMIShulkerStacking.isEnabled()) {
@@ -425,6 +434,16 @@ public class IllegalStack extends JavaPlugin {
 
         } catch (ClassNotFoundException e) {
             LOGGER.info("Spigot chat components NOT found! disabling chat components.");
+        }
+
+        if (plugin.getServer().getPluginManager().getPlugin("Logblock") != null) {
+        	File conf = new File(Bukkit.getPluginManager().getPlugin("Logblock").getDataFolder(), "config.yml");
+        	final FileConfiguration lbconfig = YamlConfiguration.loadConfiguration(conf);
+        	
+        	if(lbconfig != null) {
+        		setLbBlock(Material.matchMaterial(lbconfig.getString("tools.toolblock.item")));
+        		LOGGER.info("Logblock plugin found, if blacklisted the toolblock item: " + getLbBlock().name() + " will not be removed.");
+        	}
         }
 
         if (this.getServer().getPluginManager().getPlugin("CMI") != null) {
@@ -1006,5 +1025,13 @@ public class IllegalStack extends JavaPlugin {
         version = getString(version);
         IllegalStack.version = version;
     }
+
+	public static Material getLbBlock() {
+		return lbBlock;
+	}
+
+	public static void setLbBlock(Material lbBlock) {
+		IllegalStack.lbBlock = lbBlock;
+	}
 
 }
