@@ -932,8 +932,15 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
+    private static boolean disable=false;
+
+    public static boolean isDisable() {
+        return disable;
+    }
+
     @Override
     public void onDisable() {
+        disable=true;
     	if(hasAsyncScheduler) {
             getServer().getAsyncScheduler().cancelTasks(this);
         }else {

@@ -119,7 +119,9 @@ public class fTimer implements Runnable {
 
     @Override
     public void run() {
-
+        if(IllegalStack.isDisable()){
+            return;
+        }
         for (Player p : punish.keySet()) {
             Scheduler.executeOrScheduleSync(plugin, () -> fListener.punishPlayer(p, punish.get(p)), p);
         }

@@ -63,8 +63,10 @@ public class sTimer implements Runnable {
 
     @Override
     public void run() {
-
         if (!Protections.DestroyBadSignsonChunkLoad.isEnabled() || Protections.DestroyBadSignsonChunkLoad.notifyOnly()) {
+            return;
+        }
+        if(IllegalStack.isDisable()){
             return;
         }
         if (getSignCheck() != -1L && System.currentTimeMillis() >= getSignCheck()) {
