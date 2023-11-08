@@ -88,6 +88,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -3861,6 +3862,37 @@ public class fListener implements Listener {
     	}
 
     }
+
+    @EventHandler
+    public void onItemCraft(CraftItemEvent event) {
+        if (Protections.DisableCraftingRecipes.getTxtSet().isEmpty()){
+            return;
+        }
+        if (!(event.getWhoClicked() instanceof Player)){
+            return;
+        }
+
+        Player player = ((Player) event.getWhoClicked());
+        ItemStack craftResult = event.getRecipe().getResult();
+        HashSet<String> disabledMaterials = Protections.DisableCraftingRecipes.getTxtSet();
+        HashSet<ItemStack> itemStacks = new HashSet<>();
+        for (String s : disabledMaterials){
+            Material material = Material.getMaterial(s);
+            if (material != null){
+                ItemStack itemStack = new ItemStack(material);
+                itemStacks.add(itemStack);
+            }
+        }
+
+        for (ItemStack itemStack : itemStacks){
+            if (craftResult.equals(itemStack)){
+                event.setCancelled(IllegalStackAction.isCompleted(Protections.DisableCraftingRecipes, player));
+                getLog().append(Msg.PreventedItemCraft.getValue(player, craftResult.getType().name()), Protections.DisableCraftingRecipes);
+                player.sendMessage(Msg.PlayerItemCraftPrevented.getValue(player.getName()));
+            }
+        }
+    }
+
     public Boolean is113() {
         return is113;
     }
