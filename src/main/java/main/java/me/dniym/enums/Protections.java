@@ -1286,7 +1286,7 @@ public enum Protections {
             62,
             new String[]{},
             "Disable Crafting Recipes By Result Material",
-            "ALL",
+            "> 1.12",
             "UserRequested.Obscure.DisableCraftingRecipes",
             "Disable a crafting recipe based on the item material result of the recipe.",
             "",
