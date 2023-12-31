@@ -23,7 +23,8 @@ public class syncTimer implements Runnable {
 
 	@Override
 	public void run() {
-
+		if(IllegalStack.isDisable())
+			return;
 		if(System.currentTimeMillis() >= nextScan) {
 			TrackedProjectile.manage();
 		}
