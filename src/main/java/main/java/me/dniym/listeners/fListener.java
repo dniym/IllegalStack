@@ -2913,7 +2913,7 @@ public class fListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGH)
     public void onInventoryPickup(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) {
             return;
@@ -3135,7 +3135,9 @@ public class fListener implements Listener {
             }
         }
 
-        if (Protections.RemoveOverstackedItems.isEnabled()) {
+        // Since there is no real way to check if this is custom inventory, this is the only way to stop calling fake-logs for
+        // events that don't occur at all (interacting with wrong itemstack in custom inventory, won't change the inventory)
+        if (Protections.RemoveOverstackedItems.isEnabled() && !e.isCancelled()) {
 
             if (p != null) {
                 is = e.getCurrentItem();
