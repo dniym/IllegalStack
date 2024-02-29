@@ -30,8 +30,9 @@ public class mcMMOListener implements Listener {
     @EventHandler
     public void onPotionBrew(McMMOPlayerBrewEvent e) {
         BrewingStand bs =(BrewingStand) e.getBrewingStand();
-        for(int i = 0; i < bs.getInventory().getStorageContents().length;i++) {
-            ItemStack is = bs.getInventory().getStorageContents()[i];
+        ItemStack[] storageContents = bs.getInventory().getStorageContents();
+        for(int i = 0; i < storageContents.length;i++) {
+            ItemStack is = storageContents[i];
 
             if(is == null)
                 continue;

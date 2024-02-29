@@ -108,8 +108,7 @@ public class CheckUtils {
 
     public static boolean CheckEntireInventory(Inventory inv) {
 
-        for (int i = 0; i < inv.getContents().length; i++) {
-            ItemStack is = inv.getContents()[i];
+        for (ItemStack is : inv.getContents()) {
             if (is == null) {
                 continue;
             }
