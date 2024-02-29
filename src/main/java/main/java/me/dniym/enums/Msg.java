@@ -107,6 +107,7 @@ public enum Msg {
     PlayerEnchantBlocked("&cSorry ~name~ Enchanting this item is not permitted."),
     PlayerRepairBlocked("&cSorry ~name~ Repairing this item is not permitted."),
     PlayerSpawnEggBlock("&cSorry you can not use spawn eggs to change spawner types!"),
+    PlayerItemCraftPrevented("&cSorry ~name~ you can not craft that item!"),
 
     StaffMsgChangedSpawnerType("Player ~player~ used ~type~ to change a spawner type @"),
     StaffMsgEndGatewayVehicleRemoved("player ~name~ attempted to take a ~vehicle~ through an end gateway, it has been removed."),
@@ -147,7 +148,9 @@ public enum Msg {
     DestroyedEnchantedItem("Destroyed an Illegally Enchanted Item ~item~ ~enchant~.(~lvl) found on player: ~player~"),
     IllegalEnchantLevel("&aFixed Enchantment Level ~enchant~.(~lvl~) on ~item~ found on player: ~player~"),
     IllegalEnchantType(
-            "&aCould not fix Enchantment ~enchant~.(~lvl~) on ~item~ found on player: ~player~ this enchantment is not valid for this item type!");
+            "&aCould not fix Enchantment ~enchant~.(~lvl~) on ~item~ found on player: ~player~ this enchantment is not valid " +
+                    "for this item type!"),
+    PreventedItemCraft("~player~ was prevented from crafting ~item~ as per DisableCraftingRecipes settings");
 
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Msg.class.getSimpleName());
 

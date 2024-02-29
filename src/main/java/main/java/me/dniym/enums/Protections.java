@@ -1206,7 +1206,7 @@ public enum Protections {
             false,
             "Remove ALL renamed items",
             "ALL",
-            "UserRequested.Obsure.Misc.RemoveAllRenamedItems",
+            "UserRequested.Obscure.Misc.RemoveAllRenamedItems",
             "Removes any item that has been renamed found on any user without the IllegalStack.RenameBypass permission.",
             "",
             2
@@ -1282,6 +1282,17 @@ public enum Protections {
     		"",
     		2
     		),
+    DisableCraftingRecipes(
+            62,
+            new String[]{},
+            "Disable Crafting Recipes By Result Material",
+            "> 1.12",
+            "UserRequested.Obscure.DisableCraftingRecipes",
+            "Disable a crafting recipe based on the item material result of the recipe.",
+            "",
+            2,
+            false
+            )
     ;
 
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Protections.class.getSimpleName());
