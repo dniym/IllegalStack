@@ -8,6 +8,7 @@ import main.java.me.dniym.utils.Scheduler;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -63,7 +64,9 @@ public class sTimer implements Runnable {
 
     @Override
     public void run() {
-
+        if(IllegalStack.isDisable()|| Bukkit.getServer().isStopping()){
+            return;
+        }
         if (!Protections.DestroyBadSignsonChunkLoad.isEnabled() || Protections.DestroyBadSignsonChunkLoad.notifyOnly()) {
             return;
         }

@@ -119,14 +119,16 @@ public class fTimer implements Runnable {
 
     @Override
     public void run() {
-
+        if(IllegalStack.isDisable()|| Bukkit.getServer().isStopping()){
+            return;
+        }
         for (Player p : punish.keySet()) {
             Scheduler.executeOrScheduleSync(plugin, () -> fListener.punishPlayer(p, punish.get(p)), p);
         }
         punish.clear();
 
         if (Protections.DamagePlayersAboveNether.isEnabled() && System.currentTimeMillis() >= nextNetherDamage) {
-        	 nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000);
+        	 nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000L);
         	for(World w:plugin.getServer().getWorlds())
         		if(w.getName().toLowerCase().contains("nether") || w.getEnvironment() == Environment.NETHER)
         			for(Player p:w.getPlayers())
