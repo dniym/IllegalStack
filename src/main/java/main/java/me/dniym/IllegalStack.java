@@ -42,6 +42,7 @@ public class IllegalStack extends JavaPlugin {
 
     private static IllegalStack plugin;
     private static Plugin ProCosmetics = null;
+    private static boolean isHybridEnvironment = false;
     private static boolean hasProtocolLib = false;
     private static boolean hasAttribAPI = false;
     private static boolean nbtAPI = false;
@@ -82,6 +83,10 @@ public class IllegalStack extends JavaPlugin {
         IllegalStack.plugin = plugin;
     }
 
+    public static boolean isIsHybridEnvironment() {
+        return isHybridEnvironment;
+    }
+
     public static boolean isSpigot() {
         return Spigot;
     }
@@ -106,7 +111,44 @@ public class IllegalStack extends JavaPlugin {
 
     }
 
+    private static void checkForHybridEnvironment() {
+        try {
+            Class.forName("io.izzel.arclight.i18n.ArclightConfig");
+            isHybridEnvironment = true;
+            LOGGER.info("Server is an ArcLight hybrid environment, enabling hybrid scheduler checks.");
+        } catch (ClassNotFoundException e) {
+            isHybridEnvironment = false;
+            LOGGER.info("Server is NOT an ArcLight hybrid environment, continuing as normal.");
+        }
+
+        if (!isIsHybridEnvironment()) {
+            try {
+                Class.forName("net.minecraftforge.fml.ModList");
+                isHybridEnvironment = true;
+                LOGGER.info("Server is a Forge hybrid environment, enabling hybrid scheduler checks.");
+
+            } catch (ClassNotFoundException e) {
+                isHybridEnvironment = false;
+                LOGGER.info("Server is NOT a Forge hybrid environment, continuing as normal.");
+            }
+        }
+
+        if (!isIsHybridEnvironment()) {
+            try {
+                Class.forName("net.fabricmc.loader.api.FabricLoader");
+                isHybridEnvironment = true;
+                LOGGER.info("Server is a Fabric hybrid environment, enabling hybrid scheduler checks.");
+            } catch (ClassNotFoundException e) {
+                isHybridEnvironment = false;
+                LOGGER.info("Server is NOT a Fabric hybrid environment, continuing as normal.");
+            }
+        }
+    }
+
     private static void StartupPlugin() {
+
+        checkForHybridEnvironment();
+
         try {
             Class.forName("org.spigotmc.SpigotConfig");
             Spigot = true;
@@ -116,13 +158,13 @@ public class IllegalStack extends JavaPlugin {
         }
 
         if (plugin.getServer().getPluginManager().getPlugin("Logblock") != null) {
-        	File conf = new File(Bukkit.getPluginManager().getPlugin("Logblock").getDataFolder(), "config.yml");
-        	final FileConfiguration lbconfig = YamlConfiguration.loadConfiguration(conf);
-        	
-        	if(lbconfig != null) {
-        		setLbBlock(Material.matchMaterial(lbconfig.getString("tools.toolblock.item")));
-        		LOGGER.info("Logblock plugin found, if blacklisted the toolblock item: " + getLbBlock().name() + " will not be removed.");
-        	} 
+            File conf = new File(Bukkit.getPluginManager().getPlugin("Logblock").getDataFolder(), "config.yml");
+            final FileConfiguration lbconfig = YamlConfiguration.loadConfiguration(conf);
+
+            if (lbconfig != null) {
+                setLbBlock(Material.matchMaterial(lbconfig.getString("tools.toolblock.item")));
+                LOGGER.info("Logblock plugin found, if blacklisted the toolblock item: " + getLbBlock().name() + " will not be removed.");
+            }
         }
         if (plugin.getServer().getPluginManager().getPlugin("CMI") != null) {
             CMI = true;
@@ -149,8 +191,9 @@ public class IllegalStack extends JavaPlugin {
             if (plugin.ScanTimer != null) {
                 plugin.ScanTimer.cancel();
             }
-            if (plugin.syncTimer != null)
-            	plugin.syncTimer.cancel();
+            if (plugin.syncTimer != null) {
+                plugin.syncTimer.cancel();
+            }
         }
 
 
@@ -322,8 +365,9 @@ public class IllegalStack extends JavaPlugin {
     }
 
     public static boolean hasAsyncScheduler() {
-    	return hasAsyncScheduler;
+        return hasAsyncScheduler;
     }
+
     public static boolean hasShulkers() {
         return hasShulkers;
     }
@@ -357,14 +401,15 @@ public class IllegalStack extends JavaPlugin {
         loadConfig();
         updateConfig();
         loadMsgs();
+        checkForHybridEnvironment();
         IllegalStackCommand illegalStackCommand = new IllegalStackCommand();
         this.getCommand("istack").setExecutor(illegalStackCommand);
         this.getCommand("istack").setTabCompleter(illegalStackCommand);
 
-        
+
         ProCosmetics = this.getServer().getPluginManager().getPlugin("ProCosmetics");
-        
-        	
+
+
         if (this.getServer().getPluginManager().getPlugin("EpicRename") != null) {
             EpicRename = true;
         }
@@ -437,13 +482,13 @@ public class IllegalStack extends JavaPlugin {
         }
 
         if (plugin.getServer().getPluginManager().getPlugin("Logblock") != null) {
-        	File conf = new File(Bukkit.getPluginManager().getPlugin("Logblock").getDataFolder(), "config.yml");
-        	final FileConfiguration lbconfig = YamlConfiguration.loadConfiguration(conf);
-        	
-        	if(lbconfig != null) {
-        		setLbBlock(Material.matchMaterial(lbconfig.getString("tools.toolblock.item")));
-        		LOGGER.info("Logblock plugin found, if blacklisted the toolblock item: " + getLbBlock().name() + " will not be removed.");
-        	}
+            File conf = new File(Bukkit.getPluginManager().getPlugin("Logblock").getDataFolder(), "config.yml");
+            final FileConfiguration lbconfig = YamlConfiguration.loadConfiguration(conf);
+
+            if (lbconfig != null) {
+                setLbBlock(Material.matchMaterial(lbconfig.getString("tools.toolblock.item")));
+                LOGGER.info("Logblock plugin found, if blacklisted the toolblock item: " + getLbBlock().name() + " will not be removed.");
+            }
         }
 
         if (this.getServer().getPluginManager().getPlugin("CMI") != null) {
@@ -490,7 +535,7 @@ public class IllegalStack extends JavaPlugin {
                     Protections.ItemScanTimer.getIntValue()
             );
             syncTimer = Scheduler.runTaskTimer(this, new syncTimer(this), 10, 10);
-            
+
         }
 
         if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && !fListener.getInstance().is113() && !fListener.is18()) {
@@ -599,13 +644,14 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void setHasAsyncScheduler() {
-    	try {
-    		Class.forName("org.bukkit.Server.getAsyncScheduler");
-    		hasAsyncScheduler = true;
-    	} catch (ClassNotFoundException ignored) {
-    		
-    	}
+        try {
+            Class.forName("org.bukkit.Server.getAsyncScheduler");
+            hasAsyncScheduler = true;
+        } catch (ClassNotFoundException ignored) {
+
+        }
     }
+
     private void setHasChestedAnimals() {
 
         try {
@@ -728,7 +774,11 @@ public class IllegalStack extends JavaPlugin {
             boolean update = false;
             for (Msg m : Msg.values()) {
                 if (fc.getString(m.name()) == null) {
-                    LOGGER.info(" {} Was missing from messages.yml, adding it with the default value {}", m.name(), m.getConfigVal());
+                    LOGGER.info(
+                            " {} Was missing from messages.yml, adding it with the default value {}",
+                            m.name(),
+                            m.getConfigVal()
+                    );
                     fc.set(m.name(), m.getConfigVal());
                     update = true;
 
@@ -830,7 +880,10 @@ public class IllegalStack extends JavaPlugin {
         }
 
         if (whitelisted.length() > 0) {
-            LOGGER.warn("WARNING: IllegalStack will NOT block but instead, will notify for the following exploits: {}", whitelisted);
+            LOGGER.warn(
+                    "WARNING: IllegalStack will NOT block but instead, will notify for the following exploits: {}",
+                    whitelisted
+            );
         }
 
         whitelisted = new StringBuilder();
@@ -932,7 +985,7 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
-    private static boolean disable=false;
+    private static boolean disable = false;
 
     public static boolean isDisable() {
         return disable;
@@ -940,10 +993,10 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        disable=true;
-    	if(hasAsyncScheduler) {
+        disable = true;
+        if (hasAsyncScheduler) {
             getServer().getAsyncScheduler().cancelTasks(this);
-        }else {
+        } else {
             Bukkit.getScheduler().cancelTasks(this);
         }
 
@@ -969,14 +1022,17 @@ public class IllegalStack extends JavaPlugin {
                 if (relevant.get(p)) //relevant to this version, check if it exists.
                 {
                     if (config.getString(p.getConfigPath()) == null) {
-                    	
-                    	if(p == Protections.RemoveOverstackedItems && this.getServer().getPluginManager().getPlugin("StackableItems") != null) {  
-                        		config.set(p.getConfigPath(),  false);
-                        		LOGGER.warn("The StackableItems plugin has been detected on your server, The protection RemoveOverstackedItems has been automatically disabled to prevent item loss, enabling this protection will most definitely remove items as this plugin is known to break the vanilla stack limits.");
-                        		p.setEnabled(false);
-                    	} else
-                               config.set(p.getConfigPath(), p.getDefaultValue());
-                    	
+
+                        if (p == Protections.RemoveOverstackedItems && this.getServer().getPluginManager().getPlugin(
+                                "StackableItems") != null) {
+                            config.set(p.getConfigPath(), false);
+                            LOGGER.warn(
+                                    "The StackableItems plugin has been detected on your server, The protection RemoveOverstackedItems has been automatically disabled to prevent item loss, enabling this protection will most definitely remove items as this plugin is known to break the vanilla stack limits.");
+                            p.setEnabled(false);
+                        } else {
+                            config.set(p.getConfigPath(), p.getDefaultValue());
+                        }
+
                         LOGGER.warn(
                                 "Found a missing protection from your configuration: {} it has been added with a default value of: {}",
                                 p.name(),
@@ -1033,12 +1089,12 @@ public class IllegalStack extends JavaPlugin {
         IllegalStack.version = version;
     }
 
-	public static Material getLbBlock() {
-		return lbBlock;
-	}
+    public static Material getLbBlock() {
+        return lbBlock;
+    }
 
-	public static void setLbBlock(Material lbBlock) {
-		IllegalStack.lbBlock = lbBlock;
-	}
+    public static void setLbBlock(Material lbBlock) {
+        IllegalStack.lbBlock = lbBlock;
+    }
 
 }

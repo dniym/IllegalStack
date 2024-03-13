@@ -64,9 +64,17 @@ public class sTimer implements Runnable {
 
     @Override
     public void run() {
-        if(IllegalStack.isDisable()|| Bukkit.getServer().isStopping()){
+
+        if (!IllegalStack.isIsHybridEnvironment()) {
+            if (IllegalStack.isDisable() || Bukkit.getServer().isStopping()) {
+                return;
+            }
+        }
+
+        if (IllegalStack.isDisable()) {
             return;
         }
+
         if (!Protections.DestroyBadSignsonChunkLoad.isEnabled() || Protections.DestroyBadSignsonChunkLoad.notifyOnly()) {
             return;
         }
@@ -78,8 +86,11 @@ public class sTimer implements Runnable {
                         Sign sign = (Sign) st;
                         boolean illegal = false;
                         for (String line : sign.getLines()) {
-                            if (!Charset.forName(Protections.ValidCharset.getTxtValue()).newEncoder().canEncode(ChatColor.stripColor(
-                                    line))) {
+                            if (!Charset
+                                    .forName(Protections.ValidCharset.getTxtValue())
+                                    .newEncoder()
+                                    .canEncode(ChatColor.stripColor(
+                                            line))) {
                                 illegal = true;
                                 LOGGER.info(
                                         "Found a sign with illegal chars: line with invalid text was: {} @ {}",
@@ -119,7 +130,8 @@ public class sTimer implements Runnable {
                                     .newEncoder()
                                     .canEncode(ChatColor.stripColor(line))) {
                                 Scheduler.executeOrScheduleSync(IllegalStack.getPlugin(),
-                                        () -> sign.getBlock().setType(Material.AIR), sign.getLocation());
+                                        () -> sign.getBlock().setType(Material.AIR), sign.getLocation()
+                                );
                                 found.add(sign.getBlock());
                             }
                         }

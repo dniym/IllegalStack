@@ -51,8 +51,8 @@ public class fTimer implements Runnable {
 
     private static final Map<FallingBlock, Long> fbTracker = new ConcurrentHashMap<>();
     //private static final Map<Projectile, Long> projTracker = new ConcurrentHashMap<>();
-    
-    
+
+
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + fTimer.class.getSimpleName());
     private static long endScanFinish = 0L;
     private static World dragon = null;
@@ -64,19 +64,20 @@ public class fTimer implements Runnable {
     private long longScan;
     private long endScan = 0L;
     private long nextNetherDamage = 0L;
-    
+
     public fTimer(IllegalStack illegalStack) {
         this.plugin = illegalStack;
         this.nextScan = System.currentTimeMillis() + (scanDelay * 6000);
-        if(Protections.DamagePlayersAboveNether.isEnabled()) {
-        	if(Protections.AboveNetherDamageAmount.getIntValue() < 1)
-        		Protections.AboveNetherDamageAmount.setIntValue(1);
-        	if(Protections.AboveNetherDamageDelay.getIntValue() < 1)
-        		Protections.AboveNetherDamageDelay.setIntValue(1);
-        	
-        	this.nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000);
+        if (Protections.DamagePlayersAboveNether.isEnabled()) {
+            if (Protections.AboveNetherDamageAmount.getIntValue() < 1) {
+                Protections.AboveNetherDamageAmount.setIntValue(1);
+            }
+            if (Protections.AboveNetherDamageDelay.getIntValue() < 1) {
+                Protections.AboveNetherDamageDelay.setIntValue(1);
+            }
+
+            this.nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000);
         }
-        
 
 
         String version = plugin.getServer().getClass().getPackage().getName().replace(".", ",")
@@ -97,8 +98,9 @@ public class fTimer implements Runnable {
     }
 
     public static void trackProjectile(Projectile proj) {
-    	if (Protections.PreventProjectileExploit2.isEnabled(proj.getWorld())) 
-    		new TrackedProjectile(proj);
+        if (Protections.PreventProjectileExploit2.isEnabled(proj.getWorld())) {
+            new TrackedProjectile(proj);
+        }
     }
 
     public static long getEndScanFinish() {
@@ -119,26 +121,39 @@ public class fTimer implements Runnable {
 
     @Override
     public void run() {
-        if(IllegalStack.isDisable()|| Bukkit.getServer().isStopping()){
+
+        if (!IllegalStack.isIsHybridEnvironment()) {
+            if (IllegalStack.isDisable() || Bukkit.getServer().isStopping()) {
+                return;
+            }
+        }
+
+        if (IllegalStack.isDisable()) {
             return;
         }
+
         for (Player p : punish.keySet()) {
             Scheduler.executeOrScheduleSync(plugin, () -> fListener.punishPlayer(p, punish.get(p)), p);
         }
         punish.clear();
 
         if (Protections.DamagePlayersAboveNether.isEnabled() && System.currentTimeMillis() >= nextNetherDamage) {
-        	 nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000L);
-        	for(World w:plugin.getServer().getWorlds())
-        		if(w.getName().toLowerCase().contains("nether") || w.getEnvironment() == Environment.NETHER)
-        			for(Player p:w.getPlayers())
-        				if(p.isOp() || p.hasPermission("illegalstack.notify"))
-        					continue;
-        				else if (p.getLocation().getY()>= Protections.NetherYLevel.getIntValue()) 
-        					Scheduler.executeOrScheduleSync(plugin,
-                                    () -> p.damage(Protections.AboveNetherDamageAmount.getIntValue()), p);
-        				
-        	
+            nextNetherDamage = System.currentTimeMillis() + (Protections.AboveNetherDamageDelay.getIntValue() * 1000L);
+            for (World w : plugin.getServer().getWorlds()) {
+                if (w.getName().toLowerCase().contains("nether") || w.getEnvironment() == Environment.NETHER) {
+                    for (Player p : w.getPlayers()) {
+                        if (p.isOp() || p.hasPermission("illegalstack.notify")) {
+                            continue;
+                        } else if (p.getLocation().getY() >= Protections.NetherYLevel.getIntValue()) {
+                            Scheduler.executeOrScheduleSync(plugin,
+                                    () -> p.damage(Protections.AboveNetherDamageAmount.getIntValue()), p
+                            );
+                        }
+                    }
+                }
+            }
+
+
         }
         if (Protections.BlockNonPlayersInEndPortal.isEnabled() && getDragon() != null && System.currentTimeMillis() > endScan) {
             endScan = System.currentTimeMillis() + 500L;
@@ -204,7 +219,8 @@ public class fTimer implements Runnable {
                         } //didn't find a valid exit point at the exit block, lets search and try to find a new valid portal block to check
                         if (!valid) {
                             Scheduler.executeOrScheduleSync(plugin,
-                                    () -> p.getLocation().getBlock().breakNaturally(), p);
+                                    () -> p.getLocation().getBlock().breakNaturally(), p
+                            );
                             fListener.getLog().append2(Msg.StaffMsgBlockedPortalLogin.getValue(p, p.getLocation().toString()));
                             //  LOGGER.info("Invalid was: {}", invalid);
                             return true;
@@ -232,12 +248,12 @@ public class fTimer implements Runnable {
         }
 
         if (System.currentTimeMillis() >= this.nextScan) {
-        	/*
-        	 * Moved to a sync listener, if tracked projectiles are removed via this async timer it crashes the server.
-        	 */
-        	
-        	//TrackedProjectile.manageAsync();
-        	
+            /*
+             * Moved to a sync listener, if tracked projectiles are removed via this async timer it crashes the server.
+             */
+
+            //TrackedProjectile.manageAsync();
+
             if (Protections.PreventVibratingBlocks.isEnabled()) {
                 HashSet<FallingBlock> removed = new HashSet<>();
                 for (FallingBlock fb : fbTracker.keySet()) {
@@ -246,7 +262,9 @@ public class fTimer implements Runnable {
                     }
 
                     try {
-                        for (Entity ent : Scheduler.executeOrScheduleSync(plugin, () -> fb.getNearbyEntities(1, 1, 1), fb).get()) {
+                        for (Entity ent : Scheduler
+                                .executeOrScheduleSync(plugin, () -> fb.getNearbyEntities(1, 1, 1), fb)
+                                .get()) {
                             if (ent instanceof Minecart || ent instanceof Boat) {
                                 removed.add(fb);
                                 Scheduler.executeOrScheduleSync(plugin, () -> fb.remove(), fb);
@@ -287,21 +305,22 @@ public class fTimer implements Runnable {
 
                         if (is != null && !p.isOp()) {
 
-                        	if (Protections.RemoveItemTypes.isWhitelisted(is)) {
-                        		if (IllegalStack.getLbBlock() != null && IllegalStack.getLbBlock() == is.getType() && p.hasPermission("logblock.tools.toolblock")) {
-                        			//found a logblock block in the players inventory and they have permission to have it. don't remove it.
-                        		} else {
-                        			if (Protections.RemoveItemTypes.notifyOnly()) {
-                        				fListener.getLog().notify(
-                        						Protections.RemoveItemTypes,
-                        						" Triggered by: " + p.getName() + " with item: " + is.getType().name()
-                        						);
-                        			} else {
-                        				fListener.getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
-                        				p.getInventory().remove(is);
-                        			}
-                        		}
-                        	}
+                            if (Protections.RemoveItemTypes.isWhitelisted(is)) {
+                                if (IllegalStack.getLbBlock() != null && IllegalStack.getLbBlock() == is.getType() && p.hasPermission(
+                                        "logblock.tools.toolblock")) {
+                                    //found a logblock block in the players inventory and they have permission to have it. don't remove it.
+                                } else {
+                                    if (Protections.RemoveItemTypes.notifyOnly()) {
+                                        fListener.getLog().notify(
+                                                Protections.RemoveItemTypes,
+                                                " Triggered by: " + p.getName() + " with item: " + is.getType().name()
+                                        );
+                                    } else {
+                                        fListener.getLog().append2(Msg.ItemTypeRemovedPlayer.getValue(p, is));
+                                        p.getInventory().remove(is);
+                                    }
+                                }
+                            }
                         }
 
                         if (Protections.RemoveAllRenamedItems.isEnabled()) {
@@ -427,7 +446,10 @@ public class fTimer implements Runnable {
                                             if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                                 break;
                                             }
-                                            if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en))) {
+                                            if (Protections.CustomEnchantOverride.isAllowedEnchant(
+                                                    en,
+                                                    is.getEnchantmentLevel(en)
+                                            )) {
                                                 continue;
                                             }
                                             fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
@@ -452,7 +474,12 @@ public class fTimer implements Runnable {
                                         is.removeEnchantment(en);
                                         p.updateInventory();
                                         if (en.canEnchantItem(is)) {
-                                            Scheduler.runTaskLater(this.plugin, () -> is.addEnchantment(en, en.getMaxLevel()), 1, p);
+                                            Scheduler.runTaskLater(
+                                                    this.plugin,
+                                                    () -> is.addEnchantment(en, en.getMaxLevel()),
+                                                    1,
+                                                    p
+                                            );
                                         }
 
 
@@ -532,7 +559,10 @@ public class fTimer implements Runnable {
                                             if (Protections.EnchantedItemWhitelist.isWhitelisted(is)) {
                                                 break;
                                             }
-                                            if (Protections.CustomEnchantOverride.isAllowedEnchant(en, is.getEnchantmentLevel(en))) {
+                                            if (Protections.CustomEnchantOverride.isAllowedEnchant(
+                                                    en,
+                                                    is.getEnchantmentLevel(en)
+                                            )) {
                                                 continue;
                                             }
                                             fListener.getLog().append2(Msg.IllegalEnchantLevel.getValue(p, is, en));
@@ -556,7 +586,12 @@ public class fTimer implements Runnable {
                                         is.removeEnchantment(en);
                                         p.updateInventory();
                                         if (en.canEnchantItem(is)) {
-                                            Scheduler.runTaskLater(this.plugin, () -> is.addEnchantment(en, en.getMaxLevel()), 1, p);
+                                            Scheduler.runTaskLater(
+                                                    this.plugin,
+                                                    () -> is.addEnchantment(en, en.getMaxLevel()),
+                                                    1,
+                                                    p
+                                            );
                                         }
 
                                     }
@@ -631,8 +666,14 @@ public class fTimer implements Runnable {
                                     p.getInventory().remove(is);
                                     StringBuilder efx = new StringBuilder();
                                     for (PotionEffect ce : potion.getCustomEffects()) {
-                                        efx.append(ce.getType().getName()).append(" amplifier: ").append(ce.getAmplifier()).append(
-                                                " duration: ").append(ce.getDuration()).append(",");
+                                        efx
+                                                .append(ce.getType().getName())
+                                                .append(" amplifier: ")
+                                                .append(ce.getAmplifier())
+                                                .append(
+                                                        " duration: ")
+                                                .append(ce.getDuration())
+                                                .append(",");
                                     }
 
                                     fListener.getLog().append2(Msg.InvalidPotionRemoved.getValue(p, efx.toString()));
