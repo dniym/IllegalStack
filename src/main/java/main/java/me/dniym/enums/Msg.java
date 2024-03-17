@@ -73,6 +73,8 @@ public enum Msg {
     IllegalStackUnstack(
             "Unstacked an illegal stack of: ~item~ (~amount~) triggered by player: ~name~.  ~lost~ items were unable to fit and lost."),
     InvalidPotionRemoved("Removed invalid potion from ~name~ had the following effects: ~effects~"),
+    InvalidThrownPotionRemoved("Removed an invalid potion thrown by ~name~ with the following effects: ~effects~"),
+    
     UnbreakableItemCleared("Removed Unbreakable flag from ~item~ found on player ~name~"),
     CustomAttribsRemoved("Removed Custom Attributes on ~item~ held by ~name~ (~attributes~)"),
     CustomAttribsRemoved2("Removed ~item~ with Custom Attributes worn by ~name~ (~attributes~)"),

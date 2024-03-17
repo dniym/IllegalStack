@@ -3,6 +3,7 @@ package main.java.me.dniym.timers;
 import io.netty.util.internal.ThreadLocalRandom;
 import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.checks.BadAttributeCheck;
+import main.java.me.dniym.checks.BadPotionCheck;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.listeners.fListener;
@@ -642,46 +643,11 @@ public class fTimer implements Runnable {
                                 //NBTStuff.checkForBadCustomData(is, p, false);
                                 BadAttributeCheck.checkForBadCustomData(is, p);
                             }
-
-                            if (Protections.PreventInvalidPotions.isEnabled() && im instanceof PotionMeta) {
-                                if (Protections.AllowBypass.isEnabled() && p.hasPermission("illegalstack.enchantbypass")) {
-                                    continue;
-                                }
-
-                                if (IllegalStack.isHasMCMMO()) {
-                                    if (NBTStuff.hasNbtTag("IllegalStack", is, "mcmmoitem", Protections.PreventInvalidPotions)) {
-                                        continue;
-                                    }
-                                }
-                                PotionMeta potion = (PotionMeta) is.getItemMeta();
-                                PotionData pd = potion.getBasePotionData();
-                                if (pd.getType() == PotionType.UNCRAFTABLE || (potion.hasCustomEffects() && !potion
-                                        .getCustomEffects()
-                                        .isEmpty())) {
-
-                                    if (pd.getType() == PotionType.UNCRAFTABLE && potion.getCustomEffects().isEmpty()) {
-                                        continue;
-                                    }
-
-                                    p.getInventory().remove(is);
-                                    StringBuilder efx = new StringBuilder();
-                                    for (PotionEffect ce : potion.getCustomEffects()) {
-                                        efx
-                                                .append(ce.getType().getName())
-                                                .append(" amplifier: ")
-                                                .append(ce.getAmplifier())
-                                                .append(
-                                                        " duration: ")
-                                                .append(ce.getDuration())
-                                                .append(",");
-                                    }
-
-                                    fListener.getLog().append2(Msg.InvalidPotionRemoved.getValue(p, efx.toString()));
-                                }
-
-                            }
+                            
+                            if (Protections.PreventInvalidPotions.isEnabled())
+                            	BadPotionCheck.checkPotion(is,p);
+                            
                         }
-
                         if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !mcMMOListener.ismcMMOActive(p)) {
                             if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
                             {

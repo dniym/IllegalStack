@@ -44,6 +44,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import io.netty.util.internal.ThreadLocalRandom;
 import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.checks.BadPotionCheck;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.timers.fTimer;
@@ -318,6 +319,9 @@ public class Listener114 implements Listener {
         if (Protections.PreventProjectileExploit2.isEnabled(e.getEntity().getLocation())) {
             fTimer.trackProjectile(e.getEntity());
         }
+        if (Protections.PreventInvalidPotions.isEnabled() && e.getEntity() != null)
+        	e.setCancelled(BadPotionCheck.isInvalidPotion(e.getEntity()));
+        
     }
 
     @EventHandler// (ignoreCancelled = false, priority=EventPriority.LOWEST)
