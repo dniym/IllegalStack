@@ -3,6 +3,7 @@ package main.java.me.dniym.timers;
 import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.enums.ServerVersion;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.utils.Scheduler;
 import net.md_5.bungee.api.ChatColor;
@@ -65,7 +66,8 @@ public class sTimer implements Runnable {
     @Override
     public void run() {
 
-        if (!IllegalStack.isIsHybridEnvironment()) {
+        if (!IllegalStack.isIsHybridEnvironment() && IllegalStack.isPaperServer()
+                && IllegalStack.getMajorServerVersion() >= 16) {
             if (IllegalStack.isDisable() || Bukkit.getServer().isStopping()) {
                 return;
             }

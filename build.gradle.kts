@@ -44,13 +44,13 @@ dependencies {
     compileOnly("com.elmakers.mine.bukkit:MagicAPI:10.2")
     compileOnly("de.tr7zw:item-nbt-api-plugin:2.8.0")
     compileOnly("com.github.TheBusyBiscuit:Slimefun4:RC-30") { isTransitive = false }
-    compileOnly("io.netty:netty-all:4.1.82.Final") {
+    compileOnly("io.netty:netty-all:4.1.110.Final") {
         because("The version aligns with the version used by Minecraft itself." +
                 "The minecraft server ships netty as well, so we don't need to include it in the jar.")
     }
     compileOnly("com.gmail.nossr50.mcMMO:mcMMO:2.1.217") { isTransitive = false }
     compileOnly("fr.minuskube.inv:smart-invs:1.2.7")
-    compileOnly("com.github.CraftingStore:MinecraftPlugin:master-SNAPSHOT")
+    //compileOnly("com.github.CraftingStore.MinecraftPlugin:core:master-e366d322f8-1")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.0.0")
 }
 
@@ -66,7 +66,7 @@ tasks.compileJava.configure {
     options.release.set(8)
 }
 
-version = "2.9.10-SNAPSHOT-02"
+version = "2.9.11-SNAPSHOT-01"
 
 tasks.named<Copy>("processResources") {
     filesMatching("plugin.yml") {
