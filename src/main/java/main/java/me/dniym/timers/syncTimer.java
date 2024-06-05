@@ -25,7 +25,8 @@ public class syncTimer implements Runnable {
     @Override
     public void run() {
 
-        if (!IllegalStack.isIsHybridEnvironment()) {
+        if (!IllegalStack.isIsHybridEnvironment() && IllegalStack.isPaperServer()
+                && IllegalStack.getMajorServerVersion() >= 16) {
             if (IllegalStack.isDisable() || Bukkit.getServer().isStopping()) {
                 return;
             }

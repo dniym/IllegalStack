@@ -3,6 +3,7 @@ package main.java.me.dniym;
 import main.java.me.dniym.commands.IllegalStackCommand;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.enums.ServerVersion;
 import main.java.me.dniym.listeners.Listener113;
 import main.java.me.dniym.listeners.Listener114;
 import main.java.me.dniym.listeners.Listener116;
@@ -43,6 +44,7 @@ public class IllegalStack extends JavaPlugin {
     private static IllegalStack plugin;
     private static Plugin ProCosmetics = null;
     private static boolean isHybridEnvironment = false;
+    private static boolean isPaperServer = false;
     private static boolean hasProtocolLib = false;
     private static boolean hasAttribAPI = false;
     private static boolean nbtAPI = false;
@@ -75,6 +77,8 @@ public class IllegalStack extends JavaPlugin {
     private Scheduler.ScheduledTask syncTimer = null;
 //	private static NMSEntityVillager nmsTrader= null;
 
+    private ServerVersion serverVersion;
+
     public static IllegalStack getPlugin() {
         return plugin;
     }
@@ -85,6 +89,10 @@ public class IllegalStack extends JavaPlugin {
 
     public static boolean isIsHybridEnvironment() {
         return isHybridEnvironment;
+    }
+
+    public static boolean isPaperServer() {
+        return isPaperServer;
     }
 
     public static boolean isSpigot() {
@@ -145,9 +153,21 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
+    private static void checkForPaperServer() {
+        try {
+            Class.forName("com.destroystokyo.paper.utils.PaperPluginLogger");
+            isPaperServer = true;
+            LOGGER.info("Server is a Paper server, enabling Paper features.");
+        } catch (ClassNotFoundException e) {
+            isPaperServer = false;
+            LOGGER.info("Server is NOT a Paper server, continuing as normal.");
+        }
+    }
+
     private static void StartupPlugin() {
 
         checkForHybridEnvironment();
+        checkForPaperServer();
 
         try {
             Class.forName("org.spigotmc.SpigotConfig");
@@ -177,6 +197,7 @@ public class IllegalStack extends JavaPlugin {
             }
         }
 
+        Protections.runReflectionChecks();
 
         if (fListener.getInstance() == null) {
             plugin.getServer().getPluginManager().registerEvents(new fListener(plugin), plugin);
@@ -402,6 +423,7 @@ public class IllegalStack extends JavaPlugin {
         updateConfig();
         loadMsgs();
         checkForHybridEnvironment();
+        checkForPaperServer();
         IllegalStackCommand illegalStackCommand = new IllegalStackCommand();
         this.getCommand("istack").setExecutor(illegalStackCommand);
         this.getCommand("istack").setTabCompleter(illegalStackCommand);
@@ -1083,10 +1105,28 @@ public class IllegalStack extends JavaPlugin {
 
     private void setVersion() {
 
-        String version = getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+        String version;
 
-        version = getString(version);
-        IllegalStack.version = version;
+        try {
+            version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            version = null;
+        }
+
+        if (version != null) {
+            version = getString(version);
+            IllegalStack.version = version;
+        } else {
+            String packageName = Bukkit.getServer().getClass().getPackage().getName();
+            String bukkitVersion = Bukkit.getServer().getBukkitVersion();
+            if (bukkitVersion.contains("1.20.5") || bukkitVersion.contains("1.20.6")) {
+                serverVersion = ServerVersion.v1_20_R4;
+            } else {
+                serverVersion = ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
+            }
+
+            IllegalStack.version = serverVersion.getServerVersionName();
+        }
     }
 
     public static Material getLbBlock() {
@@ -1095,6 +1135,24 @@ public class IllegalStack extends JavaPlugin {
 
     public static void setLbBlock(Material lbBlock) {
         IllegalStack.lbBlock = lbBlock;
+    }
+
+    public ServerVersion getServerVersion() {
+        return serverVersion;
+    }
+
+    public static int getMajorServerVersion() {
+        int version;
+
+        try {
+            version = Integer.parseInt(getVersion().split("_")[1]);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Unable to process server version!");
+            LOGGER.error("Some features may break unexpectedly!");
+            LOGGER.error("Report any issues to the developer!");
+            return 0;
+        }
+        return version;
     }
 
 }

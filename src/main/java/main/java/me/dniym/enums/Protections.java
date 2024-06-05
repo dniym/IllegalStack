@@ -1,6 +1,7 @@
 package main.java.me.dniym.enums;
 
 
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
@@ -26,6 +27,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -37,7 +39,6 @@ import main.java.me.dniym.utils.SpigotMethods;
 //import me.jet315.minions.MinionAPI;
 //import me.jet315.minions.minions.Minion;
 import net.brcdev.shopgui.gui.gui.OpenGui;
-import net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder;
 
 public enum Protections {
 
@@ -1294,7 +1295,6 @@ public enum Protections {
             false
             )
     ;
-
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + Protections.class.getSimpleName());
     ///OPTIONS///
     private Object defaultValue = null;
@@ -1314,6 +1314,7 @@ public enum Protections {
     private boolean isList = false;
     private int catId = 0;
     private boolean relevant = false;
+    private static Class<?> craftingStoreInventoryHolder = null;
 
     Protections(
             int id,
@@ -1692,34 +1693,33 @@ public enum Protections {
     }
 
     private String getServerVersion() {
-        if (serverVersion == "") {
-            String version = IllegalStack
-                    .getPlugin()
-                    .getServer()
-                    .getClass()
-                    .getPackage()
-                    .getName()
-                    .replace(".", ",")
-                    .split(",")[3];
-
-
-            version = IllegalStack.getString(version);
-            if (version.equalsIgnoreCase("v1_15_R1")) {
-
-                version = IllegalStack.getPlugin().getServer().getVersion().split(" ")[2];
-                if (version.contains(" ")) {
-                    version = version.replace(")", "");
-                    version = version.replace(".", "_");
-                    String[] ver = version.split("_");
-                    version = "v" + ver[0] + "_" + ver[1] + "_R" + ver[2];
-                }
-
-            }
-
-            serverVersion = version;
-
-        }
-        return serverVersion;
+//        if (serverVersion.equalsIgnoreCase("")) {
+//            String version = IllegalStack
+//                    .getPlugin()
+//                    .getServer()
+//                    .getClass()
+//                    .getPackage()
+//                    .getName()
+//                    .replace(".", ",")
+//                    .split(",")[3];
+//
+//
+//            version = IllegalStack.getString(version);
+//            if (version.equalsIgnoreCase("v1_15_R1")) {
+//
+//                version = IllegalStack.getPlugin().getServer().getVersion().split(" ")[2];
+//                if (version.contains(" ")) {
+//                    version = version.replace(")", "");
+//                    version = version.replace(".", "_");
+//                    String[] ver = version.split("_");
+//                    version = "v" + ver[0] + "_" + ver[1] + "_R" + ver[2];
+//                }
+//
+//            }
+//
+//            serverVersion = version;
+//        }
+        return IllegalStack.getVersion();
     }
 
     public boolean notifyOnly() {
@@ -2442,11 +2442,26 @@ public enum Protections {
         return false;
     }
 
+    public static void runReflectionChecks() {
+        try {
+            craftingStoreInventoryHolder = Class.forName("net.craftingstore.bukkit.inventory.CraftingStoreInventoryHolder");
+            LOGGER.info("CraftingStore plugin detected!  IllegalStack will now be able to detect and handle CraftingStore inventories.");
+        } catch (ClassNotFoundException e) {
+            craftingStoreInventoryHolder = null;
+        }
+    }
 
     public boolean isThirdPartyInventory(InventoryView inv) {
 
         if (IllegalStack.getPlugin().getServer().getPluginManager().getPlugin("CraftingStore") != null) {
-            if (inv.getTopInventory().getHolder() instanceof CraftingStoreInventoryHolder) {
+            if (craftingStoreInventoryHolder == null) {
+                return false;
+            }
+            InventoryHolder holder = inv.getTopInventory().getHolder();
+            if (holder == null) {
+                return false;
+            }
+            if (inv.getTopInventory().getHolder().getClass() == craftingStoreInventoryHolder) {
                 return true;
             }
 

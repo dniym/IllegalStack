@@ -6,6 +6,7 @@ import main.java.me.dniym.checks.BadAttributeCheck;
 import main.java.me.dniym.checks.BadPotionCheck;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
+import main.java.me.dniym.enums.ServerVersion;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.listeners.mcMMOListener;
 import main.java.me.dniym.util.TrackedProjectile;
@@ -81,8 +82,7 @@ public class fTimer implements Runnable {
         }
 
 
-        String version = plugin.getServer().getClass().getPackage().getName().replace(".", ",")
-                .split(",")[3];
+        String version = IllegalStack.getVersion();
         is1_8 = version.equalsIgnoreCase("v1_8_R3") || version.contains("v1_8");
 
         if (is1_8) {
@@ -123,7 +123,8 @@ public class fTimer implements Runnable {
     @Override
     public void run() {
 
-        if (!IllegalStack.isIsHybridEnvironment()) {
+        if (!IllegalStack.isIsHybridEnvironment() && IllegalStack.isPaperServer()
+                && IllegalStack.getMajorServerVersion() >= 16) {
             if (IllegalStack.isDisable() || Bukkit.getServer().isStopping()) {
                 return;
             }
