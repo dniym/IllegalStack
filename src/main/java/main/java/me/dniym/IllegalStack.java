@@ -1119,7 +1119,9 @@ public class IllegalStack extends JavaPlugin {
         } else {
             String packageName = Bukkit.getServer().getClass().getPackage().getName();
             String bukkitVersion = Bukkit.getServer().getBukkitVersion();
-            if (bukkitVersion.contains("1.20.5") || bukkitVersion.contains("1.20.6")) {
+            if (bukkitVersion.contains("1.21")) {
+                serverVersion = ServerVersion.v1_21_R1;
+            } else if (bukkitVersion.contains("1.20.5") || bukkitVersion.contains("1.20.6")) {
                 serverVersion = ServerVersion.v1_20_R4;
             } else {
                 serverVersion = ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
