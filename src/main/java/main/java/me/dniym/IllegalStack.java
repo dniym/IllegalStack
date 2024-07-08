@@ -45,6 +45,7 @@ public class IllegalStack extends JavaPlugin {
     private static Plugin ProCosmetics = null;
     private static boolean isHybridEnvironment = false;
     private static boolean isPaperServer = false;
+    private static boolean isFoliaServer = false;
     private static boolean hasProtocolLib = false;
     private static boolean hasAttribAPI = false;
     private static boolean nbtAPI = false;
@@ -97,6 +98,10 @@ public class IllegalStack extends JavaPlugin {
 
     public static boolean isSpigot() {
         return Spigot;
+    }
+
+    public static boolean isFoliaServer() {
+        return isFoliaServer;
     }
 
     public static boolean isCMI() {
@@ -164,10 +169,22 @@ public class IllegalStack extends JavaPlugin {
         }
     }
 
+    private static void checkForFoliaServer() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            isFoliaServer = true;
+            LOGGER.info("Server has Folia components, enabling Folia features.");
+        } catch (ClassNotFoundException e) {
+            isFoliaServer = false;
+            LOGGER.info("Server does NOT have Folia components, continuing as normal.");
+        }
+    }
+
     private static void StartupPlugin() {
 
         checkForHybridEnvironment();
         checkForPaperServer();
+        checkForFoliaServer();
 
         try {
             Class.forName("org.spigotmc.SpigotConfig");
@@ -424,6 +441,7 @@ public class IllegalStack extends JavaPlugin {
         loadMsgs();
         checkForHybridEnvironment();
         checkForPaperServer();
+        checkForFoliaServer();
         IllegalStackCommand illegalStackCommand = new IllegalStackCommand();
         this.getCommand("istack").setExecutor(illegalStackCommand);
         this.getCommand("istack").setTabCompleter(illegalStackCommand);
@@ -1018,7 +1036,7 @@ public class IllegalStack extends JavaPlugin {
         disable = true;
         if (hasAsyncScheduler) {
             getServer().getAsyncScheduler().cancelTasks(this);
-        } else {
+        } else if (!isFoliaServer()){
             Bukkit.getScheduler().cancelTasks(this);
         }
 
@@ -1119,8 +1137,12 @@ public class IllegalStack extends JavaPlugin {
         } else {
             String packageName = Bukkit.getServer().getClass().getPackage().getName();
             String bukkitVersion = Bukkit.getServer().getBukkitVersion();
-            if (bukkitVersion.contains("1.20.5") || bukkitVersion.contains("1.20.6")) {
-                serverVersion = ServerVersion.v1_20_R4;
+            if (bukkitVersion.contains("1.20.5")) {
+                serverVersion = ServerVersion.v1_20_R5;
+            } else if (bukkitVersion.contains("1.20.6")) {
+                serverVersion = ServerVersion.v1_20_R5;
+            } else if (bukkitVersion.contains("1.21")) {
+                serverVersion = ServerVersion.v1_21_R1;
             } else {
                 serverVersion = ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
             }
