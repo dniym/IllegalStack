@@ -1,16 +1,20 @@
 package main.java.me.dniym;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.PacketEventsAPI;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import main.java.me.dniym.commands.IllegalStackCommand;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
 import main.java.me.dniym.enums.ServerVersion;
+import main.java.me.dniym.listeners.CreativeInvPacketListeners;
 import main.java.me.dniym.listeners.Listener113;
 import main.java.me.dniym.listeners.Listener114;
 import main.java.me.dniym.listeners.Listener116;
 import main.java.me.dniym.listeners.ProtectionListener;
+import main.java.me.dniym.listeners.UseEntityPacketListener;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.listeners.mcMMOListener;
-import main.java.me.dniym.listeners.pLisbListener;
 import main.java.me.dniym.timers.fTimer;
 import main.java.me.dniym.timers.sTimer;
 import main.java.me.dniym.timers.syncTimer;
@@ -23,6 +27,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -110,6 +115,16 @@ public class IllegalStack extends JavaPlugin {
 
     public static void setCMI(boolean cMI) {
         CMI = cMI;
+    }
+
+    @Override
+    public void onLoad() {
+        // Load PacketEventsAPI
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().getSettings()
+                .checkForUpdates(false)
+                .debug(false);
+        PacketEvents.getAPI().load();
     }
 
     public static void ReloadConfig(Boolean wasCommand) {
@@ -432,6 +447,13 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Register PacketEvents listeners
+        LOGGER.info("Registering PacketEvents listeners...");
+        PacketEvents.getAPI().getEventManager().registerListeners(new CreativeInvPacketListeners(this));
+        PacketEvents.getAPI().getEventManager().registerListeners(new UseEntityPacketListener(this));
+        PacketEventsAPI<?> packetEventsAPI = PacketEvents.getAPI();
+        packetEventsAPI.init();
+        LOGGER.info("PacketEvents API {} has been initialized!", PacketEvents.getAPI().getVersion());
 
 //    	 new EntityRegistry(this);
         this.setPlugin(this);
@@ -540,25 +562,6 @@ public class IllegalStack extends JavaPlugin {
                 LOGGER.info(
                         "CMI was detected on your server, however BlockCMIShulkerStacking is set to FALSE in your config, so players can use CMI to put shulkers inside shulkers!   To enable this protection add BlockCMIShulkerStacking: true to your config.yml.");
             }
-        }
-
-        if (this
-                .getServer()
-                .getPluginManager()
-                .getPlugin("ProtocolLib") != null && Protections.BlockBadItemsFromCreativeTab.isEnabled()) {
-            LOGGER.info(
-                    "ProtocolLib was detected, creative inventory exploit detection enabled.  NOTE*  This protection ONLY needs to be turned on if you have regular (non op) players with access to /gmc");
-            new pLisbListener(this);
-        }
-
-        if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null && Protections.DisableChestsOnMobs.isEnabled()) {
-
-            LOGGER.warn(
-                    "ProtocolLib NOT FOUND!!!! and DisableChestsOnMobs protection is turned on.. It may still be possible for players to dupe using horses/donkeys on your server using a hacked client.  It is highly recommended that you install ProtocolLib for optimal protection!");
-
-        } else if (Protections.DisableChestsOnMobs.isEnabled()) {
-            new pLisbListener(this);
-            setHasProtocolLib(true);
         }
 
         this.getServer().getPluginManager().registerEvents(new fListener(this), this);
@@ -1033,13 +1036,26 @@ public class IllegalStack extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // Signal plugin is now disabled
         disable = true;
+
+        // Terminate PacketEvents
+        PacketEvents.getAPI().getEventManager().unregisterAllListeners();
+        PacketEvents.getAPI().terminate();
+        LOGGER.info("PacketEvents has been terminated successfully!");
+
+        // Unregister listeners
+        HandlerList.unregisterAll(this);
+        LOGGER.info("Listeners have unregistered successfully!");
+
+        // Cancel all tasks
         if (hasAsyncScheduler) {
             getServer().getAsyncScheduler().cancelTasks(this);
         } else if (!isFoliaServer()){
             Bukkit.getScheduler().cancelTasks(this);
         }
 
+        // Save configuration
         writeConfig();
     }
 

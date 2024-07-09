@@ -4,6 +4,8 @@ plugins {
 
     idea
     eclipse
+
+    id("com.github.johnrengelman.shadow") version "7.1.0"
 }
 
 repositories {
@@ -19,6 +21,10 @@ repositories {
     maven {
         name = "PaperMC"
         url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
+        name = "PacketEvents"
+        url = uri("https://repo.codemc.io/repository/maven-releases/")
     }
     maven {
         name = "ProtocolLib"
@@ -52,6 +58,7 @@ dependencies {
     compileOnly("fr.minuskube.inv:smart-invs:1.2.7")
     //compileOnly("com.github.CraftingStore.MinecraftPlugin:core:master-e366d322f8-1")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:3.0.0")
+    implementation("com.github.retrooper:packetevents-spigot:2.4.0")
 }
 
 the<JavaPluginExtension>().toolchain {
@@ -66,10 +73,23 @@ tasks.compileJava.configure {
     options.release.set(8)
 }
 
-version = "2.9.12-SNAPSHOT-01"
+version = "2.10.0-SNAPSHOT-01"
 
 tasks.named<Copy>("processResources") {
     filesMatching("plugin.yml") {
         expand("version" to project.version)
     }
+}
+
+// ShadowJar configuration
+tasks.shadowJar {
+    // Optionally, relocate the PacketEvents package to avoid conflicts
+    relocate("com.github.retrooper.packetevents", "me.dniym.packetevents.api")
+    relocate("io.github.retrooper.packetevents", "me.dniym.packetevents.impl")
+    minimize()
+}
+
+// Build the ShadowJar
+tasks.build {
+    dependsOn(tasks.shadowJar)
 }
