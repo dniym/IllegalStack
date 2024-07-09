@@ -18,10 +18,13 @@ import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.UUID;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class pLisbListener {
 
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + pLisbListener.class.getSimpleName());

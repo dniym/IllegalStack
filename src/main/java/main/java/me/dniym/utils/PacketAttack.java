@@ -8,11 +8,14 @@ import com.comphenix.protocol.events.PacketEvent;
 import main.java.me.dniym.listeners.fListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class PacketAttack {
 
     private static final Logger LOGGER = LogManager.getLogger("IllegalStack/" + PacketAttack.class.getSimpleName());

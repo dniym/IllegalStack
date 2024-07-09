@@ -11,6 +11,7 @@ import net.md_5.bungee.api.chat.hover.content.Text;
 
 import org.bukkit.entity.LivingEntity;
 
+@SuppressWarnings("deprecation")
 public class SpigotMethods {
 
     public static BaseComponent makeParentText(Protections protections, String status, boolean children, int catId) {

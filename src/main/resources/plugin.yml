@@ -5,7 +5,23 @@ api-version: 1.13
 folia-supported: true
 description: Closes some dupe bugs still present in vanilla  minecraft.
 authors: [ dNiym, Loving11ish ]
-softdepend: [Magic, Factions, NBTAPI, ProtocolLib, Slimefun, CraftingStore, DynamicShop, ClueScrolls, mcMMO, JetsMinions, SmartInvs, FactionsX]
+softdepend:
+    - MagicFactions
+    - NBTAPI
+    - ProtocolLib
+    - ProtocolSupport
+    - ViaVersion
+    - ViaBackwards
+    - ViaRewind
+    - Geyser-Spigot
+    - Slimefun
+    - CraftingStore
+    - DynamicShop
+    - ClueScrolls
+    - mcMMO
+    - JetsMinions
+    - SmartInvs
+    - FactionsX
 loadbefore: [MythicDrops]
 website: https://www.spigotmc.org/resources/44411/
 commands:

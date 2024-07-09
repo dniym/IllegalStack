@@ -1676,8 +1676,7 @@ public enum Protections {
     public boolean isDisabledInWorld(World wld) {
     	return Protections.DisableInWorlds.isWhitelisted(wld.getName());
     }
-    
-    @Deprecated
+
     public boolean isEnabled() {
         if (this.getVersion().isEmpty()) //child node
             return this.enabled;
