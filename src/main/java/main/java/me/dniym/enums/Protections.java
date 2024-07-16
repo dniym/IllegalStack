@@ -750,7 +750,7 @@ public enum Protections {
             35,
             true,
             "Prevent Invalid Potions",
-            "> 1.11",
+            "1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19",
             "Exploits.Other.PreventInvalidPotions",
             "Prevents non-opped players from possessing invalid / uncraftable potions.  Typically these are used for malicious purposes on creative servers such as potions of instant death",
             "",
