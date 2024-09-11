@@ -1,5 +1,7 @@
 package main.java.me.dniym.fishing;
 
+import main.java.me.dniym.IllegalStack;
+import main.java.me.dniym.utils.Scheduler;
 import org.bukkit.Location;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class FishAttempt {
 
@@ -33,12 +36,17 @@ public class FishAttempt {
     }
 
     public static FishHook findHook(Player player) {
+        final AtomicReference<FishHook> fishHook = new AtomicReference<>();
         for (FishHook fh : player.getWorld().getEntitiesByClass(FishHook.class)) {
-            if (fh.getShooter() instanceof Player) {
-                if (fh.getShooter() == player) {
-                    return fh;
+            // Get the fishhook entity's scheduler to run a task to check if the fishhook's shooter is the player
+            Scheduler.runTask(IllegalStack.getPlugin(), () -> {
+                if (fh.getShooter() instanceof Player) {
+                    if (fh.getShooter() == player) {
+                        fishHook.set(fh);
+                    }
                 }
-            }
+            }, fh);
+            return fishHook.get();
         }
         return null;
     }
