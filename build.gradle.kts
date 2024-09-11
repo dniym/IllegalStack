@@ -66,7 +66,7 @@ tasks.compileJava.configure {
     options.release.set(8)
 }
 
-version = "2.9.12a"
+version = "2.9.13a-SNAPSHOT-01"
 
 tasks.named<Copy>("processResources") {
     filesMatching("plugin.yml") {
