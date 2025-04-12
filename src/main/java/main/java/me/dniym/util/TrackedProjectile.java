@@ -53,8 +53,10 @@ public class TrackedProjectile {
 			if(System.currentTimeMillis() > tp.despawnTimestamp) {
 				//projectile has expired remove it.
 				if(tp.entity != null) {
-					removed.add(tp);
-					tp.entity.remove();
+                    tp.entity.getScheduler().run(IllegalStack.getPlugin(), task -> {
+                        removed.add(tp);
+                        tp.entity.remove();
+                    }, null);
 					
 				}
 			}
