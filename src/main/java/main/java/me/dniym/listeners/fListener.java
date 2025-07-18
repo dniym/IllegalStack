@@ -989,7 +989,7 @@ public class fListener implements Listener {
                 Chunk c2;
                 if (hm != null) {
                     c1 = hm.getLocation().getChunk();
-                } else {
+                } else if (h != null) {
                     c1 = h.getChunk();
                 }
 
