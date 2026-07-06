@@ -697,7 +697,7 @@ public enum Protections {
             8,
             true,
             "Destroy Rail / Carpet Dupers",
-            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19/1.20/1.21",
+            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19/1.20/1.21/26.1",
             "Exploits.Other.PreventRailDupe",
             "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.",
             "",
@@ -969,7 +969,7 @@ public enum Protections {
             19,
             true,
             "Prevent Villager Trade Cheesing",
-            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21",
+            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21 / 26.1",
             "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing",
             "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.",
             "",
@@ -1011,13 +1011,13 @@ public enum Protections {
             46,
             true,
             "Prevent Tripwire Dupe",
-            "1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21",
+            "1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21 / 26.1",
             "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe",
             "Prevents players from using trapdoors to dupe tripwire hooks.",
             "",
             0
     ),
-    
+
     PreventStringDupe(
     		46,
     		true,
@@ -1058,7 +1058,7 @@ public enum Protections {
     		"Options for resetting spawners of a specific type",
     		"",
     		2
-    		
+
     ),
     ResetSpawnersOfType(
             33,
@@ -1082,7 +1082,7 @@ public enum Protections {
     		2,
     		false
     		),
-   
+
     RemoveItemsMatchingName(
             23,
             false,
@@ -1605,21 +1605,21 @@ public enum Protections {
     }
 
     public boolean isEnabled(Object obj) {
-    	
+
     	World wld = getWorldFromObj(obj);
-    	
+
     	if(!isEnabled())
     		return false;
-    	
+
     	if(wld != null && isDisabledInWorld(wld))
     			return false;
-    	
-    	return true; 
-    		
+
+    	return true;
+
     }
-    
+
     World getWorldFromObj(Object obj) {
-    	
+
     	if(obj instanceof World)
     		return ((World)obj);
     	if(obj instanceof Player)
@@ -1628,9 +1628,9 @@ public enum Protections {
         	/*
         	 * Due to a paper bug https://github.com/PaperMC/Paper/issues/9437
         	 * affected as of build #61 of 1.20.1
-        	 * The inventory's getLocation() method returns null if a hopper pulls bonemeal from a composter's inventory, also apparently affects juke boxes. 
+        	 * The inventory's getLocation() method returns null if a hopper pulls bonemeal from a composter's inventory, also apparently affects juke boxes.
         	 * Issue only appears to affect paper, not regular spigot.
-        	 * 
+        	 *
         	 * The following is some validation that should get the world of the object rather than throwing an error and bothering the user, perhaps
         	 * paper will implement getLocation() on juke boxes and composters via the regular method just like every other container.
         	 */
@@ -1655,33 +1655,33 @@ public enum Protections {
        						return b.getWorld();
         				}
         			}
-            		
+
         		}
     			return null;
-        		
-        	} 
+
+        	}
             return ((Inventory) obj).getLocation().getWorld();
         }
-        if (obj instanceof Location) 
+        if (obj instanceof Location)
             return ((Location) obj).getWorld();
         if (obj instanceof Container)
         	return ((Container)obj).getWorld();
 
-        //if(obj != null) 
+        //if(obj != null)
         	//IllegalStack.getPlugin().getLogger().log(Level.WARNING, "Unable to obtain world information from object type: " + obj.toString() + " please inform dNiym of this issue via github or the offical IllegalStack discord!");
-        
+
         return null;
-    	
+
     }
     public boolean isDisabledInWorld(World wld) {
     	return Protections.DisableInWorlds.isWhitelisted(wld.getName());
     }
-    
+
     @Deprecated
     public boolean isEnabled() {
         if (this.getVersion().isEmpty()) //child node
             return this.enabled;
-        
+
         return this.relevant && this.enabled;
     }
 
@@ -1740,34 +1740,38 @@ public enum Protections {
             return false; //must be a child node
         }
 
+        if (this.getVersion().contains("< 26.1")) {
+            return !serverVersion.contains("26.1");
+        }
+
         if (this.getVersion().contains("< 1.21")) {
-            return !serverVersion.contains("1.21");
+            return !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
 
         if (this.getVersion().contains("< 1.20")) {
-            return !serverVersion.contains("1.20");
+            return !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
 
         if (this.getVersion().contains("< 1.19")) {
-            return !serverVersion.contains("1.19") 	&& !serverVersion.contains("1.20") && !serverVersion.contains("1.21");
+            return !serverVersion.contains("1.19") 	&& !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
 
         if (this.getVersion().contains("< 1.18")) {
             return !serverVersion.contains("1.18") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21");
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
 
         if (this.getVersion().contains("< 1.17")) {
             return !serverVersion.contains("1.17") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21");
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
         if (this.getVersion().contains("< 1.16")) {
             return !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21");
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
         if (this.getVersion().contains("< 1.15")) {
             return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21");
+            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
         }
 
         if (this.getVersion().equalsIgnoreCase("1.14.4") && !serverVersion.contains("1.14.R4")) {
@@ -1782,10 +1786,14 @@ public enum Protections {
             return true;
         }
 
+        if (this.getVersion().equalsIgnoreCase("26.1") && serverVersion.contains("26.1")) {
+            return true;
+        }
+
         if (this.getVersion().equalsIgnoreCase("1.21") && serverVersion.contains("1.21")) {
             return true;
         }
-        
+
         if (this.getVersion().equalsIgnoreCase("1.20") && serverVersion.contains("1.20")) {
             return true;
         }
@@ -1845,17 +1853,21 @@ public enum Protections {
         if (this.getVersion().contains("1.21") && serverVersion.contains("1.21")) {
             return true;
         }
-       
+
+        if (this.getVersion().contains("26.1") && serverVersion.contains("26.1")) {
+            return true;
+        }
+
 
         if (this.getVersion().contains("> 1.12")) {
-            if (serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") 
+            if (serverVersion.contains("26.1") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16")
             		|| serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
                 return true;
             }
         }
 
         if (this.getVersion().contains("> 1.9")) {
-            if (serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("26.1") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11") ||
                     this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9")) {
@@ -1864,7 +1876,7 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("> 1.11")) {
-            if (serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("26.1") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11")) {
                 return true;
@@ -1894,6 +1906,12 @@ public enum Protections {
     public boolean isVersionSpecific(String serverVersion) {
         if (this.version.isEmpty()) {
             return false;
+        }
+
+        if (this.getVersion().equals("26.1")) {
+            if (serverVersion.contains("v26_1")) {
+                return true;
+            }
         }
 
         if (this.getVersion().equals("1.21")) {
@@ -1947,6 +1965,10 @@ public enum Protections {
             return serverVersion.contains("v1_14_R3");
         }
 
+        if (serverVersion.contains("v26_1") && this.getVersion().contains("26.1")) {
+            return true;
+        }
+
         if (serverVersion.contains("v1_21") && this.getVersion().contains("1.21")) {
             return true;
         }
@@ -1954,7 +1976,7 @@ public enum Protections {
         if (serverVersion.contains("v1_20") && this.getVersion().contains("1.20")) {
             return true;
         }
-        
+
         if (serverVersion.contains("v1_19") && this.getVersion().contains("1.19")) {
             return true;
         }
@@ -2111,9 +2133,6 @@ public enum Protections {
     }
 
     public boolean validate(String value, CommandSender sender) {
-
-    	
-    		
         if (this == Protections.AlsoPreventHeadInside) {
             return addTxtSet(value, sender);
         }
@@ -2331,7 +2350,7 @@ public enum Protections {
     public boolean isWhitelisted(String name) {
         return isWhitelisted(name, null);
     }
-    
+
     public boolean isWhitelisted(EntityType et) {
     	if (this == Protections.ResetSpawnersOfTypeOnSpawn && et != null)
     	{
@@ -2341,7 +2360,7 @@ public enum Protections {
 
     	}
     	return false;
-    	
+
     }
     public boolean isWhitelisted(String name, Player player) {
 
@@ -2570,11 +2589,11 @@ public enum Protections {
             boolean minion = MinionAPI.isMinion(entity);
             if (minion) {
                 return true;
-            } 
+            }
         } */
-        if(entity instanceof LivingEntity && SpigotMethods.isNPC((LivingEntity)entity))
+        if (entity instanceof LivingEntity && SpigotMethods.isNPC((LivingEntity)entity))
         	return true;
-        
+
         return false;
     }
 

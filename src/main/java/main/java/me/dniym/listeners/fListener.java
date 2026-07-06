@@ -168,7 +168,7 @@ public class fListener implements Listener {
     private Boolean is112 = false;
     private Boolean is110 = false;
     private HashMap<UUID, Location> teleGlitch = new HashMap<>();
-    
+
     public fListener(IllegalStack plugin) {
         this.plugin = plugin;
         fListener.setInstance(this);
@@ -297,7 +297,7 @@ public class fListener implements Listener {
             }
         }
 
-        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18") && !ver.contains("V1_19") && !ver.contains("v1_20") && !ver.contains("V1_21")) {
+        if (!ver.contains("v1_14") && !ver.contains("v1_15") && !ver.contains("v1_16") && !ver.contains("v1_17") && !ver.contains("v1_18") && !ver.contains("v1_19") && !ver.contains("v1_20") && !ver.contains("v1_21") && !ver.contains("v26_1")) {
             if (ver.contains("v1_13")) {
                 LOGGER.info("MC Version 1.13+ detected!");
 
@@ -443,7 +443,7 @@ public class fListener implements Listener {
         boolean cancel = false;
 
         if (Protections.RemoveItemTypes.isEnabled() && RemoveItemTypesCheck.shouldRemove(e.getBlockPlaced().getType())) {
-        	
+
             Scheduler.runTaskLater(this.plugin, () -> {
                 fListener.getLog().append(Msg.ItemTypeRemovedPlayerOnPlace.getValue(
                         e.getPlayer(),
@@ -569,7 +569,7 @@ public class fListener implements Listener {
         if (Protections.PreventTripwireDupe.isEnabled(e.getBlock().getWorld())) {
             if (e.getBlock().getType() == Material.TRIPWIRE_HOOK) {
                 for (BlockFace face : BlockFace.values()) {
-                	
+
                     if ((Tag.TRAPDOORS.getValues().contains(e.getBlock().getRelative(face).getType()) || Tag.DOORS.getValues().contains(e.getBlock().getRelative(face).getType()))
                             && IllegalStackAction.isCompleted(
                             Protections.PreventTripwireDupe,
@@ -1285,7 +1285,7 @@ public class fListener implements Listener {
                         }
                     }
 
-                    
+
                     if (Protections.RemoveBooksNotMatchingCharset.isEnabled() && is != null && is.hasItemMeta() && is.getItemMeta() instanceof BookMeta) {
 
                         BookMeta bm = (BookMeta) is.getItemMeta();
@@ -1814,14 +1814,14 @@ public class fListener implements Listener {
     }
 
 
-    
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void creatureSpawnEvent(CreatureSpawnEvent e) {
 
         if (Protections.DisableInWorlds.isWhitelisted(e.getLocation().getWorld().getName())) {
             return;
         }
-    	
+
         if (Protections.PreventZombieItemPickup.isEnabled()) {
             if (e.getEntity() instanceof Zombie) {
                 Zombie z = (Zombie) e.getEntity();
@@ -3283,7 +3283,7 @@ public class fListener implements Listener {
         if (Protections.DisableInWorlds.isWhitelisted(e.getBlock().getWorld().getName()) || !Protections.PreventStringDupe.isEnabled()) {
             return;
         }
-        
+
         if(e.getToBlock().getType() == Material.TRIPWIRE)
         {
         	e.setCancelled(true);
@@ -3622,17 +3622,17 @@ public class fListener implements Listener {
 
     @EventHandler
     public void NetherCeilingMovementCheck(PlayerMoveEvent e) {
-    	
-        if (e.getFrom().getBlockX() != e.getTo().getBlockX() || 
-        		e.getFrom().getBlockY() != e.getTo().getBlockY() || 
+
+        if (e.getFrom().getBlockX() != e.getTo().getBlockX() ||
+        		e.getFrom().getBlockY() != e.getTo().getBlockY() ||
         		e.getFrom().getBlockZ() != e.getTo().getBlockZ()) {
-        	
-        
-                if(e.getPlayer().isOp()) 
+
+
+                if(e.getPlayer().isOp())
                 	return;
-               
-                
-               
+
+
+
             if (Protections.KillPlayersBelowNether.isEnabled() &&
                     (e.getPlayer().isFlying() || (IllegalStack.hasElytra() && e.getPlayer().isGliding()))) {
 
@@ -3666,13 +3666,13 @@ public class fListener implements Listener {
                     }
                 }
             }
-        
+
 
         if (!Protections.DamagePlayersAboveNether.isEnabled() && Protections.BlockPlayersAboveNether.isEnabled()) {
             if (Protections.ExcludeNetherWorldFromHeightCheck.getTxtSet().contains(e.getTo().getWorld().getName())) {
                 return;
             }
-            
+
             Location l = e.getTo();
             if (l.getY() >= Protections.NetherYLevel.getIntValue()) {
                 if (e.getFrom().getBlockY() >= Protections.NetherYLevel.getIntValue() && (l
@@ -3682,10 +3682,10 @@ public class fListener implements Listener {
                         .contains("nether") || l
                         .getWorld()
                         .getEnvironment() == Environment.NETHER)) { //already on top of the nether..
-                	
+
                 	if(e.getPlayer().hasPermission("illegalstack.notify"))
                 		return;
-                	
+
                     e.setCancelled(true);
                     if (Protections.EnsureSafeTeleportLocationIfAboveCeiling.isEnabled()) {
                         int x = e.getFrom().getBlockX();
@@ -3778,7 +3778,7 @@ public class fListener implements Listener {
             }
         }
 
-        
+
         if (Protections.ResetSpawnersOfType.getTxtSet().isEmpty()) {
             return;
         }
@@ -3854,7 +3854,7 @@ public class fListener implements Listener {
     public void onEntityTarget(EntityTargetEvent e) {
     	if(Protections.PreventVexTrapping.isEnabled(e.getEntity().getLocation())) {
     		if(e.getEntity() instanceof Vex) {
-    			
+
     			Vex v = ((Vex)e.getEntity());
     			if(v.isInsideVehicle()) {
     				v.getVehicle().removePassenger(e.getEntity());

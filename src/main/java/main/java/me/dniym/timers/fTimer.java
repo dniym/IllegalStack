@@ -6,7 +6,6 @@ import main.java.me.dniym.checks.BadAttributeCheck;
 import main.java.me.dniym.checks.BadPotionCheck;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
-import main.java.me.dniym.enums.ServerVersion;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.listeners.mcMMOListener;
 import main.java.me.dniym.util.TrackedProjectile;
@@ -32,12 +31,7 @@ import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -644,10 +638,10 @@ public class fTimer implements Runnable {
                                 //NBTStuff.checkForBadCustomData(is, p, false);
                                 BadAttributeCheck.checkForBadCustomData(is, p);
                             }
-                            
+
                             if (Protections.PreventInvalidPotions.isEnabled())
                             	BadPotionCheck.checkPotion(is,p);
-                            
+
                         }
                         if (Protections.FixIllegalEnchantmentLevels.isEnabled() && !mcMMOListener.ismcMMOActive(p)) {
                             if (!Protections.OnlyFunctionInWorlds.getTxtSet().isEmpty()) //world list isn't empty
