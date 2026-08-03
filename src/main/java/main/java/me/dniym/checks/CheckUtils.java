@@ -43,8 +43,9 @@ public class CheckUtils {
                         if (im.getBlockState() instanceof ShulkerBox) {
                             BlockState shulk = im.getBlockState();
                             ShulkerBox shulker = (ShulkerBox) shulk;
-                            Inventory inv = Bukkit.createInventory(null, shulker.getInventory().getSize(), "IScontainerCheck");
-                            for (ItemStack itemStack1 : shulker.getInventory().getContents()) {
+                            // Avoid Bukkit.createInventory allocation unless we actually need to modify contents
+                            ItemStack[] contents = shulker.getInventory().getContents();
+                            for (ItemStack itemStack1 : contents) {
                                 if (itemStack1 == null) {
                                     continue;
                                 }
@@ -73,21 +74,20 @@ public class CheckUtils {
                                 }
 
                                 if (remove) {
-                                    inv.removeItem(itemStack1);
                                     added = true;
+                                    break; // found at least one bad item, no need to scan further
                                 }
                             }
                             if (added) {
+                                // Only now build the filtered inventory to apply back
+                                Inventory inv = Bukkit.createInventory(null, shulker.getInventory().getSize(), "IScontainerCheck");
+                                inv.setContents(contents.clone());
                                 Scheduler.runTaskLater(IllegalStack.getPlugin(), () -> {
                                     shulker.getInventory().setContents(inv.getContents());
                                     im.setBlockState(shulker);
                                     itemStack.setItemMeta(im);
                                 }, 4, shulker.getLocation());
                                 return true;
-                                //shulk.update(true);
-                                //shulk.setBlockData(shulker.getBlockData());
-                                //im.setBlockState(shulk);
-
                             }
                         }
 
