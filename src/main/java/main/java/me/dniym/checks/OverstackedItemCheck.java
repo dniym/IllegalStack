@@ -48,7 +48,12 @@ public class OverstackedItemCheck {
             return false;
         }
 
-        if (is.getAmount() > is.getMaxStackSize()) {
+        // Сравниваем с ванильным максимумом материала, а НЕ с is.getMaxStackSize():
+        // с 1.20.5 предмет может переопределить свой макс. стак через data-компонент
+        // (тотем с max_stack_size:99), тогда is.getMaxStackSize()==99 и 99>99==false —
+        // проверка никогда не срабатывает. is.getType().getMaxStackSize() даёт ванильный
+        // максимум (у тотема 1), как уже делает IrritatingLegacyChecks.
+        if (is.getAmount() > is.getType().getMaxStackSize()) {
 
             if (!Protections.IllegalStackMode.isEnabled()) { //in blacklist mode and on the blacklist
                 if (Protections.FixOverstackedItemInstead.isEnabled()) {
