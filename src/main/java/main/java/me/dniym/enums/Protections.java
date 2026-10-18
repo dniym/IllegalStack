@@ -697,7 +697,7 @@ public enum Protections {
             8,
             true,
             "Destroy Rail / Carpet Dupers",
-            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19/1.20/1.21/26.1",
+            "1.12/1.13/1.14/1.15/1.16/1.17/1.18/1.19/1.20/1.21/26.1/26.2/26.3",
             "Exploits.Other.PreventRailDupe",
             "Prevent redstone machines designed to dupe carpets and rails, these items are usually duped to provide infinite fuel for furnaces or to sell for in game money in shops.",
             "",
@@ -969,7 +969,7 @@ public enum Protections {
             19,
             true,
             "Prevent Villager Trade Cheesing",
-            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21 / 26.1",
+            "1.14 / 1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21 / 26.1 / 26.2 / 26.3",
             "Exploits.1_14_Exploits.Traders.BlockVillagerTradeCheesing",
             "Prevents players from placing / breaking a villagers work station over and over which forces them to get new trades, typically people abuse this to make sure they get specific enchantments or items from a villager rather than it being a random mechanic.",
             "",
@@ -1011,7 +1011,7 @@ public enum Protections {
             46,
             true,
             "Prevent Tripwire Dupe",
-            "1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21 / 26.1",
+            "1.15 / 1.16 / 1.17 / 1.18 / 1.19 / 1.20 / 1.21 / 26.1 / 26.2 / 26.3",
             "Exploits.1_15_Exploits.Dupes.PreventTripwireDupe",
             "Prevents players from using trapdoors to dupe tripwire hooks.",
             "",
@@ -1741,37 +1741,37 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("< 26.1")) {
-            return !serverVersion.contains("26.1");
+            return !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
 
         if (this.getVersion().contains("< 1.21")) {
-            return !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+            return !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
 
         if (this.getVersion().contains("< 1.20")) {
-            return !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+            return !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
 
         if (this.getVersion().contains("< 1.19")) {
-            return !serverVersion.contains("1.19") 	&& !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+            return !serverVersion.contains("1.19") 	&& !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
 
         if (this.getVersion().contains("< 1.18")) {
             return !serverVersion.contains("1.18") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+                && !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
 
         if (this.getVersion().contains("< 1.17")) {
             return !serverVersion.contains("1.17") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+                && !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
         if (this.getVersion().contains("< 1.16")) {
             return !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+                && !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
         if (this.getVersion().contains("< 1.15")) {
             return !serverVersion.contains("1.15") && !serverVersion.contains("1.16") && !serverVersion.contains("1.17") && !serverVersion.contains("1.18")
-            		&& !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1");
+                && !serverVersion.contains("1.19") && !serverVersion.contains("1.20") && !serverVersion.contains("1.21") && !serverVersion.contains("26.1") && !serverVersion.contains("26.2") && !serverVersion.contains("26.3");
         }
 
         if (this.getVersion().equalsIgnoreCase("1.14.4") && !serverVersion.contains("1.14.R4")) {
@@ -1787,6 +1787,14 @@ public enum Protections {
         }
 
         if (this.getVersion().equalsIgnoreCase("26.1") && serverVersion.contains("26.1")) {
+            return true;
+        }
+
+        if (this.getVersion().equalsIgnoreCase("26.2") && serverVersion.contains("26.2")) {
+            return true;
+        }
+
+        if (this.getVersion().equalsIgnoreCase("26.3") && serverVersion.contains("26.3")) {
             return true;
         }
 
@@ -1858,16 +1866,24 @@ public enum Protections {
             return true;
         }
 
+        if (this.getVersion().contains("26.2") && serverVersion.contains("26.2")) {
+            return true;
+        }
+
+        if (this.getVersion().contains("26.3") && serverVersion.contains("26.3")) {
+            return true;
+        }
+
 
         if (this.getVersion().contains("> 1.12")) {
-            if (serverVersion.contains("26.1") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16")
+            if (serverVersion.contains("26.1") || serverVersion.contains("26.2") || serverVersion.contains("26.3") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16")
             		|| serverVersion.contains("1.15") || serverVersion.contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12")) {
                 return true;
             }
         }
 
         if (this.getVersion().contains("> 1.9")) {
-            if (serverVersion.contains("26.1") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("26.1") || serverVersion.contains("26.2") || serverVersion.contains("26.3") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11") ||
                     this.serverVersion.contains("1.10") || this.serverVersion.contains("1.9")) {
@@ -1876,7 +1892,7 @@ public enum Protections {
         }
 
         if (this.getVersion().contains("> 1.11")) {
-            if (serverVersion.contains("26.1") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
+            if (serverVersion.contains("26.1") || serverVersion.contains("26.2") || serverVersion.contains("26.3") || serverVersion.contains("1.21") || serverVersion.contains("1.20") || serverVersion.contains("1.19") || serverVersion.contains("1.18") || serverVersion.contains("1.17") || serverVersion.contains("1.16") || serverVersion.contains("1.15") || serverVersion
                     .contains("1.14") || serverVersion.contains("1.13") || serverVersion.contains("1.12") || serverVersion.contains(
                     "1.11")) {
                 return true;
@@ -1910,6 +1926,18 @@ public enum Protections {
 
         if (this.getVersion().equals("26.1")) {
             if (serverVersion.contains("v26_1")) {
+                return true;
+            }
+        }
+
+        if (this.getVersion().equals("26.2")) {
+            if (serverVersion.contains("v26_2")) {
+                return true;
+            }
+        }
+
+        if (this.getVersion().equals("26.3")) {
+            if (serverVersion.contains("v26_3")) {
                 return true;
             }
         }
@@ -1966,6 +1994,14 @@ public enum Protections {
         }
 
         if (serverVersion.contains("v26_1") && this.getVersion().contains("26.1")) {
+            return true;
+        }
+
+        if (serverVersion.contains("v26_2") && this.getVersion().contains("26.2")) {
+            return true;
+        }
+
+        if (serverVersion.contains("v26_3") && this.getVersion().contains("26.3")) {
             return true;
         }
 
