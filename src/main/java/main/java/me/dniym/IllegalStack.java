@@ -3,7 +3,6 @@ package main.java.me.dniym;
 import main.java.me.dniym.commands.IllegalStackCommand;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
-import main.java.me.dniym.enums.ServerVersion;
 import main.java.me.dniym.listeners.Listener113;
 import main.java.me.dniym.listeners.Listener114;
 import main.java.me.dniym.listeners.Listener116;
@@ -77,8 +76,6 @@ public class IllegalStack extends JavaPlugin {
     private Scheduler.ScheduledTask SignTimer = null;
     private Scheduler.ScheduledTask syncTimer = null;
 //	private static NMSEntityVillager nmsTrader= null;
-
-    private ServerVersion serverVersion;
 
     public static IllegalStack getPlugin() {
         return plugin;
@@ -712,7 +709,7 @@ public class IllegalStack extends JavaPlugin {
             }
             if (p.isRelevantToVersion(getVersion())) {
                 if (config.getString(p.getConfigPath()) == null) {
-                    if (p.getConfigValue() instanceof Boolean) {
+                    if (p.getDefaultValue() instanceof Boolean) {
                         p.setEnabled((Boolean) p.getDefaultValue());
                     }
                     added.put(p.getConfigPath(), p.getDefaultValue());
@@ -720,7 +717,7 @@ public class IllegalStack extends JavaPlugin {
                 for (Protections child : p.getChildren()) {
                     if (config.getString(child.getConfigPath()) == null) {
 
-                        if (child.getConfigValue() instanceof Boolean) {
+                        if (child.getDefaultValue() instanceof Boolean) {
                             child.setEnabled((Boolean) child.getDefaultValue());
                         }
                         added.put(child.getConfigPath(), child.getDefaultValue());
@@ -1122,7 +1119,6 @@ public class IllegalStack extends JavaPlugin {
     }
 
     private void setVersion() {
-
         String version;
 
         try {
@@ -1135,19 +1131,24 @@ public class IllegalStack extends JavaPlugin {
             version = getString(version);
             IllegalStack.version = version;
         } else {
-            String packageName = Bukkit.getServer().getClass().getPackage().getName();
-            String bukkitVersion = Bukkit.getServer().getBukkitVersion();
-            if (bukkitVersion.contains("1.20.5")) {
-                serverVersion = ServerVersion.v1_20_R5;
-            } else if (bukkitVersion.contains("1.20.6")) {
-                serverVersion = ServerVersion.v1_20_R5;
-            } else if (bukkitVersion.contains("1.21")) {
-                serverVersion = ServerVersion.v1_21_R1;
+            String bukkitVersion = Bukkit.getServer().getBukkitVersion().replace("-R0.1-SNAPSHOT", "");
+            if (bukkitVersion.startsWith("1.")) {
+                String serverVersion;
+                if (bukkitVersion.contains("1.20.5") || bukkitVersion.contains("1.20.6")) {
+                    serverVersion = "v1_20_R5";
+                } else if (bukkitVersion.contains("1.21")) {
+                    serverVersion = "v1_21_R1";
+                } else {
+                    String packageName = Bukkit.getServer().getClass().getPackage().getName();
+                    serverVersion = packageName.replace("org.bukkit.craftbukkit.", "");
+                }
+                IllegalStack.version = serverVersion;
             } else {
-                serverVersion = ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
+                String[] parts = bukkitVersion.split("\\.");
+                String major = parts[0];
+                String minor = parts.length > 1 ? parts[1] : "0";
+                IllegalStack.version = "v" + major + "_" + minor;
             }
-
-            IllegalStack.version = serverVersion.getServerVersionName();
         }
     }
 
@@ -1159,22 +1160,26 @@ public class IllegalStack extends JavaPlugin {
         IllegalStack.lbBlock = lbBlock;
     }
 
-    public ServerVersion getServerVersion() {
-        return serverVersion;
-    }
-
     public static int getMajorServerVersion() {
-        int version;
-
         try {
-            version = Integer.parseInt(getVersion().split("_")[1]);
+            String internalVersion = getVersion();
+            if (internalVersion.startsWith("v1_")) {
+                return Integer.parseInt(internalVersion.split("_")[1]);
+            } else {
+                String[] versionParts = internalVersion.replace("v", "").split("_");
+                int major = versionParts.length > 0 ? Integer.parseInt(versionParts[0]) : 0;
+                int minor = versionParts.length > 1 ? Integer.parseInt(versionParts[1]) : 0;
+                int patch = versionParts.length > 2 ? Integer.parseInt(versionParts[2]) : 0;
+                return major * 10000
+                        + minor * 100
+                        + patch;
+            }
         } catch (NumberFormatException e) {
             LOGGER.error("Unable to process server version!");
             LOGGER.error("Some features may break unexpectedly!");
             LOGGER.error("Report any issues to the developer!");
             return 0;
         }
-        return version;
     }
 
 }

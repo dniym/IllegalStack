@@ -3,7 +3,6 @@ package main.java.me.dniym.timers;
 import main.java.me.dniym.IllegalStack;
 import main.java.me.dniym.enums.Msg;
 import main.java.me.dniym.enums.Protections;
-import main.java.me.dniym.enums.ServerVersion;
 import main.java.me.dniym.listeners.fListener;
 import main.java.me.dniym.utils.Scheduler;
 import net.md_5.bungee.api.ChatColor;
@@ -17,7 +16,6 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
