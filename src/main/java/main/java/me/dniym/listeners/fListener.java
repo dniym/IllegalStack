@@ -768,94 +768,82 @@ public class fListener implements Listener {
             return;
         }
 
+        // Cache getState() — one call per event instead of up to 5+ (each call = full NBT serialize/deserialize)
+        final BlockState blockState = e.getBlock().getState();
+        final Material itemType = e.getItem().getType();
+
         if (Protections.PreventShulkerCrash.isEnabled()) {
-            if ((e.getBlock().getLocation().getY() >= 255 || e.getBlock().getLocation().getY() <= 0) && e
-                    .getItem()
-                    .getType()
-                    .name()
-                    .endsWith("SHULKER_BOX")) {
+            if ((e.getBlock().getLocation().getY() >= 255 || e.getBlock().getLocation().getY() <= 0)
+                    && itemType.name().endsWith("SHULKER_BOX")) {
                 e.setCancelled(true);
             }
         }
 
-        if (Protections.PreventShulkerCrash2.isEnabled() && e.getItem().getType() == Material.FLINT_AND_STEEL) {
-            if (e.getBlock().getState().getBlockData() instanceof Directional) {
-                Directional d = (Directional) e.getBlock().getState().getBlockData();
+        if (Protections.PreventShulkerCrash2.isEnabled() && itemType == Material.FLINT_AND_STEEL) {
+            if (blockState.getBlockData() instanceof Directional) {
+                Directional d = (Directional) blockState.getBlockData();
                 if (d.getFacing() == BlockFace.DOWN) {
                     e.setCancelled(true);
                     getLog().append(
-                            Msg.StaffMsgDispenerFlint.getValue(e.getItem().getType().name(), e.getBlock().getLocation()),
+                            Msg.StaffMsgDispenerFlint.getValue(itemType.name(), e.getBlock().getLocation()),
                             Protections.PreventShulkerCrash2
                     );
                     Scheduler.runTaskLater(this.plugin, () -> e.getBlock().breakNaturally(), 4, e.getBlock().getLocation());
                 }
             }
         }
+
         if (!Protections.RemoveItemTypes.getTxtSet().isEmpty()) {
-            if (RemoveItemTypesCheck.shouldRemove(e.getItem(), e.getBlock().getState()) && IllegalStackAction.isCompleted(
+            if (RemoveItemTypesCheck.shouldRemove(e.getItem(), blockState) && IllegalStackAction.isCompleted(
                     Protections.RemoveItemTypes,
                     e.getItem(),
                     e.getBlock()
             )) {
-
                 if (IllegalStack.hasContainers()) {
-
-                    Container c = (Container) e.getBlock().getState();
+                    Container c = (Container) blockState;
                     for (ItemStack itemStack : c.getInventory()) {
-                        if (itemStack != null && itemStack.getType() == e.getItem().getType()) {
-
+                        if (itemStack != null && itemStack.getType() == itemType) {
                             Scheduler.runTaskLater(this.plugin, () -> e.getBlock().breakNaturally(), 4, e.getBlock().getLocation());
-
-
                         }
                     }
                     e.setCancelled(true);
                     return;
-
                 }
-
             }
-
         }
+
         if (Protections.RemoveOverstackedItems.isEnabled() && !is18()) {
-
             if (IllegalStack.hasContainers()) {
-
-                if (CheckUtils.CheckEntireContainer((Container) e.getBlock().getState())) {
-
+                if (CheckUtils.CheckEntireContainer((Container) blockState)) {
                     e.getItem().setType(Material.AIR);
                     e.setCancelled(true);
                     return;
                 }
-
             } else {
                 if (IrritatingLegacyChecks.CheckContainer(e.getBlock())) {
                     fListener.getLog().append2(Msg.ShulkerPlace.getValue(
-                            e.getItem().getType().name(),
+                            itemType.name(),
                             e.getBlock().getLocation()
                     ));
                     e.setCancelled(true);
                 }
-
             }
-
-
         }
+
         if (Protections.PreventEndPortalDestruction.isEnabled()) {
             if (Material.matchMaterial("END_PORTAL") != null) {
-                if (e.getBlock().getState().getBlockData() instanceof Directional) {
-                    Directional d = (Directional) e.getBlock().getState().getBlockData();
+                if (blockState.getBlockData() instanceof Directional) {
+                    Directional d = (Directional) blockState.getBlockData();
                     if (e.getBlock().getRelative(d.getFacing()).getType() == Material.END_PORTAL) {
                         e.setCancelled(true);
                         getLog().append2(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
                     }
                 }
-            } else {  //1.12 and below don't have directional data have to do this another way.
+            } else {  //1.12 and below don't have directional data — check all faces
                 for (BlockFace face : BlockFace.values()) {
                     if (e.getBlock().getRelative(face).getType() == endPortal) {
                         e.setCancelled(true);
                         getLog().append2(Msg.StaffEndPortalProtected.getValue(e.getBlock().getLocation().toString()));
-
                     }
                 }
             }
@@ -869,14 +857,20 @@ public class fListener implements Listener {
             return;
         }
 
+        // Cache the holders — in CraftBukkit each getHolder() call triggers
+        // BlockEntity.getOwner() → getState() → createSnapshot() (a full NBT save/load).
+        // SpigotMethods.getHolder() uses the snapshot-free getHolder(false) when the server
+        // supports it (Spigot/Paper 1.15.1+) and falls back to the plain call otherwise.
+        final org.bukkit.inventory.InventoryHolder sourceHolder = SpigotMethods.getHolder(e.getSource());
+        final org.bukkit.inventory.InventoryHolder destHolder = SpigotMethods.getHolder(e.getDestination());
+
         if (CheckUtils.CheckEntireInventory(e.getSource())) {
             e.setCancelled(true);
             Scheduler.runTaskLater(this.plugin, () -> {
-                if (e.getSource().getHolder() instanceof DoubleChest) {
-                    e.getSource().getHolder().getInventory().remove(e.getItem());
-
-                } else if (e.getSource().getHolder().getInventory() instanceof BlockState) {
-                    BlockState bs = (BlockState) e.getSource().getHolder();
+                if (sourceHolder instanceof DoubleChest) {
+                    sourceHolder.getInventory().remove(e.getItem());
+                } else if (sourceHolder instanceof BlockState) {
+                    BlockState bs = (BlockState) sourceHolder;
                     bs.getBlock().breakNaturally();
                 }
             }, 2, e.getSource().getLocation());
@@ -889,17 +883,18 @@ public class fListener implements Listener {
             HopperMinecart hm2 = null;
             Hopper h = null;
             Hopper h2 = null;
-            if (e.getSource().getHolder() instanceof HopperMinecart) {
-                hm = (HopperMinecart) e.getSource().getHolder();
-            } else if (e.getSource().getHolder() instanceof Hopper) {
-                h = (Hopper) e.getSource().getHolder();
+            if (sourceHolder instanceof HopperMinecart) {
+                hm = (HopperMinecart) sourceHolder;
+            } else if (sourceHolder instanceof Hopper) {
+                h = (Hopper) sourceHolder;
             }
 
-            if (e.getDestination().getHolder() instanceof HopperMinecart) {
-                hm2 = (HopperMinecart) e.getDestination().getHolder();
-            } else if (e.getDestination().getHolder() instanceof Hopper) {
-                h2 = (Hopper) e.getDestination().getHolder();
+            if (destHolder instanceof HopperMinecart) {
+                hm2 = (HopperMinecart) destHolder;
+            } else if (destHolder instanceof Hopper) {
+                h2 = (Hopper) destHolder;
             }
+
             World wld = null;
             if (hm != null) {
                 wld = hm.getWorld();
@@ -916,7 +911,7 @@ public class fListener implements Listener {
             }
         }
 
-        if (Protections.BlockLoopedDroppers.isEnabled() && e.getSource().getHolder() instanceof Hopper && e
+        if (Protections.BlockLoopedDroppers.isEnabled() && sourceHolder instanceof Hopper && e
                 .getItem()
                 .getType()
                 .getMaxStackSize() <= 1) {
@@ -927,14 +922,14 @@ public class fListener implements Listener {
                 return;
             }
 
-            Hopper h = (Hopper) e.getSource().getHolder();
+            Hopper h = (Hopper) sourceHolder;
             Dropper drop = null;
             Dispenser disp = null;
             boolean shouldCancel = false;
-            if (e.getDestination().getHolder() instanceof Dropper) {
-                drop = (Dropper) e.getDestination().getHolder();
-            } else if (e.getDestination().getHolder() instanceof Dispenser) {
-                disp = (Dispenser) e.getDestination().getHolder();
+            if (destHolder instanceof Dropper) {
+                drop = (Dropper) destHolder;
+            } else if (destHolder instanceof Dispenser) {
+                disp = (Dispenser) destHolder;
             }
 
             if (drop != null || disp != null) {
@@ -974,15 +969,15 @@ public class fListener implements Listener {
                 HopperMinecart hm2 = null;
                 Hopper h = null;
                 Hopper h2 = null;
-                if (e.getSource().getHolder() instanceof HopperMinecart) {
-                    hm = (HopperMinecart) e.getSource().getHolder();
+                if (sourceHolder instanceof HopperMinecart) {
+                    hm = (HopperMinecart) sourceHolder;
                 } else {
-                    h = (Hopper) e.getSource().getHolder();
+                    h = (Hopper) sourceHolder;
                 }
-                if (e.getDestination().getHolder() instanceof HopperMinecart) {
-                    hm2 = (HopperMinecart) e.getDestination().getHolder();
+                if (destHolder instanceof HopperMinecart) {
+                    hm2 = (HopperMinecart) destHolder;
                 } else {
-                    h2 = (Hopper) e.getDestination().getHolder();
+                    h2 = (Hopper) destHolder;
                 }
 
                 Chunk c1;
@@ -1005,7 +1000,7 @@ public class fListener implements Listener {
         }
 
         if (Protections.RemoveAllRenamedItems.isEnabled() && e.getDestination().getType() == InventoryType.PLAYER) {
-            Player p = (Player) e.getDestination().getHolder();
+            Player p = (Player) destHolder;
             if (!p.hasPermission("IllegalStack.RenameBypass")) {
                 if (e.getItem().hasItemMeta() && e.getItem().getItemMeta().hasDisplayName()) {
                     getLog().append2(Msg.RemovedRenamedItem.getValue(p, e.getItem()));
@@ -1016,10 +1011,10 @@ public class fListener implements Listener {
 
         if (Protections.RemoveItemsMatchingName.isEnabled()) {
             if (e.getDestination().getType() == InventoryType.PLAYER) {
-                if (SpigotMethods.isNPC(((LivingEntity) e.getDestination().getHolder()))) {
+                if (SpigotMethods.isNPC(((LivingEntity) destHolder))) {
                     return;
                 }
-                Player p = (Player) e.getDestination().getHolder();
+                Player p = (Player) destHolder;
 
                 ItemStack is = e.getItem();
                 if (Protections.BlockEnchantingInstead.isEnabled() || Protections.BlockRepairsInstead.isEnabled()) {
