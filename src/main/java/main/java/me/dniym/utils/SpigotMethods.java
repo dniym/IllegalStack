@@ -10,8 +10,45 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 
 public class SpigotMethods {
+
+    /**
+     * Tracks whether {@code Inventory#getHolder(boolean)} is available on this server.
+     * The overload that skips the snapshot was only added around Spigot/Paper 1.15.1,
+     * so on older (or non-supporting) servers we must fall back to the plain getHolder().
+     */
+    private static volatile boolean supportsSnapshotHolderLookup = true;
+
+    /**
+     * Resolves the holder of an inventory while avoiding the expensive snapshot path when possible.
+     * <p>
+     * On CraftBukkit, a plain {@link Inventory#getHolder()} on a block container triggers
+     * BlockEntity.getOwner() -> getState() -> createSnapshot(), which performs a full NBT
+     * save/load. In hot paths such as InventoryMoveItemEvent (hoppers) this dominates CPU.
+     * {@code getHolder(false)} returns the live holder without creating that snapshot.
+     * <p>
+     * The boolean overload does not exist on older servers, so the first time it throws a
+     * {@link LinkageError} we remember that and permanently fall back to the plain method.
+     *
+     * @param inventory the inventory to resolve (may be null)
+     * @return the inventory holder, or null if it has none / the inventory was null
+     */
+    public static InventoryHolder getHolder(Inventory inventory) {
+        if (inventory == null) {
+            return null;
+        }
+        if (supportsSnapshotHolderLookup) {
+            try {
+                return inventory.getHolder(false);
+            } catch (LinkageError ignored) {
+                supportsSnapshotHolderLookup = false;
+            }
+        }
+        return inventory.getHolder();
+    }
 
     public static BaseComponent makeParentText(Protections protections, String status, boolean children, int catId) {
 

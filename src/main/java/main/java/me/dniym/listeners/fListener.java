@@ -857,9 +857,12 @@ public class fListener implements Listener {
             return;
         }
 
-        // Cache getHolder() — in CraftBukkit each call triggers BlockEntity.getOwner() → getState() → NBT serialize
-        final org.bukkit.inventory.InventoryHolder sourceHolder = e.getSource().getHolder();
-        final org.bukkit.inventory.InventoryHolder destHolder = e.getDestination().getHolder();
+        // Cache the holders — in CraftBukkit each getHolder() call triggers
+        // BlockEntity.getOwner() → getState() → createSnapshot() (a full NBT save/load).
+        // SpigotMethods.getHolder() uses the snapshot-free getHolder(false) when the server
+        // supports it (Spigot/Paper 1.15.1+) and falls back to the plain call otherwise.
+        final org.bukkit.inventory.InventoryHolder sourceHolder = SpigotMethods.getHolder(e.getSource());
+        final org.bukkit.inventory.InventoryHolder destHolder = SpigotMethods.getHolder(e.getDestination());
 
         if (CheckUtils.CheckEntireInventory(e.getSource())) {
             e.setCancelled(true);
